@@ -116,6 +116,14 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
               >
                 <Play className="w-4 h-4 fill-current" /> Play
               </Link>
+              {item.trailerUrl && (
+                <Link
+                  href={`/watch/${item.id}?server=trailer`}
+                  className="py-2.5 px-4 rounded-xl bg-surface-200/80 hover:bg-surface-300 text-white border border-white/10 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all backdrop-blur-md hover:scale-105"
+                >
+                  <Film className="w-4 h-4 text-cinemix-primary" /> Watch Trailer
+                </Link>
+              )}
               <button
                 onClick={handleToggleMyList}
                 className="p-3 rounded-xl bg-surface-200/80 hover:bg-surface-300 text-white border border-white/10 backdrop-blur-md transition-colors"

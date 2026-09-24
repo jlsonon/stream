@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Hls from 'hls.js';
 import { 
   Play, 
@@ -99,8 +99,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // 'autoembed': Server 2 (Cloud Mirror)
   // 'hls': Server 3 (Direct HLS Cloud CDN)
   // 'trailer': Server 4 (Official 4K Trailer)
-  const defaultServer = content.tmdbId ? 'vidsrc' : 'hls';
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'hls' | 'trailer'>(defaultServer);
+  const searchParams = useSearchParams();
+  const urlServerParam = searchParams?.get('server');
+  const validServers = ['vidsrc', 'autoembed', 'hls', 'trailer'] as const;
+  const initialServer = validServers.includes(urlServerParam as any)
+    ? (urlServerParam as 'vidsrc' | 'autoembed' | 'hls' | 'trailer')
+    : (content.tmdbId ? 'vidsrc' : 'hls');
+
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'hls' | 'trailer'>(initialServer);
 
   // Compute Embed URLs based on TMDB ID
   const seasonNum = episode?.seasonNumber || 1;

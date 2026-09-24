@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { ProfileProvider } from '@/lib/profile-context';
 import { ToastProvider } from '@/components/ui/Toast';
 import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
 
@@ -70,6 +71,7 @@ export default function RootLayout({
             <ToastProvider>
               <Navbar />
               <main className="flex-1 flex flex-col">{children}</main>
+              <Footer />
               <BottomNav />
               <PwaInstallPrompt />
             </ToastProvider>

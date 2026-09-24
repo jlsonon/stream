@@ -77,7 +77,7 @@ export default function LoginPage() {
               <Film className="w-6 h-6 text-white" />
             </div>
             <span className="text-3xl font-black text-white">
-              Cine<span className="text-cinemix-primary">mix</span>
+              Stream<span className="text-cinemix-primary">ora</span>
             </span>
           </Link>
           <p className="text-xs sm:text-sm text-gray-400 mt-2">

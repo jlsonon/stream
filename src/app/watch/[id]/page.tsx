@@ -23,7 +23,28 @@ function WatchContent() {
     async function load() {
       if (!contentId) return;
       setLoading(true);
-      const item = await catalogService.getContentById(contentId);
+      let item = await catalogService.getContentById(contentId);
+      if (!item) {
+        // Support direct TMDB ID or patterns: movie-550, tv-1396, tmdb-1234, or pure digits
+        const tmdbMatch = contentId.match(/^(?:(movie|tv|series|anime|tmdb)-)?(\d+)$/);
+        if (tmdbMatch) {
+          const typePrefix = tmdbMatch[1];
+          const rawType = (typePrefix === 'series' || typePrefix === 'anime' || typePrefix === 'tv') ? 'tv' : 'movie';
+          const tmdbId = tmdbMatch[2];
+          try {
+            const res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${rawType}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.item) {
+                catalogService.saveContent(data.item);
+                item = data.item;
+              }
+            }
+          } catch (err) {
+            console.error('Failed to auto-fetch TMDB stream:', err);
+          }
+        }
+      }
       setContent(item);
       setLoading(false);
     }
