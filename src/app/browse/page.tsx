@@ -8,7 +8,8 @@ import { useProfile } from '@/lib/profile-context';
 import { ContentCard } from '@/components/catalog/ContentCard';
 import { TitleDetailsModal } from '@/components/catalog/TitleDetailsModal';
 import { COMPREHENSIVE_CATALOG } from '@/lib/catalog-data';
-import { SlidersHorizontal, Sparkles, Film } from 'lucide-react';
+import { SlidersHorizontal, Sparkles, Film, Globe, RefreshCw } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 
 const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'All Content', value: 'all' },
@@ -41,9 +42,44 @@ function BrowseContent() {
   const [allContent, setAllContent] = useState<ContentItem[]>(() => COMPREHENSIVE_CATALOG);
   const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<string>(initialType);
+  const { toast } = useToast();
   const [selectedGenre, setSelectedGenre] = useState<string>(initialGenre);
   const [sortBy, setSortBy] = useState<'match' | 'year' | 'title'>('match');
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleQuickSync = async () => {
+    setIsSyncing(true);
+    toast({
+      type: 'info',
+      message: 'Loading trending titles worldwide from TMDB...',
+      duration: 3000
+    });
+    try {
+      const res = await fetch('/api/tmdb/sync');
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        for (const item of data.items) {
+          await catalogService.saveContent(item);
+        }
+        const updated = await catalogService.getAllContent();
+        setAllContent(updated);
+        toast({
+          type: 'success',
+          message: `Loaded ${data.items.length} new worldwide titles into catalog!`,
+          duration: 4000
+        });
+      }
+    } catch {
+      toast({
+        type: 'error',
+        message: 'Could not sync global titles.',
+        duration: 3000
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     async function load() {
@@ -99,18 +135,34 @@ function BrowseContent() {
           </p>
         </div>
 
-        {/* Sort Dropdown */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="text-xs font-semibold text-gray-400">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-surface-100 border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-2 focus-ring"
+        {/* Actions: Sync & Sort */}
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <button
+            onClick={handleQuickSync}
+            disabled={isSyncing}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 transition-all hover:scale-105 disabled:opacity-50"
+            title="Load 80+ trending titles from global TMDB library"
           >
-            <option value="match">Match Score (High to Low)</option>
-            <option value="year">Release Year (Newest)</option>
-            <option value="title">Title (A-Z)</option>
-          </select>
+            {isSyncing ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Globe className="w-3.5 h-3.5" />
+            )}
+            <span>Sync TMDB Hits</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-400">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-surface-100 border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-2 focus-ring"
+            >
+              <option value="match">Match Score</option>
+              <option value="year">Newest Year</option>
+              <option value="title">Title (A-Z)</option>
+            </select>
+          </div>
         </div>
       </div>
 

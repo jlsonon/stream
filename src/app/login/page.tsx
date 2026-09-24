@@ -12,7 +12,7 @@ type AuthMode = 'login' | 'register';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, loginAsDemo } = useAuth();
   const { toast } = useToast();
 
   const [mode, setMode] = useState<AuthMode>('login');
@@ -57,14 +57,15 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickDemo = (role: 'user' | 'superadmin', plan: 'FREE' | 'PRO') => {
+  const handleQuickDemo = (type: 'pro' | 'free' | 'admin') => {
+    loginAsDemo(type);
     toast({
       type: 'success',
-      title: `${role === 'superadmin' ? 'Superadmin' : 'VIP Pro'} Access Granted`,
-      message: `Signed in as Demo ${role === 'superadmin' ? 'Superadmin' : 'Pro Member'}.`,
+      title: `${type === 'admin' ? 'Superadmin' : type === 'pro' ? 'VIP Pro Member' : 'Free Member'} Active`,
+      message: `Signed in as Demo ${type === 'admin' ? 'Superadmin' : type === 'pro' ? 'Pro Member (4K UHD & Zero Ads)' : 'Free Viewer'}.`,
       duration: 4000
     });
-    router.push(role === 'superadmin' ? '/superadmin' : '/');
+    router.push(type === 'admin' ? '/superadmin' : '/');
   };
 
   return (
@@ -77,7 +78,7 @@ export default function LoginPage() {
               <Film className="w-6 h-6 text-white" />
             </div>
             <span className="text-3xl font-black text-white">
-              Stream<span className="text-cinemix-primary">ora</span>
+              Cine<span className="text-cinemix-primary">mix</span>
             </span>
           </Link>
           <p className="text-xs sm:text-sm text-gray-400 mt-2">
@@ -170,20 +171,30 @@ export default function LoginPage() {
             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block text-center">
               Quick One-Click Test Logins
             </span>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => handleQuickDemo('superadmin', 'PRO')}
-                className="p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-white/[0.04] text-[11px] font-semibold text-amber-400 flex items-center justify-center gap-1.5 transition-colors"
+                onClick={() => handleQuickDemo('pro')}
+                className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-[11px] font-bold text-amber-400 flex flex-col items-center justify-center gap-1 transition-all"
               >
-                <ShieldCheck className="w-3.5 h-3.5" /> Superadmin
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>Demo Pro</span>
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickDemo('user', 'PRO')}
-                className="p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-white/[0.04] text-[11px] font-semibold text-white flex items-center justify-center gap-1.5 transition-colors"
+                onClick={() => handleQuickDemo('free')}
+                className="p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-white/[0.04] text-[11px] font-semibold text-gray-300 flex flex-col items-center justify-center gap-1 transition-colors"
               >
-                <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" /> Pro Member
+                <UserCheck className="w-4 h-4 text-gray-400" />
+                <span>Demo Free</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemo('admin')}
+                className="p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-white/[0.04] text-[11px] font-semibold text-purple-400 flex flex-col items-center justify-center gap-1 transition-colors"
+              >
+                <ShieldCheck className="w-4 h-4 text-purple-400" />
+                <span>Superadmin</span>
               </button>
             </div>
           </div>

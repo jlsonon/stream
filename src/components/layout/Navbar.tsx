@@ -21,7 +21,7 @@ import { useProfile } from '@/lib/profile-context';
 
 export const Navbar: React.FC = () => {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loginAsDemo } = useAuth();
   const { profiles, activeProfile, selectProfile } = useProfile();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -99,16 +99,25 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Upgrade Button or Pro Status */}
             {user?.plan === 'PRO' ? (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md">
                 <Sparkles className="w-3.5 h-3.5" /> PRO VIP
               </span>
             ) : (
-              <Link
-                href="/upgrade"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:opacity-90 shadow-lg shadow-amber-500/20 transition-transform hover:scale-105"
-              >
-                <Sparkles className="w-3.5 h-3.5" /> Upgrade Pro
-              </Link>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => loginAsDemo('pro')}
+                  className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition-transform hover:scale-105"
+                  title="Test Pro features (4K, zero ads, 5 profiles)"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Demo Pro
+                </button>
+                <Link
+                  href="/upgrade"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:opacity-90 shadow-lg shadow-amber-500/20 transition-transform hover:scale-105"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> Upgrade Pro
+                </Link>
+              </div>
             )}
 
             {/* Search Icon */}
@@ -147,9 +156,41 @@ export const Navbar: React.FC = () => {
                 <div className="absolute right-0 mt-3 w-56 bg-surface-100 border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-scale-in text-xs">
                   <div className="px-3 py-2 border-b border-white/[0.06] mb-1">
                     <p className="font-bold text-white text-sm">{activeProfile?.name || 'My Profile'}</p>
-                    <p className="text-gray-400 capitalize">
-                      {activeProfile?.isKids ? 'Kids Profile' : (user?.plan || 'Free Plan')}
-                    </p>
+                    <div className="flex items-center justify-between text-gray-400 capitalize mt-0.5">
+                      <span>{activeProfile?.isKids ? 'Kids Profile' : (user?.plan === 'PRO' ? 'Pro Member' : 'Free Member')}</span>
+                      {user?.plan === 'PRO' && (
+                        <span className="text-[10px] font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">VIP</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 1-Click Demo Pro Activator */}
+                  <div className="px-2 py-1 mb-1 border-b border-white/[0.06]">
+                    {user?.plan === 'PRO' ? (
+                      <button
+                        onClick={() => {
+                          loginAsDemo('free');
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-surface-200/50 hover:bg-surface-200 text-gray-400 hover:text-white transition-colors text-[11px]"
+                      >
+                        <span>Active: Demo Pro</span>
+                        <span className="text-[10px] text-amber-400 underline">Switch to Free</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          loginAsDemo('pro');
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 font-bold transition-colors text-[11px]"
+                      >
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" /> Activate Demo Pro
+                        </span>
+                        <span className="text-[9px] bg-amber-500 text-black px-1 rounded font-black">1-CLICK</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Profile Switcher List */}

@@ -45,7 +45,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   onBack
 }) => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loginAsDemo } = useAuth();
   const { activeProfile } = useProfile();
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -376,12 +376,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             Go Back
           </button>
           {content.isProOnly && (
-            <Link
-              href="/upgrade"
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold flex items-center gap-2 transition-transform hover:scale-105"
-            >
-              <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => loginAsDemo('pro')}
+                className="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-400 font-bold flex items-center gap-2 transition-all hover:scale-105"
+              >
+                <Sparkles className="w-4 h-4" /> Instant Demo Pro
+              </button>
+              <Link
+                href="/upgrade"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold flex items-center gap-2 transition-transform hover:scale-105"
+              >
+                <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -452,6 +460,16 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </div>
 
                 <div className="pt-2 flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      loginAsDemo('pro');
+                      setAdActive(false);
+                      setAdRemaining(0);
+                    }}
+                    className="py-2.5 px-4 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Skip with Demo Pro
+                  </button>
                   <Link
                     href="/upgrade"
                     className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
@@ -520,6 +538,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         {/* Server Switcher Navigation */}
         <div className="flex items-center gap-1 sm:gap-1.5 bg-black/80 backdrop-blur-md rounded-xl p-1 border border-white/15 pointer-events-auto shadow-2xl">
+          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[10px] text-green-400 font-bold border-r border-white/10 mr-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span>ONLINE</span>
+          </div>
           {content.tmdbId && (
             <>
               <button
@@ -802,6 +824,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         </button>
                       );
                     })}
+
+                    {currentUser.plan !== 'PRO' && (
+                      <div className="pt-2 border-t border-white/[0.06]">
+                        <button
+                          onClick={() => {
+                            loginAsDemo('pro');
+                            setShowQualityMenu(false);
+                          }}
+                          className="w-full py-1.5 px-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 font-bold text-[10px] flex items-center justify-center gap-1 transition-all"
+                        >
+                          <Sparkles className="w-3 h-3" /> Unlock 4K with Demo Pro
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

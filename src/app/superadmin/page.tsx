@@ -261,6 +261,52 @@ export default function SuperadminPage() {
     }
   };
 
+  const [isSyncingMega, setIsSyncingMega] = useState(false);
+
+  const handleTmdbMegaSync = async () => {
+    setIsSyncingMega(true);
+    toast({
+      type: 'info',
+      message: 'Fetching top trending global movies, series, anime, and Philippine cinema from TMDB...',
+      duration: 5000
+    });
+    try {
+      const res = await fetch('/api/tmdb/sync');
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        for (const item of data.items) {
+          await catalogService.saveContent(item);
+        }
+        await loadAll();
+        confetti({
+          particleCount: 150,
+          spread: 90,
+          origin: { y: 0.5 }
+        });
+        toast({
+          type: 'success',
+          title: 'Worldwide Sync Complete!',
+          message: `Synchronized ${data.items.length} titles from TMDB into Cinemix library!`,
+          duration: 6000
+        });
+      } else {
+        toast({
+          type: 'error',
+          message: 'No items returned from TMDB sync',
+          duration: 3000
+        });
+      }
+    } catch (err: any) {
+      toast({
+        type: 'error',
+        message: 'Sync error: ' + (err.message || 'Failed'),
+        duration: 4000
+      });
+    } finally {
+      setIsSyncingMega(false);
+    }
+  };
+
   const pendingPayments = payments.filter(p => p.status === 'PENDING');
 
   return (
@@ -406,6 +452,23 @@ export default function SuperadminPage() {
             <p className="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
               Instantly fetch official high-resolution posters, backdrops, YouTube 4K trailers, complete cast, maturity ratings, and genres from The Movie Database (TMDB). All imported titles automatically enable full streaming playback on Server 1 (Full Stream Mirror), Server 2 (Mirror), and Server 3 (HLS Cloud).
             </p>
+            <div className="pt-2">
+              <button
+                onClick={handleTmdbMegaSync}
+                disabled={isSyncingMega}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-105 disabled:opacity-50"
+              >
+                {isSyncingMega ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Syncing Global TMDB Catalog...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" /> 1-Click Sync Worldwide Library (80+ Global Hits)
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Search Controls */}

@@ -154,6 +154,16 @@ async function runTestSuite() {
     assert(detailsData.item && detailsData.item.tmdbId === 27205, `TMDB Details parsed ContentItem with TMDB ID ${detailsData.item?.tmdbId}`);
     assert(detailsData.item.posterUrl.includes('image.tmdb.org'), 'TMDB Details contains high-res official poster');
     assert(detailsData.item.trailerUrl && detailsData.item.trailerUrl.includes('youtube.com'), 'TMDB Details extracted official YouTube 4K trailer');
+
+    // TEST 6: TMDB MEGA-CATALOG SYNC API
+    console.log('\n▶ [6/6] Testing TMDB Mega-Catalog Sync Engine...');
+    const syncRes = await fetchHttp('http://localhost:3001/api/tmdb/sync');
+    assert(syncRes.status === 200, 'TMDB Mega Sync API returned HTTP 200');
+    const syncData = JSON.parse(syncRes.body);
+    assert(syncData.success === true, 'TMDB Mega Sync reports success: true');
+    assert(syncData.items && syncData.items.length >= 40, `TMDB Mega Sync synchronized ${syncData.items?.length} global titles`);
+    assert(syncData.items[0].tmdbId !== undefined, 'Synchronized item contains authentic TMDB ID');
+    assert(syncData.items[0].posterUrl.includes('image.tmdb.org'), 'Synchronized item uses official TMDB Image CDN');
   } catch (err) {
     assert(false, `TMDB API test failed: ${err.message}`);
   }

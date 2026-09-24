@@ -12,12 +12,46 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 import type { User, AuthState } from '@/types';
 
+export const DEMO_PRO_USER: User = {
+  uid: 'demo-pro-vip',
+  email: 'pro@cinemix.ph',
+  displayName: 'VIP Pro Member',
+  photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+  role: 'user',
+  plan: 'PRO',
+  createdAt: new Date(),
+  lastLoginAt: new Date(),
+};
+
+export const DEMO_FREE_USER: User = {
+  uid: 'demo-free-viewer',
+  email: 'free@cinemix.ph',
+  displayName: 'Free Viewer',
+  photoURL: '',
+  role: 'user',
+  plan: 'FREE',
+  createdAt: new Date(),
+  lastLoginAt: new Date(),
+};
+
+export const DEMO_ADMIN_USER: User = {
+  uid: 'demo-admin-lead',
+  email: 'admin@cinemix.ph',
+  displayName: 'Superadmin Lead',
+  photoURL: '',
+  role: 'superadmin',
+  plan: 'PRO',
+  createdAt: new Date(),
+  lastLoginAt: new Date(),
+};
+
 interface AuthContextType {
   user: User | null;
   authState: AuthState;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  loginAsDemo: (type: 'pro' | 'free' | 'admin') => void;
   loading: boolean;
 }
 
@@ -29,6 +63,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check local demo session first
+    if (typeof window !== 'undefined') {
+      const savedDemo = localStorage.getItem('cinemix_active_user');
+      if (savedDemo) {
+        try {
+          const parsed = JSON.parse(savedDemo);
+          setUser(parsed);
+          setAuthState('authenticated');
+          setLoading(false);
+          return;
+        } catch {
+          localStorage.removeItem('cinemix_active_user');
+        }
+      }
+    }
+
     if (!isFirebaseConfigured() || !auth) {
       setAuthState('unauthenticated');
       setLoading(false);
@@ -73,13 +123,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setAuthState('authenticated');
         }
       } else {
-        setUser(null);
-        setAuthState('unauthenticated');
+        // If no firebase user and no demo user
+        const savedDemo = typeof window !== 'undefined' ? localStorage.getItem('cinemix_active_user') : null;
+        if (!savedDemo) {
+          setUser(null);
+          setAuthState('unauthenticated');
+        }
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
+  }, []);
+
+  const loginAsDemo = useCallback((type: 'pro' | 'free' | 'admin') => {
+    const selected = type === 'pro' ? DEMO_PRO_USER : type === 'admin' ? DEMO_ADMIN_USER : DEMO_FREE_USER;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cinemix_active_user', JSON.stringify(selected));
+    }
+    setUser(selected);
+    setAuthState('authenticated');
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -118,12 +181,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (!auth) return;
-    await firebaseSignOut(auth);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cinemix_active_user');
+    }
+    if (auth && isFirebaseConfigured()) {
+      try {
+        await firebaseSignOut(auth);
+      } catch {}
+    }
+    setUser(null);
+    setAuthState('unauthenticated');
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, authState, signIn, signUp, signOut, loading }}>
+    <AuthContext.Provider value={{ user, authState, signIn, signUp, signOut, loginAsDemo, loading }}>
       {children}
     </AuthContext.Provider>
   );
