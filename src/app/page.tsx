@@ -58,8 +58,11 @@ export default function HomePage() {
   // Rail Categories
   const featuredItem = filteredContent.find(i => i.featured) || filteredContent[0];
   const trendingItems = filteredContent.filter(i => i.trending);
-  const phItems = filteredContent.filter(i => i.type === 'ph_content' || i.genres.includes('Philippine Cinema'));
+  const tvSeriesItems = filteredContent.filter(i => i.type === 'series' && !i.tags.includes('K-Drama'));
+  const kdramaItems = filteredContent.filter(i => i.tags.includes('K-Drama'));
   const animeItems = filteredContent.filter(i => i.type === 'anime' || i.genres.includes('Animation'));
+  const phItems = filteredContent.filter(i => i.type === 'ph_content' || i.genres.includes('Philippine Cinema'));
+  const blockbusterMovies = filteredContent.filter(i => i.type === 'movie' || (i.type as any) === 'film');
   const actionItems = filteredContent.filter(i => i.genres.includes('Action') || i.genres.includes('Sci-Fi'));
   const docItems = filteredContent.filter(i => i.type === 'documentary');
 
@@ -141,10 +144,23 @@ export default function HomePage() {
           />
         )}
 
+        {/* Binge-Worthy Global TV Series */}
+        {tvSeriesItems.length > 0 && (
+          <ContentRow
+            title="Binge-Worthy Global TV Series"
+            badge="Series"
+            items={tvSeriesItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?type=series"
+            progressMap={progressMap}
+          />
+        )}
+
         {/* Anime & Animation */}
         {animeItems.length > 0 && (
           <ContentRow
-            title="Anime & Animation Originals"
+            title="Anime Superstars & Animation"
+            badge="Anime"
             items={animeItems}
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?type=anime"
@@ -152,14 +168,38 @@ export default function HomePage() {
           />
         )}
 
-        {/* Philippine Cinema & Exclusives (hidden in strict kids mode if rated R) */}
+        {/* Philippine Cinema & Exclusives */}
         {phItems.length > 0 && (
           <ContentRow
             title="Philippine Cinema & Series"
-            badge="Pinoy"
+            badge="Pinoy Hits"
             items={phItems}
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?type=ph_content"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Korean Dramas */}
+        {kdramaItems.length > 0 && (
+          <ContentRow
+            title="Top Korean Dramas & Asian Hits"
+            badge="K-Drama"
+            items={kdramaItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?genre=Drama"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Hollywood Blockbuster Masterpieces */}
+        {blockbusterMovies.length > 0 && (
+          <ContentRow
+            title="Hollywood Blockbuster Masterpieces"
+            badge="Blockbusters"
+            items={blockbusterMovies}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?type=movie"
             progressMap={progressMap}
           />
         )}

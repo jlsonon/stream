@@ -9,7 +9,7 @@ import { ContentCard } from '@/components/catalog/ContentCard';
 import { TitleDetailsModal } from '@/components/catalog/TitleDetailsModal';
 import { COMPREHENSIVE_CATALOG } from '@/lib/catalog-data';
 
-const POPULAR_SEARCHES = ['Tears of Steel', 'Sintel', 'Anime', '4K Ultra HD', 'Philippine', 'Palawan', 'Sci-Fi'];
+const POPULAR_SEARCHES = ['Breaking Bad', 'Attack on Titan', 'Batang Quiapo', 'Stranger Things', 'Oppenheimer', 'Squid Game', 'Demon Slayer', 'Rewind', 'Dune', 'Interstellar'];
 
 export default function SearchPage() {
   const { isKidsMode } = useProfile();

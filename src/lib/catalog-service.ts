@@ -131,13 +131,36 @@ class CatalogService {
       }
     }
 
-    // 2. Check local storage cache
-    const cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []);
-    if (cached.length > 0) return cached;
+    // 2. Versioned Local Storage Cache
+    const CURRENT_VERSION = 'v4_ultimate_catalog';
+    const cachedVersion = typeof window !== 'undefined' ? localStorage.getItem('cinemix_catalog_version') : null;
+    let cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []);
 
-    // 3. Fallback to starter catalog
-    this.setLocal(STORAGE_KEYS.CATALOG, STARTER_CATALOG);
-    return STARTER_CATALOG;
+    // Refresh if cache is empty or older version detected
+    if (cached.length === 0 || cachedVersion !== CURRENT_VERSION || !cached.some(c => c.id === 'series-breaking-bad')) {
+      const userAdded = cached.filter(item => item.createdBy && item.createdBy !== 'system');
+      const merged = [...STARTER_CATALOG, ...userAdded];
+      this.setLocal(STORAGE_KEYS.CATALOG, merged);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cinemix_catalog_version', CURRENT_VERSION);
+      }
+      return merged;
+    }
+
+    // Ensure all items in starter catalog are present
+    const existingIds = new Set(cached.map(c => c.id));
+    let hasMissing = false;
+    for (const starter of STARTER_CATALOG) {
+      if (!existingIds.has(starter.id)) {
+        cached.push(starter);
+        hasMissing = true;
+      }
+    }
+    if (hasMissing) {
+      this.setLocal(STORAGE_KEYS.CATALOG, cached);
+    }
+
+    return cached;
   }
 
   async getContentById(id: string): Promise<ContentItem | null> {

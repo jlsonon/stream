@@ -24,7 +24,7 @@ const DEFAULT_PROFILES: Profile[] = [
     maturityRating: 'NC-17',
     language: 'English',
     watchHistory: [],
-    myList: ['cinemix-tears-of-steel', 'cinemix-manila-nights']
+    myList: ['series-breaking-bad', 'series-stranger-things', 'movie-interstellar', 'ph-batang-quiapo']
   },
   {
     id: 'profile-kids',
@@ -35,7 +35,7 @@ const DEFAULT_PROFILES: Profile[] = [
     maturityRating: 'PG',
     language: 'English',
     watchHistory: [],
-    myList: ['cinemix-big-buck-bunny']
+    myList: ['movie-spider-verse', 'movie-spirited-away']
   }
 ];
 
