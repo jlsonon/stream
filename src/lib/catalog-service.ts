@@ -132,12 +132,12 @@ class CatalogService {
     }
 
     // 2. Versioned Local Storage Cache
-    const CURRENT_VERSION = 'v4_ultimate_catalog';
+    const CURRENT_VERSION = 'v5_tmdb_official_catalog';
     const cachedVersion = typeof window !== 'undefined' ? localStorage.getItem('cinemix_catalog_version') : null;
     let cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []);
 
     // Refresh if cache is empty or older version detected
-    if (cached.length === 0 || cachedVersion !== CURRENT_VERSION || !cached.some(c => c.id === 'series-breaking-bad')) {
+    if (cached.length === 0 || cachedVersion !== CURRENT_VERSION || !cached.some(c => c.id === 'series-breaking-bad' && c.tmdbId)) {
       const userAdded = cached.filter(item => item.createdBy && item.createdBy !== 'system');
       const merged = [...STARTER_CATALOG, ...userAdded];
       this.setLocal(STORAGE_KEYS.CATALOG, merged);

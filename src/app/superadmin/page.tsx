@@ -49,7 +49,7 @@ export default function SuperadminPage() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'payments' | 'users' | 'ads' | 'settings' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'importer' | 'payments' | 'users' | 'ads' | 'settings' | 'audit'>('overview');
 
   // Data States
   const [contentList, setContentList] = useState<ContentItem[]>([]);
@@ -58,6 +58,13 @@ export default function SuperadminPage() {
   const [ads, setAds] = useState<AdPlacement[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // TMDB 1-Click Importer State
+  const [tmdbSearchQuery, setTmdbSearchQuery] = useState('');
+  const [tmdbSearchType, setTmdbSearchType] = useState<'all' | 'movie' | 'tv'>('all');
+  const [tmdbResults, setTmdbResults] = useState<any[]>([]);
+  const [tmdbSearching, setTmdbSearching] = useState(false);
+  const [importingId, setImportingId] = useState<number | null>(null);
 
   // Modals & Forms
   const [isContentModalOpen, setIsContentModalOpen] = useState(false);
@@ -196,6 +203,64 @@ export default function SuperadminPage() {
     }
   };
 
+  const handleTmdbSearch = async () => {
+    if (!tmdbSearchQuery.trim()) return;
+    setTmdbSearching(true);
+    try {
+      const res = await fetch(`/api/tmdb/search?query=${encodeURIComponent(tmdbSearchQuery)}&type=${tmdbSearchType}`);
+      const data = await res.json();
+      setTmdbResults(data.results || []);
+      if (!data.results || data.results.length === 0) {
+        toast({
+          type: 'info',
+          message: 'No titles found on TMDB for this search query.',
+          duration: 3000
+        });
+      }
+    } catch (e: any) {
+      toast({
+        type: 'error',
+        message: 'Failed to search TMDB: ' + e.message,
+        duration: 4000
+      });
+    } finally {
+      setTmdbSearching(false);
+    }
+  };
+
+  const handleImportTitle = async (tmdbItem: any) => {
+    setImportingId(tmdbItem.id);
+    try {
+      const res = await fetch(`/api/tmdb/details?id=${tmdbItem.id}&type=${tmdbItem.type === 'movie' ? 'movie' : 'tv'}`);
+      const data = await res.json();
+      if (!data.item) throw new Error(data.error || 'Failed to get details');
+
+      await catalogService.saveContent(data.item);
+      await loadAll();
+
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      toast({
+        type: 'success',
+        title: 'Title Imported!',
+        message: `"${data.item.title}" successfully added with official 4K assets and ready to stream.`,
+        duration: 5000
+      });
+    } catch (e: any) {
+      toast({
+        type: 'error',
+        message: 'Import failed: ' + e.message,
+        duration: 4000
+      });
+    } finally {
+      setImportingId(null);
+    }
+  };
+
   const pendingPayments = payments.filter(p => p.status === 'PENDING');
 
   return (
@@ -218,6 +283,12 @@ export default function SuperadminPage() {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setActiveTab('importer')}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-500/25 transition-transform hover:scale-105"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-200" /> TMDB Importer
+          </button>
+          <button
             onClick={handleSeedCatalog}
             className="px-4 py-2 rounded-xl bg-surface-100 hover:bg-surface-200 text-gray-200 border border-white/10 text-xs font-semibold flex items-center gap-2 transition-colors shadow-sm"
             title="Seed 4K & 1080p HLS titles"
@@ -237,6 +308,7 @@ export default function SuperadminPage() {
       <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 hide-scrollbar border-b border-white/[0.04]">
         {[
           { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'importer', label: 'TMDB 1-Click Importer', icon: Sparkles },
           { id: 'content', label: `Content CMS (${contentList.length})`, icon: Film },
           { id: 'payments', label: `Payments (${pendingPayments.length} Pending)`, icon: CreditCard, alert: pendingPayments.length > 0 },
           { id: 'settings', label: 'Platform Settings', icon: Settings },
@@ -315,6 +387,154 @@ export default function SuperadminPage() {
               >
                 Review Queue
               </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: TMDB 1-CLICK IMPORTER */}
+      {activeTab === 'importer' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-surface-50 border border-purple-500/30 space-y-3 shadow-xl">
+            <div className="flex items-center gap-2 text-purple-400 text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-4 h-4" /> Global TMDB Catalog & Stream Importer
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+              Search & Add Any Movie, Anime, or Series in the World
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-300 max-w-2xl leading-relaxed">
+              Instantly fetch official high-resolution posters, backdrops, YouTube 4K trailers, complete cast, maturity ratings, and genres from The Movie Database (TMDB). All imported titles automatically enable full streaming playback on Server 1 (Full Stream Mirror), Server 2 (Mirror), and Server 3 (HLS Cloud).
+            </p>
+          </div>
+
+          {/* Search Controls */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search any title: e.g. Interstellar, Arcane, One Piece, Gomburza, Dune, Shogun..."
+                value={tmdbSearchQuery}
+                onChange={(e) => setTmdbSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleTmdbSearch()}
+                className="w-full pl-11 pr-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cinemix-primary transition-colors"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={tmdbSearchType}
+                onChange={(e) => setTmdbSearchType(e.target.value as any)}
+                className="px-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cinemix-primary cursor-pointer"
+              >
+                <option value="all">All Categories</option>
+                <option value="movie">Movies</option>
+                <option value="tv">TV & Anime Series</option>
+              </select>
+
+              <button
+                onClick={handleTmdbSearch}
+                disabled={tmdbSearching || !tmdbSearchQuery.trim()}
+                className="px-6 py-3 bg-cinemix-primary hover:bg-cinemix-primary/90 disabled:opacity-50 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all"
+              >
+                {tmdbSearching ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4" />
+                )}
+                <span>Search TMDB</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Results Grid */}
+          {tmdbResults.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {tmdbResults.map((item) => {
+                const isImported = contentList.some(c => c.tmdbId === item.id || c.title.toLowerCase() === item.title.toLowerCase());
+                const isCurrentlyImporting = importingId === item.id;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-surface-50 border border-white/[0.06] rounded-2xl overflow-hidden flex flex-col group hover:border-purple-500/40 transition-all shadow-lg"
+                  >
+                    {/* Poster Thumbnail */}
+                    <div className="relative aspect-[16/10] bg-surface-200 overflow-hidden">
+                      <img
+                        src={item.backdropUrl || item.posterUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2 right-2 flex items-center gap-1.5">
+                        <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[10px] font-bold text-white border border-white/10 uppercase">
+                          {item.type}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/90 text-black text-[10px] font-extrabold">
+                          ★ {item.score}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-white text-sm line-clamp-1">{item.title}</h3>
+                        <p className="text-[11px] text-gray-400">{item.releaseYear}</p>
+                        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                          {item.overview || 'No synopsis provided.'}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-white/[0.04]">
+                        {isImported ? (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-green-400 font-bold flex items-center gap-1">
+                              <Check className="w-3.5 h-3.5" /> In Catalog
+                            </span>
+                            <Link
+                              href={`/watch/${contentList.find(c => c.tmdbId === item.id)?.id || ''}`}
+                              className="px-3 py-1.5 rounded-lg bg-surface-200 hover:bg-surface-300 text-white text-xs font-semibold flex items-center gap-1 transition-colors"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Stream
+                            </Link>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleImportTitle(item)}
+                            disabled={isCurrentlyImporting}
+                            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
+                          >
+                            {isCurrentlyImporting ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Importing Metadata...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>1-Click Import</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!tmdbSearching && tmdbResults.length === 0 && (
+            <div className="p-12 text-center rounded-2xl bg-surface-50 border border-white/[0.04] space-y-3">
+              <Sparkles className="w-10 h-10 text-purple-400/50 mx-auto" />
+              <h3 className="font-bold text-white text-base">Search Any Movie or TV Series to Import</h3>
+              <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                Type any title above (e.g. “Arcane”, “Spider-Man”, “Naruto”, “Dune”, “Succession”) to import official 4K posters and full-length streams into Cinemix in 1 click.
+              </p>
             </div>
           )}
         </div>

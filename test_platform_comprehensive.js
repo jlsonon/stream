@@ -137,6 +137,27 @@ async function runTestSuite() {
     assert(false, `PWA manifest check failed: ${err.message}`);
   }
 
+  // ----------------------------------------------------
+  // TEST 5: TMDB LIVE API INTEGRATION & OFFICIAL ASSETS
+  // ----------------------------------------------------
+  console.log('\n▶ [5/5] Testing TMDB Live APIs & Official Image CDN...');
+  try {
+    const searchRes = await fetchHttp('http://localhost:3001/api/tmdb/search?query=Inception');
+    assert(searchRes.status === 200, 'TMDB Live Search API returned HTTP 200');
+    const searchData = JSON.parse(searchRes.body);
+    assert(searchData.results && searchData.results.length > 0, `TMDB Search returned ${searchData.results?.length} verified titles`);
+    assert(searchData.results[0].posterUrl.startsWith('https://image.tmdb.org/'), 'TMDB Search results use official TMDB Image CDN');
+
+    const detailsRes = await fetchHttp('http://localhost:3001/api/tmdb/details?id=27205&type=movie');
+    assert(detailsRes.status === 200, 'TMDB Live Details API returned HTTP 200');
+    const detailsData = JSON.parse(detailsRes.body);
+    assert(detailsData.item && detailsData.item.tmdbId === 27205, `TMDB Details parsed ContentItem with TMDB ID ${detailsData.item?.tmdbId}`);
+    assert(detailsData.item.posterUrl.includes('image.tmdb.org'), 'TMDB Details contains high-res official poster');
+    assert(detailsData.item.trailerUrl && detailsData.item.trailerUrl.includes('youtube.com'), 'TMDB Details extracted official YouTube 4K trailer');
+  } catch (err) {
+    assert(false, `TMDB API test failed: ${err.message}`);
+  }
+
   console.log('\n====================================================');
   console.log(`TEST SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log('====================================================');

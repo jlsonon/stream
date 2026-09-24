@@ -118,6 +118,9 @@ export interface ContentItem {
   posterUrl: string;
   backdropUrl: string;
   trailerUrl?: string;
+  tmdbId?: number | string;
+  imdbId?: string;
+  embedUrl?: string;
   maturityRating: MaturityRating;
   score: number;
   releaseYear: number;

@@ -94,6 +94,43 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Stream URL selection
   const streamUrl = episode?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
+  // Multi-Server Selection State
+  // 'vidsrc': Server 1 (Full Stream Mirror)
+  // 'autoembed': Server 2 (Cloud Mirror)
+  // 'hls': Server 3 (Direct HLS Cloud CDN)
+  // 'trailer': Server 4 (Official 4K Trailer)
+  const defaultServer = content.tmdbId ? 'vidsrc' : 'hls';
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'hls' | 'trailer'>(defaultServer);
+
+  // Compute Embed URLs based on TMDB ID
+  const seasonNum = episode?.seasonNumber || 1;
+  const episodeNum = episode?.episodeNumber || 1;
+  const isSeries = content.type === 'series' || content.type === 'anime' || !!content.seasons?.length;
+
+  const vidsrcUrl = isSeries
+    ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}`
+    : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
+
+  const autoembedUrl = isSeries
+    ? `https://autoembed.to/tv/tmdb/${content.tmdbId}/${seasonNum}/${episodeNum}`
+    : `https://autoembed.to/movie/tmdb/${content.tmdbId}`;
+
+  const activeEmbedUrl = selectedServer === 'vidsrc'
+    ? vidsrcUrl
+    : selectedServer === 'autoembed'
+    ? autoembedUrl
+    : selectedServer === 'trailer'
+    ? (content.trailerUrl || '')
+    : '';
+
+  const handleServerChange = (newServer: 'vidsrc' | 'autoembed' | 'hls' | 'trailer') => {
+    if (newServer !== 'hls' && videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+    setSelectedServer(newServer);
+  };
+
   // Resume playback position
   useEffect(() => {
     if (activeProfile && videoRef.current) {
@@ -107,7 +144,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Handle HLS stream initialization
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !entitlement.allowed) return;
+    if (!video || !entitlement.allowed || selectedServer !== 'hls') return;
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -351,123 +388,218 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       onMouseMove={handleMouseMove}
       className="fixed inset-0 z-50 bg-black select-none overflow-hidden flex items-center justify-center cursor-default"
     >
-      {/* Video Element */}
-      <video
-        ref={videoRef}
-        playsInline
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onClick={togglePlay}
-        className="w-full h-full object-contain cursor-pointer"
-      />
-
-      {/* Pre-Roll Ad Overlay for Free Users */}
-      {adActive && (
-        <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in pointer-events-auto">
-          <div className="max-w-md p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between text-xs text-gray-400 border-b border-white/[0.06] pb-3">
-              <span className="flex items-center gap-1.5 font-semibold text-cinemix-primary">
-                <Sparkles className="w-3.5 h-3.5" /> Sponsored Sponsor
-              </span>
-              <span className="font-bold text-white bg-surface-200 px-2.5 py-1 rounded-full">
-                Video plays in {adRemaining}s
-              </span>
-            </div>
-
-            <div className="space-y-2 text-left">
-              <h3 className="text-xl font-bold text-white">Stream without limits on Cinemix Pro</h3>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Enjoy 4K Ultra HD resolution, Dolby Audio, and zero advertisements across all your devices.
-              </p>
-            </div>
-
-            <div className="pt-2 flex items-center gap-3">
-              <Link
-                href="/upgrade"
-                className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
+      {/* Media Player Layer: External Mirror / Full Stream vs Direct HLS Player */}
+      {selectedServer !== 'hls' ? (
+        <div className="absolute inset-0 w-full h-full bg-black z-10 flex items-center justify-center">
+          {activeEmbedUrl ? (
+            <iframe
+              src={activeEmbedUrl}
+              className="w-full h-full border-0 absolute inset-0 z-10"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              title={content.title}
+            />
+          ) : (
+            <div className="text-center p-6 text-gray-400 z-20 max-w-sm">
+              <p className="text-sm font-medium mb-3">No stream source found on this server mirror.</p>
+              <button
+                onClick={() => handleServerChange('hls')}
+                className="px-4 py-2 bg-cinemix-primary text-white rounded-xl text-xs font-bold hover:bg-cinemix-hover transition-colors shadow-lg"
               >
-                <Sparkles className="w-4 h-4" /> Go Ad-Free for ₱349/mo
-              </Link>
+                Switch to Server 3 (Direct HLS Cloud)
+              </button>
             </div>
-          </div>
+          )}
         </div>
+      ) : (
+        <>
+          {/* Direct HLS Video Element */}
+          <video
+            ref={videoRef}
+            playsInline
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onClick={togglePlay}
+            className="w-full h-full object-contain cursor-pointer"
+          />
+
+          {/* Pre-Roll Ad Overlay for Free Users */}
+          {adActive && (
+            <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in pointer-events-auto">
+              <div className="max-w-md p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-5 shadow-2xl">
+                <div className="flex items-center justify-between text-xs text-gray-400 border-b border-white/[0.06] pb-3">
+                  <span className="flex items-center gap-1.5 font-semibold text-cinemix-primary">
+                    <Sparkles className="w-3.5 h-3.5" /> Sponsored Sponsor
+                  </span>
+                  <span className="font-bold text-white bg-surface-200 px-2.5 py-1 rounded-full">
+                    Video plays in {adRemaining}s
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <h3 className="text-xl font-bold text-white">Stream without limits on Cinemix Pro</h3>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    Enjoy 4K Ultra HD resolution, Dolby Audio, and zero advertisements across all your devices.
+                  </p>
+                </div>
+
+                <div className="pt-2 flex items-center gap-3">
+                  <Link
+                    href="/upgrade"
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
+                  >
+                    <Sparkles className="w-4 h-4" /> Go Ad-Free for ₱349/mo
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Skip Intro Button (Appears between 10s and 85s) */}
+          {!adActive && currentTime >= 10 && currentTime <= 85 && (
+            <button
+              onClick={() => seekBy(85 - currentTime)}
+              className="absolute bottom-28 right-8 z-30 py-2.5 px-5 rounded-xl bg-black/80 hover:bg-black text-white font-bold text-sm border border-white/20 backdrop-blur-md flex items-center gap-2 transition-transform hover:scale-105 shadow-xl"
+            >
+              <FastForward className="w-4 h-4" /> Skip Intro
+            </button>
+          )}
+
+          {/* Up Next Episode Overlay (Appears in the last 30 seconds of an episode) */}
+          {!adActive && nextEpisode && onNextEpisode && duration > 30 && currentTime >= duration - 30 && (
+            <div className="absolute bottom-28 right-8 z-30 p-4 rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-4 animate-fade-in pointer-events-auto">
+              <div className="text-left">
+                <span className="text-[10px] font-bold text-cinemix-primary uppercase tracking-wider">Next Episode</span>
+                <h4 className="text-xs font-bold text-white line-clamp-1">{nextEpisode.title}</h4>
+                <p className="text-[11px] text-gray-400">S{nextEpisode.seasonNumber} E{nextEpisode.episodeNumber}</p>
+              </div>
+              <button
+                onClick={onNextEpisode}
+                className="py-2 px-4 rounded-xl bg-cinemix-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
+              >
+                Play <Play className="w-3.5 h-3.5 fill-current" />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Skip Intro Button (Appears between 10s and 85s) */}
-      {!adActive && currentTime >= 10 && currentTime <= 85 && (
-        <button
-          onClick={() => seekBy(85 - currentTime)}
-          className="absolute bottom-28 right-8 z-30 py-2.5 px-5 rounded-xl bg-black/80 hover:bg-black text-white font-bold text-sm border border-white/20 backdrop-blur-md flex items-center gap-2 transition-transform hover:scale-105 shadow-xl"
-        >
-          <FastForward className="w-4 h-4" /> Skip Intro
-        </button>
-      )}
-
-      {/* Up Next Episode Overlay (Appears in the last 30 seconds of an episode) */}
-      {!adActive && nextEpisode && onNextEpisode && duration > 30 && currentTime >= duration - 30 && (
-        <div className="absolute bottom-28 right-8 z-30 p-4 rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-4 animate-fade-in pointer-events-auto">
-          <div className="text-left">
-            <span className="text-[10px] font-bold text-cinemix-primary uppercase tracking-wider">Next Episode</span>
-            <h4 className="text-xs font-bold text-white line-clamp-1">{nextEpisode.title}</h4>
-            <p className="text-[11px] text-gray-400">S{nextEpisode.seasonNumber} E{nextEpisode.episodeNumber}</p>
-          </div>
-          <button
-            onClick={onNextEpisode}
-            className="py-2 px-4 rounded-xl bg-cinemix-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
-          >
-            Play <Play className="w-3.5 h-3.5 fill-current" />
-          </button>
-        </div>
-      )}
-
-      {/* Player Overlays & Controls */}
+      {/* Floating Top Header Bar (Accessible in all server modes) */}
       <div 
-        className={`absolute inset-0 z-20 flex flex-col justify-between p-4 sm:p-6 transition-opacity duration-300 pointer-events-none ${
-          showControls && !adActive ? 'opacity-100' : 'opacity-0'
+        className={`absolute top-0 inset-x-0 z-40 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-6 bg-gradient-to-b from-black/90 via-black/50 to-transparent transition-opacity duration-300 pointer-events-none ${
+          showControls || selectedServer !== 'hls' ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between pointer-events-auto">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => onBack ? onBack() : router.back()}
-              className="p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-sm transition-colors border border-white/10"
-              title="Back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h2 className="font-bold text-white text-base sm:text-lg drop-shadow">
-                {content.title}
-              </h2>
-              {episode && (
-                <p className="text-xs text-gray-300 drop-shadow">
-                  S{episode.seasonNumber} E{episode.episodeNumber}: {episode.title}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase bg-surface-200/80 text-white border border-white/10">
-              {content.maturityRating}
-            </span>
+        <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
+          <button
+            onClick={() => onBack ? onBack() : router.back()}
+            className="p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-sm transition-colors border border-white/10"
+            title="Back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h2 className="font-bold text-white text-sm sm:text-base drop-shadow">
+              {content.title}
+            </h2>
+            {episode && (
+              <p className="text-xs text-gray-300 drop-shadow">
+                S{episode.seasonNumber} E{episode.episodeNumber}: {episode.title}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Center Play Button Overlay (when paused) */}
-        {!isPlaying && !adActive && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {/* Server Switcher Navigation */}
+        <div className="flex items-center gap-1 sm:gap-1.5 bg-black/80 backdrop-blur-md rounded-xl p-1 border border-white/15 pointer-events-auto shadow-2xl">
+          {content.tmdbId && (
+            <>
+              <button
+                onClick={() => handleServerChange('vidsrc')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  selectedServer === 'vidsrc'
+                    ? 'bg-cinemix-primary text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title="Server 1: Full-Length Stream (VidSrc)"
+              >
+                Server 1 (Full Stream)
+              </button>
+              <button
+                onClick={() => handleServerChange('autoembed')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  selectedServer === 'autoembed'
+                    ? 'bg-cinemix-primary text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title="Server 2: High-speed backup mirror (AutoEmbed)"
+              >
+                Server 2 (Mirror)
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => handleServerChange('hls')}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              selectedServer === 'hls'
+                ? 'bg-cinemix-primary text-white shadow-md'
+                : 'text-gray-300 hover:text-white'
+            }`}
+            title="Server 3: Fast Direct HLS Cloud CDN"
+          >
+            Server 3 (HLS Cloud)
+          </button>
+          {content.trailerUrl && (
             <button
-              onClick={togglePlay}
-              className="p-6 rounded-full bg-cinemix-primary/90 text-white shadow-2xl backdrop-blur-sm transform transition-transform hover:scale-110 pointer-events-auto"
+              onClick={() => handleServerChange('trailer')}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                selectedServer === 'trailer'
+                  ? 'bg-cinemix-primary text-white shadow-md'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+              title="Server 4: Official 4K Trailer"
             >
-              <Play className="w-10 h-10 fill-current ml-1" />
+              Trailer
             </button>
-          </div>
-        )}
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {nextEpisode && onNextEpisode && (
+            <button
+              onClick={onNextEpisode}
+              className="px-3 py-1.5 rounded-lg bg-surface-200/80 hover:bg-surface-200 text-white border border-white/10 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              title={`Next Episode: ${nextEpisode.title}`}
+            >
+              Next <SkipForward className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase bg-surface-200/80 text-white border border-white/10">
+            {content.maturityRating}
+          </span>
+        </div>
+      </div>
+
+      {/* HLS Controls (Only active when Server 3: HLS is selected) */}
+      {selectedServer === 'hls' && (
+        <div 
+          className={`absolute inset-0 z-20 flex flex-col justify-end p-4 sm:p-6 transition-opacity duration-300 pointer-events-none ${
+            showControls && !adActive ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {/* Center Play Button Overlay (when paused) */}
+          {!isPlaying && !adActive && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <button
+                onClick={togglePlay}
+                className="p-6 rounded-full bg-cinemix-primary/90 text-white shadow-2xl backdrop-blur-sm transform transition-transform hover:scale-110 pointer-events-auto"
+              >
+                <Play className="w-10 h-10 fill-current ml-1" />
+              </button>
+            </div>
+          )}
 
         {/* Bottom Control Bar */}
         <div className="space-y-3 pointer-events-auto bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 rounded-2xl">
@@ -680,6 +812,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
