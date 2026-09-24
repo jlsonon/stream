@@ -57,15 +57,28 @@ function WatchContent() {
     );
   }
 
-  // Find active episode if provided
+  // Find active episode and next episode for episodic content
   let activeEpisode: Episode | undefined;
-  if (episodeId && content.seasons) {
+  let nextEpisode: Episode | undefined;
+
+  if (content.seasons && content.seasons.length > 0) {
+    const allEpisodes: Episode[] = [];
     for (const season of content.seasons) {
-      const ep = season.episodes.find(e => e.id === episodeId);
-      if (ep) {
-        activeEpisode = ep;
-        break;
+      allEpisodes.push(...season.episodes);
+    }
+
+    if (episodeId) {
+      const idx = allEpisodes.findIndex(e => e.id === episodeId);
+      if (idx !== -1) {
+        activeEpisode = allEpisodes[idx];
+        nextEpisode = allEpisodes[idx + 1];
       }
+    }
+
+    // Default to the very first episode if none specified or matched
+    if (!activeEpisode && allEpisodes.length > 0) {
+      activeEpisode = allEpisodes[0];
+      nextEpisode = allEpisodes[1];
     }
   }
 
@@ -73,6 +86,12 @@ function WatchContent() {
     <VideoPlayer
       content={content}
       episode={activeEpisode}
+      nextEpisode={nextEpisode}
+      onNextEpisode={() => {
+        if (nextEpisode) {
+          router.push(`/watch/${content.id}?episode=${nextEpisode.id}`);
+        }
+      }}
       onBack={() => router.push('/')}
     />
   );

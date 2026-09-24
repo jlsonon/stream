@@ -16,6 +16,7 @@ import {
   Subtitles, 
   ArrowLeft, 
   FastForward, 
+  SkipForward,
   Check, 
   Lock, 
   Sparkles,
@@ -31,12 +32,16 @@ import Link from 'next/link';
 interface VideoPlayerProps {
   content: ContentItem;
   episode?: Episode;
+  nextEpisode?: Episode;
+  onNextEpisode?: () => void;
   onBack?: () => void;
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   content,
   episode,
+  nextEpisode,
+  onNextEpisode,
   onBack
 }) => {
   const router = useRouter();
@@ -400,6 +405,23 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </button>
       )}
 
+      {/* Up Next Episode Overlay (Appears in the last 30 seconds of an episode) */}
+      {!adActive && nextEpisode && onNextEpisode && duration > 30 && currentTime >= duration - 30 && (
+        <div className="absolute bottom-28 right-8 z-30 p-4 rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-4 animate-fade-in pointer-events-auto">
+          <div className="text-left">
+            <span className="text-[10px] font-bold text-cinemix-primary uppercase tracking-wider">Next Episode</span>
+            <h4 className="text-xs font-bold text-white line-clamp-1">{nextEpisode.title}</h4>
+            <p className="text-[11px] text-gray-400">S{nextEpisode.seasonNumber} E{nextEpisode.episodeNumber}</p>
+          </div>
+          <button
+            onClick={onNextEpisode}
+            className="py-2 px-4 rounded-xl bg-cinemix-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
+          >
+            Play <Play className="w-3.5 h-3.5 fill-current" />
+          </button>
+        </div>
+      )}
+
       {/* Player Overlays & Controls */}
       <div 
         className={`absolute inset-0 z-20 flex flex-col justify-between p-4 sm:p-6 transition-opacity duration-300 pointer-events-none ${
@@ -488,6 +510,16 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               >
                 <RotateCw className="w-5 h-5" />
               </button>
+
+              {nextEpisode && onNextEpisode && (
+                <button
+                  onClick={onNextEpisode}
+                  className="text-gray-300 hover:text-white transition-colors p-1"
+                  title={`Next Episode: ${nextEpisode.title}`}
+                >
+                  <SkipForward className="w-5 h-5" />
+                </button>
+              )}
 
               {/* Volume Controls */}
               <div className="flex items-center gap-2 group/volume">
