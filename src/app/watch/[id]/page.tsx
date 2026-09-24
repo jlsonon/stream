@@ -25,14 +25,19 @@ function WatchContent() {
       setLoading(true);
       let item = await catalogService.getContentById(contentId);
       if (!item) {
-        // Support direct TMDB ID or patterns: movie-550, tv-1396, tmdb-1234, or pure digits
-        const tmdbMatch = contentId.match(/^(?:(movie|tv|series|anime|tmdb)-)?(\d+)$/);
+        // Support direct TMDB ID or patterns: movie-550, tv-1396, series-breaking-bad-1396, etc.
+        const tmdbMatch = contentId.match(/^(?:([a-z_]+)-)?(?:.+?-)?(\d+)$/);
         if (tmdbMatch) {
           const typePrefix = tmdbMatch[1];
-          const rawType = (typePrefix === 'series' || typePrefix === 'anime' || typePrefix === 'tv') ? 'tv' : 'movie';
+          let rawType = (typePrefix === 'series' || typePrefix === 'anime' || typePrefix === 'tv') ? 'tv' : 'movie';
           const tmdbId = tmdbMatch[2];
           try {
-            const res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${rawType}`);
+            let res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${rawType}`);
+            // If movie not found, try tv (or vice-versa)
+            if (!res.ok) {
+              const altType = rawType === 'tv' ? 'movie' : 'tv';
+              res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${altType}`);
+            }
             if (res.ok) {
               const data = await res.json();
               if (data.item) {

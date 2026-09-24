@@ -39,6 +39,21 @@ export async function GET(req: NextRequest) {
     const endpoints = [
       {
         type: 'movie' as ContentType,
+        tag: 'New in Theaters & Streaming',
+        url: `https://api.themoviedb.org/3/movie/now_playing?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Airing Today',
+        url: `https://api.themoviedb.org/3/tv/airing_today?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'On The Air Now',
+        url: `https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'movie' as ContentType,
         tag: 'Trending Blockbusters',
         url: `https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`
       },
