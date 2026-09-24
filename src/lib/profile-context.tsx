@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Profile } from '@/types';
 import { useAuth } from './auth-context';
 
@@ -43,41 +43,39 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const [profiles, setProfiles] = useState<Profile[]>(() => {
+  const [profiles, setProfiles] = useState<Profile[]>(DEFAULT_PROFILES);
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(DEFAULT_PROFILES[0]);
+  const isLoadedRef = useRef(false);
+
+  // Restore cached profiles after mount to prevent SSR hydration mismatch
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const cached = localStorage.getItem('cinemix_user_profiles');
-        if (cached) return JSON.parse(cached);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setProfiles(parsed);
+            const cachedId = localStorage.getItem('cinemix_active_profile_id');
+            const found = parsed.find((p: Profile) => p.id === cachedId);
+            setActiveProfile(found || parsed[0]);
+          }
+        }
       } catch (e) {
         console.warn('Could not read cached profiles', e);
       }
+      isLoadedRef.current = true;
     }
-    return DEFAULT_PROFILES;
-  });
-
-  const [activeProfile, setActiveProfile] = useState<Profile | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cachedId = localStorage.getItem('cinemix_active_profile_id');
-        if (cachedId) {
-          const found = profiles.find(p => p.id === cachedId);
-          if (found) return found;
-        }
-      } catch (e) {
-        console.warn('Could not read active profile', e);
-      }
-    }
-    return profiles[0] || null;
-  });
+  }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isLoadedRef.current && typeof window !== 'undefined') {
       localStorage.setItem('cinemix_user_profiles', JSON.stringify(profiles));
     }
   }, [profiles]);
 
   useEffect(() => {
-    if (activeProfile && typeof window !== 'undefined') {
+    if (isLoadedRef.current && activeProfile && typeof window !== 'undefined') {
       localStorage.setItem('cinemix_active_profile_id', activeProfile.id);
     }
   }, [activeProfile]);

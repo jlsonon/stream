@@ -27,7 +27,12 @@ export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Hide Navbar completely on the full-screen watch player route
   if (pathname.startsWith('/watch')) return null;
@@ -98,7 +103,7 @@ export const Navbar: React.FC = () => {
           {/* Right Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Upgrade Button or Pro Status */}
-            {user?.plan === 'PRO' ? (
+            {mounted && user?.plan === 'PRO' ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md">
                 <Sparkles className="w-3.5 h-3.5" /> PRO VIP
               </span>

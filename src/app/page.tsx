@@ -18,6 +18,11 @@ export default function HomePage() {
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [continueWatchingItems, setContinueWatchingItems] = useState<ContentItem[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const loadData = async () => {
     setLoading(true);
@@ -110,8 +115,8 @@ export default function HomePage() {
 
       {/* Main Content Rails */}
       <div className="relative -mt-12 sm:-mt-20 z-20 space-y-6 sm:space-y-8">
-        {/* Continue Watching (Only if progress exists) */}
-        {continueWatchingItems.length > 0 && (
+        {/* Continue Watching (Only if client mounted and progress exists) */}
+        {mounted && continueWatchingItems.length > 0 && (
           <ContentRow
             title="Continue Watching"
             badge="Resume"
@@ -133,8 +138,8 @@ export default function HomePage() {
           />
         )}
 
-        {/* My List */}
-        {myListItems.length > 0 && (
+        {/* My List (Only if client mounted and items exist) */}
+        {mounted && myListItems.length > 0 && (
           <ContentRow
             title="My Watchlist"
             items={myListItems}
