@@ -72,8 +72,8 @@ export default function HomePage() {
   const docItems = filteredContent.filter(i => i.type === 'documentary');
 
   // My List
-  const myListIds = activeProfile ? catalogService.getMyListIds(activeProfile.id) : [];
-  const myListItems = filteredContent.filter(i => myListIds.includes(i.id));
+  const myListIds = (mounted && activeProfile) ? catalogService.getMyListIds(activeProfile.id) : [];
+  const myListItems = (mounted && activeProfile) ? filteredContent.filter(i => myListIds.includes(i.id)) : [];
 
   const handleSeed = async () => {
     await catalogService.seedStarterCatalog();

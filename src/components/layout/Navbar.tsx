@@ -34,9 +34,6 @@ export const Navbar: React.FC = () => {
     setMounted(true);
   }, []);
 
-  // Hide Navbar completely on the full-screen watch player route
-  if (pathname.startsWith('/watch')) return null;
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -54,6 +51,9 @@ export const Navbar: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Hide Navbar completely on the full-screen watch player route (after all hooks are registered)
+  if (pathname.startsWith('/watch')) return null;
 
   const navLinks = [
     { name: 'Home', href: '/' },
