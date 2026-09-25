@@ -133,6 +133,26 @@ export async function GET(req: NextRequest) {
         type: 'movie' as ContentType,
         tag: 'Top Rated All-Time',
         url: `https://api.themoviedb.org/3/movie/top_rated?api_key=${TMDB_API_KEY}&page=1`
+      },
+      {
+        type: 'documentary' as ContentType,
+        tag: 'Acclaimed Documentaries',
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=99&sort_by=popularity.desc`
+      },
+      {
+        type: 'movie' as ContentType,
+        tag: 'Horror & Paranormal Hits',
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=27&sort_by=popularity.desc`
+      },
+      {
+        type: 'movie' as ContentType,
+        tag: 'Romance & Romantic Comedies',
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10749&sort_by=popularity.desc`
+      },
+      {
+        type: 'movie' as ContentType,
+        tag: 'Family & Animated Adventures',
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_genres=10751,16&sort_by=popularity.desc`
       }
     ];
 
@@ -162,6 +182,7 @@ export async function GET(req: NextRequest) {
         fullText.includes('vivamax') ||
         fullText.includes('viva max') ||
         fullText.includes('viva prime') ||
+        fullText.includes('vmx') ||
         r.adult
       ) {
         continue;

@@ -17,6 +17,7 @@ const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'TV Series', value: 'series' },
   { label: 'Anime & Animation', value: 'anime' },
   { label: 'Philippine Cinema', value: 'ph_content' },
+  { label: 'Korean Drama', value: 'kdrama' },
   { label: 'Documentaries', value: 'documentary' },
 ];
 
@@ -30,7 +31,16 @@ const GENRE_CHIPS = [
   'Comedy',
   'Thriller',
   'Adventure',
-  'Family'
+  'Family',
+  'Horror',
+  'Romance',
+  'Mystery',
+  'Crime',
+  'Documentary',
+  'Philippine Cinema',
+  'K-Drama',
+  'History',
+  'Western',
 ];
 
 function BrowseContent() {
@@ -47,6 +57,8 @@ function BrowseContent() {
   const [sortBy, setSortBy] = useState<'match' | 'year' | 'title'>('match');
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [discoverPage, setDiscoverPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const handleQuickSync = async () => {
     setIsSyncing(true);
@@ -104,11 +116,92 @@ function BrowseContent() {
     };
   }, []);
 
+  // Auto-fetch from TMDB live discover if selected genre or type has few local results
+  useEffect(() => {
+    const matching = allContent.filter(item => {
+      if (selectedGenre !== 'All') {
+        const target = selectedGenre.toLowerCase();
+        if (!item.genres.some(g => g.toLowerCase() === target || g.toLowerCase().includes(target))) {
+          return false;
+        }
+      }
+      if (selectedType !== 'all') {
+        if (selectedType === 'ph_content') {
+          return item.type === 'ph_content' || item.genres.includes('Philippine Cinema');
+        }
+        if (selectedType === 'kdrama') {
+          return item.genres.some(g => g.toLowerCase().includes('k-drama') || g.toLowerCase().includes('korean'));
+        }
+        return item.type === selectedType;
+      }
+      return true;
+    });
+
+    if (matching.length < 10 && (selectedGenre !== 'All' || selectedType !== 'all')) {
+      fetch(`/api/tmdb/discover?type=${selectedType}&genre=${encodeURIComponent(selectedGenre)}&page=1`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.items && data.items.length > 0) {
+            for (const item of data.items) {
+              catalogService.saveContent(item);
+            }
+            setAllContent(prev => {
+              const existingIds = new Set(prev.map(i => i.id));
+              const newItems = data.items.filter((i: ContentItem) => !existingIds.has(i.id));
+              return [...prev, ...newItems];
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [selectedGenre, selectedType]);
+
+  const handleLoadMoreWorldwide = async () => {
+    setIsLoadingMore(true);
+    const nextPage = discoverPage + 1;
+    try {
+      const res = await fetch(`/api/tmdb/discover?type=${selectedType}&genre=${encodeURIComponent(selectedGenre)}&page=${nextPage}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          for (const item of data.items) {
+            await catalogService.saveContent(item);
+          }
+          setAllContent(prev => {
+            const existingIds = new Set(prev.map(i => i.id));
+            const newItems = data.items.filter((i: ContentItem) => !existingIds.has(i.id));
+            return [...prev, ...newItems];
+          });
+          setDiscoverPage(nextPage);
+          toast({
+            type: 'success',
+            message: `Loaded ${data.items.length} more titles from TMDB!`,
+            duration: 3000
+          });
+        } else {
+          toast({
+            type: 'info',
+            message: 'All worldwide titles for this category loaded.',
+            duration: 3000
+          });
+        }
+      }
+    } catch {
+      toast({
+        type: 'error',
+        message: 'Failed to fetch more titles from TMDB network.',
+        duration: 3000
+      });
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   const filteredItems = useMemo(() => {
     return allContent.filter((item) => {
       // Strict Vivamax exclusion
       const text = `${item.title} ${item.originalTitle || ''} ${item.synopsis || ''} ${(item.tags || []).join(' ')}`.toLowerCase();
-      if (text.includes('vivamax') || text.includes('viva max') || text.includes('viva prime')) {
+      if (text.includes('vivamax') || text.includes('viva max') || text.includes('viva prime') || text.includes('vmx')) {
         return false;
       }
 
@@ -123,6 +216,10 @@ function BrowseContent() {
           if (item.type !== 'ph_content' && !item.genres.includes('Philippine Cinema')) {
             return false;
           }
+        } else if (selectedType === 'kdrama') {
+          if (!item.genres.some(g => g.toLowerCase().includes('k-drama') || g.toLowerCase().includes('korean'))) {
+            return false;
+          }
         } else if (item.type !== selectedType) {
           return false;
         }
@@ -130,7 +227,10 @@ function BrowseContent() {
 
       // Genre filter
       if (selectedGenre !== 'All') {
-        if (!item.genres.includes(selectedGenre)) return false;
+        const target = selectedGenre.toLowerCase();
+        if (!item.genres.some(g => g.toLowerCase() === target || g.toLowerCase().includes(target))) {
+          return false;
+        }
       }
 
       return true;
@@ -227,17 +327,43 @@ function BrowseContent() {
           ))}
         </div>
       ) : filteredItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
-          {filteredItems.map((item) => (
-            <div key={item.id} className="w-full flex justify-center">
-              <ContentCard
-                item={item}
-                className="w-full"
-                onOpenDetails={(i) => setSelectedItem(i)}
-              />
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="w-full flex justify-center">
+                <ContentCard
+                  item={item}
+                  className="w-full"
+                  onOpenDetails={(i) => setSelectedItem(i)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Load More Worldwide Titles from TMDB Global Network */}
+          <div className="mt-8 sm:mt-12 flex flex-col items-center justify-center gap-2.5 text-center">
+            <button
+              onClick={handleLoadMoreWorldwide}
+              disabled={isLoadingMore}
+              className="px-6 py-3 rounded-2xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-cinemix-primary/50 flex items-center gap-2.5 transition-all shadow-xl disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {isLoadingMore ? (
+                <>
+                  <div className="w-4 h-4 rounded-full border-2 border-cinemix-primary border-t-transparent animate-spin" />
+                  <span>Loading Worldwide Titles from TMDB...</span>
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 text-cinemix-primary" />
+                  <span>Load More Worldwide Titles ({selectedGenre !== 'All' ? selectedGenre : 'All Global'})</span>
+                </>
+              )}
+            </button>
+            <p className="text-[11px] text-gray-400">
+              Instant access to 1,000,000+ movies, anime, teleseryes, and series via TMDB global library.
+            </p>
+          </div>
+        </>
       ) : (
         <div className="py-24 text-center space-y-4 bg-surface-50/50 rounded-3xl border border-white/[0.04] p-8">
           <Film className="w-12 h-12 text-gray-500 mx-auto" />
