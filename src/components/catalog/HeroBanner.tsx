@@ -123,15 +123,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
               <Info className="w-4 h-4 text-cinemix-primary" /> Details & Episodes
             </button>
 
-            {item.trailerUrl && (
-              <Link
-                href={`/watch/${item.id}?server=trailer`}
-                className="py-3 px-4 sm:px-5 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-semibold text-sm border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105"
-              >
-                <Film className="w-4 h-4 text-cinemix-primary" /> Trailer
-              </Link>
-            )}
-
             <button
               onClick={handleToggleMyList}
               title={isInList ? 'Remove from My List' : 'Add to My List'}

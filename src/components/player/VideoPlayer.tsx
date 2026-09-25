@@ -948,29 +948,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     </button>
                   );
                 })}
-
-                {/* 4K Trailer Option if Available */}
-                {content.trailerUrl && (
-                  <button
-                    onClick={() => handleServerChange('trailer')}
-                    className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group ${
-                      selectedServer === 'trailer'
-                        ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
-                        : 'hover:bg-surface-200/70 border border-transparent text-gray-300 hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-2 h-2 rounded-full ${selectedServer === 'trailer' ? 'bg-amber-400' : 'bg-gray-600'}`} />
-                      <div className="min-w-0">
-                        <span className="text-xs font-bold truncate">Cinematic 4K Trailer</span>
-                        <p className="text-[10px] text-gray-400 truncate">Official Studio Master Preview</p>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border border-amber-500/30 text-amber-400 bg-amber-500/10">
-                      Preview
-                    </span>
-                  </button>
-                )}
               </div>
 
               {/* Pro Zero-Ads Status / Upgrade Action */}
