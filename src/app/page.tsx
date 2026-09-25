@@ -149,7 +149,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen bg-background text-foreground pb-20 w-full max-w-[100vw] overflow-x-hidden">
       {/* Cineby-Style Auto-Rotating Hero Carousel Banner */}
       {featuredItems.length > 0 ? (
         <HeroBanner
@@ -175,7 +175,7 @@ export default function HomePage() {
       )}
 
       {/* Main Content Rails */}
-      <div className="relative -mt-6 sm:-mt-14 z-20 space-y-4 sm:space-y-8">
+      <div className="relative -mt-6 sm:-mt-14 z-20 space-y-4 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden">
         {/* Continue Watching (Only if client mounted and progress exists) */}
         {mounted && continueWatchingItems.length > 0 && (
           <ContentRow
@@ -191,7 +191,6 @@ export default function HomePage() {
         {phItems.length > 0 && (
           <ContentRow
             title="Philippine Cinema & Primetime Series"
-            badge="Pinoy Exclusives"
             items={phItems}
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?type=ph_content"

@@ -30,13 +30,13 @@ export default function MyListPage() {
   }, [activeProfile]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background text-foreground pt-18 sm:pt-28 pb-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full overflow-x-hidden">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
-          <div className="flex items-center gap-2.5 mb-1">
-            <Bookmark className="w-6 h-6 text-cinemix-primary fill-current" />
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <div className="flex items-center gap-2 sm:gap-2.5 mb-1">
+            <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-cinemix-primary fill-current" />
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               My Watchlist
             </h1>
           </div>
@@ -46,7 +46,7 @@ export default function MyListPage() {
         </div>
 
         {listItems.length > 0 && (
-          <span className="text-xs font-semibold text-gray-400 bg-surface-100 px-3 py-1.5 rounded-xl border border-white/[0.04]">
+          <span className="text-xs font-semibold text-gray-400 bg-surface-100 px-3 py-1.5 rounded-xl border border-white/[0.04] self-start sm:self-auto">
             {listItems.length} {listItems.length === 1 ? 'Title' : 'Titles'}
           </span>
         )}
@@ -54,13 +54,13 @@ export default function MyListPage() {
 
       {/* Grid or Empty State */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="aspect-[2/3] rounded-xl bg-surface-100 animate-pulse" />
           ))}
         </div>
       ) : listItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
           {listItems.map((item) => (
             <div key={item.id} className="w-full flex justify-center">
               <ContentCard

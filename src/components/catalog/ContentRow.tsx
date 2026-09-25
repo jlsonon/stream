@@ -89,7 +89,8 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         <div
           ref={rowRef}
           onScroll={handleScroll}
-          className="flex items-start gap-3 sm:gap-4 md:gap-5 overflow-x-auto px-3 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth"
+          className="flex items-start gap-3 sm:gap-4 md:gap-5 overflow-x-auto px-3 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth overscroll-x-contain touch-pan-x"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {items.map((item, idx) => (
             <div key={item.id} className="relative flex items-end flex-shrink-0 group/card">

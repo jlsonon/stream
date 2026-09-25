@@ -234,36 +234,38 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background text-foreground pt-18 sm:pt-28 pb-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full overflow-x-hidden">
       {/* Mode Selector Pill Bar */}
-      <div className="flex items-center justify-center gap-2 mb-6">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-4 sm:mb-6 w-full max-w-md mx-auto">
         <button
           onClick={() => {
             setSearchMode('standard');
             setAiResults([]);
           }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'standard'
               ? 'bg-cinemix-primary text-black shadow-glow-primary'
               : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
-          <SearchIcon className="w-3.5 h-3.5" /> Standard TMDB Search
+          <SearchIcon className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>Standard Search</span>
         </button>
         <button
           onClick={() => setSearchMode('ai')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'ai'
               ? 'bg-surface-200 text-cinemix-primary border border-cinemix-primary/50 shadow-glow-primary'
               : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
-          <Bot className="w-4 h-4 text-cinemix-primary" /> Cinemix AI Semantic Search
+          <Bot className="w-4 h-4 text-cinemix-primary flex-shrink-0" />
+          <span>Cinemix AI</span>
         </button>
       </div>
 
       {/* Search Input Bar */}
-      <div className="relative max-w-3xl mx-auto mb-8">
+      <div className="relative max-w-3xl mx-auto mb-6 sm:mb-8">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -274,9 +276,9 @@ export default function SearchPage() {
           className="relative flex items-center"
         >
           {searchMode === 'ai' ? (
-            <Bot className="absolute left-5 w-6 h-6 text-purple-400 pointer-events-none" />
+            <Bot className="absolute left-3.5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 text-purple-400 pointer-events-none" />
           ) : (
-            <SearchIcon className="absolute left-5 w-6 h-6 text-gray-400 pointer-events-none" />
+            <SearchIcon className="absolute left-3.5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 text-gray-400 pointer-events-none" />
           )}
           <input
             type="text"
@@ -284,18 +286,18 @@ export default function SearchPage() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={
               searchMode === 'ai'
-                ? "Ask Cinemix AI (e.g., 'mind-bending sci-fi like inception', 'dark anime thriller')..."
+                ? "Ask Cinemix AI (e.g. 'mind-bending sci-fi', 'dark thriller')..."
                 : "Search any movie, anime, series, or actor worldwide..."
             }
             autoFocus
-            className={`w-full pl-14 pr-28 py-4 rounded-2xl bg-surface-100 border text-white placeholder-gray-500 text-sm sm:text-base focus:outline-none transition-all shadow-xl ${
+            className={`w-full pl-11 sm:pl-14 pr-20 sm:pr-28 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-surface-100 border text-white placeholder-gray-500 text-xs sm:text-base focus:outline-none transition-all shadow-xl ${
               searchMode === 'ai'
                 ? 'border-purple-500/40 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20'
                 : 'border-white/10 focus:border-cinemix-primary focus:ring-2 focus:ring-cinemix-primary/20'
             }`}
           />
 
-          <div className="absolute right-3 flex items-center gap-1.5">
+          <div className="absolute right-2.5 sm:right-3 flex items-center gap-1 sm:gap-1.5">
             {query && (
               <button
                 type="button"
@@ -303,9 +305,9 @@ export default function SearchPage() {
                   setQuery('');
                   setAiResults([]);
                 }}
-                className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                className="p-1 sm:p-1.5 text-gray-400 hover:text-white transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
 
@@ -313,9 +315,9 @@ export default function SearchPage() {
               <button
                 type="submit"
                 disabled={isSearchingAi || !query.trim()}
-                className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1 shadow-md disabled:opacity-50 transition-all hover:scale-105"
+                className="px-2.5 sm:px-3.5 py-1.5 rounded-lg sm:rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1 shadow-md disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
               >
-                {isSearchingAi ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                {isSearchingAi ? <Loader2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin" /> : <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
                 <span>Ask AI</span>
               </button>
             )}
@@ -324,14 +326,14 @@ export default function SearchPage() {
 
         {/* Suggestion Chips */}
         {searchMode === 'ai' ? (
-          <div className="space-y-2 pt-4">
-            <span className="text-xs font-semibold text-purple-400">Cinemix AI Prompt Curations:</span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
+          <div className="space-y-2 pt-3 sm:pt-4">
+            <span className="text-[11px] sm:text-xs font-semibold text-purple-400">Cinemix AI Prompt Curations:</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 hide-scrollbar touch-pan-x overscroll-x-contain">
               {AI_PROMPTS.map((item) => (
                 <button
                   key={item.label}
                   onClick={() => handleAiSearch(item.prompt)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white border border-purple-500/25 whitespace-nowrap transition-all hover:scale-105"
+                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white border border-purple-500/25 whitespace-nowrap transition-all"
                 >
                   {item.label}
                 </button>
@@ -339,16 +341,16 @@ export default function SearchPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-2.5 pt-4">
+          <div className="space-y-2 pt-3 sm:pt-4">
             {/* Streaming Platform Discovery Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-0.5 hide-scrollbar">
-              <span className="text-xs font-bold text-cinemix-primary whitespace-nowrap">Platforms:</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 hide-scrollbar touch-pan-x overscroll-x-contain">
+              <span className="text-[11px] sm:text-xs font-bold text-cinemix-primary whitespace-nowrap">Platforms:</span>
               {PLATFORM_TAGS.map((platform) => (
                 <button
                   key={platform}
                   type="button"
                   onClick={() => setQuery(platform)}
-                  className="px-3 py-1 rounded-full text-xs font-bold bg-cinemix-primary/10 hover:bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30 whitespace-nowrap transition-all hover:scale-105"
+                  className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-cinemix-primary/10 hover:bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30 whitespace-nowrap transition-all"
                 >
                   {platform}
                 </button>
@@ -356,14 +358,14 @@ export default function SearchPage() {
             </div>
 
             {/* Worldwide Trending Shows */}
-            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-              <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">Worldwide:</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar touch-pan-x overscroll-x-contain">
+              <span className="text-[11px] sm:text-xs font-semibold text-gray-400 whitespace-nowrap">Worldwide:</span>
               {POPULAR_SEARCHES.map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => setQuery(tag)}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-surface-200/70 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/[0.04] whitespace-nowrap transition-colors"
+                  className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-surface-200/70 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/[0.04] whitespace-nowrap transition-colors"
                 >
                   {tag}
                 </button>
@@ -457,47 +459,47 @@ export default function SearchPage() {
         <div>
           {/* Query Header & Source Filter Tabs */}
           {query.trim() && (
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
+            <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-white/[0.06] pb-3 sm:pb-4">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   Results for &ldquo;{query}&rdquo;
                   {isSearchingTmdb && <Loader2 className="w-4 h-4 text-cinemix-primary animate-spin" />}
                 </h2>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                   {localResults.length} in featured catalog · {tmdbResults.length} live from TMDB global library
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full hide-scrollbar touch-pan-x overscroll-x-contain">
                 <button
                   onClick={() => setActiveTab('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                     activeTab === 'all'
-                      ? 'bg-cinemix-primary text-white shadow-md'
+                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
-                  All Results ({localResults.length + tmdbResults.length})
+                  All ({localResults.length + tmdbResults.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('local')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                     activeTab === 'local'
-                      ? 'bg-cinemix-primary text-white shadow-md'
+                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
-                  Featured Library ({localResults.length})
+                  In-Catalog ({localResults.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('global')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1 ${
+                  className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1 ${
                     activeTab === 'global'
-                      ? 'bg-cinemix-primary text-white shadow-md'
+                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
-                  <Globe className="w-3.5 h-3.5" /> TMDB Global ({tmdbResults.length})
+                  <Globe className="w-3 h-3" /> TMDB Global ({tmdbResults.length})
                 </button>
               </div>
             </div>
@@ -546,13 +548,14 @@ export default function SearchPage() {
                   </div>
 
                   {tmdbResults.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4">
                       {tmdbResults.map((item) => {
                         const isImporting = importingId === item.id;
                         return (
                           <div
                             key={item.id}
-                            className="group relative bg-surface-50 border border-white/[0.06] rounded-2xl overflow-hidden hover:border-cinemix-primary/50 transition-all hover:scale-[1.02] flex flex-col"
+                            onClick={() => handleTmdbAction(item, 'details')}
+                            className="group relative bg-surface-50 border border-white/[0.06] rounded-xl sm:rounded-2xl overflow-hidden hover:border-cinemix-primary/50 transition-all flex flex-col cursor-pointer select-none"
                           >
                             {/* Poster */}
                             <div className="relative aspect-[2/3] w-full bg-surface-100 overflow-hidden">
@@ -562,11 +565,14 @@ export default function SearchPage() {
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 loading="lazy"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2.5 gap-1.5">
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2 sm:p-2.5 gap-1.5">
                                 <button
-                                  onClick={() => handleTmdbAction(item, 'play')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTmdbAction(item, 'play');
+                                  }}
                                   disabled={isImporting}
-                                  className="w-full py-1.5 rounded-lg bg-cinemix-primary hover:bg-cinemix-hover text-white font-bold text-xs flex items-center justify-center gap-1 shadow-lg transition-transform hover:scale-102 disabled:opacity-50"
+                                  className="w-full py-1.5 rounded-lg bg-cinemix-primary hover:bg-cinemix-hover text-black font-extrabold text-[11px] sm:text-xs flex items-center justify-center gap-1 shadow-lg transition-transform hover:scale-102 active:scale-95 disabled:opacity-50"
                                 >
                                   {isImporting ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -576,9 +582,12 @@ export default function SearchPage() {
                                   <span>Stream Now</span>
                                 </button>
                                 <button
-                                  onClick={() => handleTmdbAction(item, 'details')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTmdbAction(item, 'details');
+                                  }}
                                   disabled={isImporting}
-                                  className="w-full py-1 rounded-lg bg-surface-100/90 hover:bg-surface-200 text-gray-200 font-semibold text-[11px] flex items-center justify-center gap-1 border border-white/10"
+                                  className="w-full py-1 rounded-lg bg-surface-100/90 hover:bg-surface-200 text-gray-200 font-semibold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 border border-white/10 active:scale-95"
                                 >
                                   <Info className="w-3 h-3" />
                                   <span>Details</span>
@@ -587,7 +596,7 @@ export default function SearchPage() {
 
                               {/* Cineby-style Gold Rating Pill */}
                               <div className="absolute top-2 left-2 z-10">
-                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-black/80 text-amber-400 border border-amber-500/40 backdrop-blur-md shadow-md">
+                                <span className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-black bg-black/80 text-amber-400 border border-amber-500/40 backdrop-blur-md shadow-md">
                                   <Star className="w-2.5 h-2.5 fill-amber-400" />
                                   {item.score}
                                 </span>
@@ -595,13 +604,13 @@ export default function SearchPage() {
                             </div>
 
                             {/* Title & Info */}
-                            <div className="p-3 flex-1 flex flex-col justify-between space-y-1">
+                            <div className="p-2 sm:p-3 flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1">
                               <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-1 group-hover:text-cinemix-primary transition-colors">
                                 {item.title}
                               </h4>
-                              <div className="flex items-center justify-between text-[11px] text-gray-400">
+                              <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-400 font-mono">
                                 <span>{item.releaseYear}</span>
-                                <span className="capitalize text-gray-500">{item.type}</span>
+                                <span className="capitalize text-gray-500 font-sans">{item.type}</span>
                               </div>
                             </div>
                           </div>

@@ -36,6 +36,8 @@ export const viewport: Viewport = {
   themeColor: '#0a0b14',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -65,13 +67,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body
-        className="font-sans antialiased min-h-[100dvh] bg-background text-foreground flex flex-col pb-16 md:pb-0"
+        className="font-sans antialiased min-h-[100dvh] bg-background text-foreground flex flex-col pb-16 md:pb-0 overflow-x-hidden max-w-[100vw] w-full"
       >
         <AuthProvider>
           <ProfileProvider>
             <ToastProvider>
               <Navbar />
-              <main className="flex-1 flex flex-col">{children}</main>
+              <main className="flex-1 flex flex-col w-full max-w-[100vw] overflow-x-hidden">{children}</main>
               <Footer />
               <BottomNav />
               <PwaInstallPrompt />

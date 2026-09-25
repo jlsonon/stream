@@ -142,24 +142,24 @@ function BrowseContent() {
   }, [allContent, isKidsMode, selectedType, selectedGenre, sortBy]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-24 sm:pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="min-h-screen bg-background text-foreground pt-18 sm:pt-28 pb-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full overflow-x-hidden">
+      {/* Page Title & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
             Explore Catalog
           </h1>
-          <p className="text-xs sm:text-sm text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-400 mt-0.5 sm:mt-1">
             Browse movies, anime, Philippine titles, and series in up to 4K Ultra HD
           </p>
         </div>
 
-        {/* Actions: Sync & Sort */}
-        <div className="flex items-center gap-3 self-start sm:self-auto">
+        {/* Actions: Sync & Sort (Responsive Mobile Widths) */}
+        <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={handleQuickSync}
             disabled={isSyncing}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 transition-all hover:scale-105 disabled:opacity-50"
+            className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-400 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
             title="Load 80+ trending titles from global TMDB library"
           >
             {isSyncing ? (
@@ -167,15 +167,15 @@ function BrowseContent() {
             ) : (
               <Globe className="w-3.5 h-3.5" />
             )}
-            <span>Sync TMDB Hits</span>
+            <span>Sync TMDB</span>
           </button>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-gray-400">Sort:</span>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-400">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-surface-100 border border-white/10 text-white text-xs font-semibold rounded-xl px-3 py-2 focus-ring"
+              className="bg-surface-100 border border-white/10 text-white text-xs font-semibold rounded-xl px-2.5 py-2 focus-ring"
             >
               <option value="match">Match Score</option>
               <option value="year">Newest Year</option>
@@ -186,12 +186,12 @@ function BrowseContent() {
       </div>
 
       {/* Content Type Pill Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 hide-scrollbar">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 mb-3 hide-scrollbar touch-pan-x overscroll-x-contain">
         {TYPE_OPTIONS.map((t) => (
           <button
             key={t.value}
             onClick={() => setSelectedType(t.value)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
               selectedType === t.value
                 ? 'bg-cinemix-primary text-black shadow-glow-primary'
                 : 'bg-surface-100/70 hover:bg-surface-200 text-gray-300 border border-white/[0.04]'
@@ -203,12 +203,12 @@ function BrowseContent() {
       </div>
 
       {/* Genre Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-3 mb-4 sm:mb-6 hide-scrollbar touch-pan-x overscroll-x-contain">
         {GENRE_CHIPS.map((g) => (
           <button
             key={g}
             onClick={() => setSelectedGenre(g)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
               selectedGenre === g
                 ? 'bg-white/20 text-white border border-white/30'
                 : 'bg-surface-200/50 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/[0.04]'
@@ -219,17 +219,15 @@ function BrowseContent() {
         ))}
       </div>
 
-
-
       {/* Content Grid */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="aspect-[2/3] rounded-xl bg-surface-100 animate-pulse" />
           ))}
         </div>
       ) : filteredItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="w-full flex justify-center">
               <ContentCard
