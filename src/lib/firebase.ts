@@ -38,7 +38,11 @@ if (isFirebaseConfigured()) {
     console.error('Error initializing Firebase:', error);
   }
 } else {
-  console.warn('Firebase configuration is missing or incomplete. Please check your environment variables.');
+  // Graceful offline fallback: Cinemix functions 100% in local-first demo mode
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && !(window as any).__firebase_warned) {
+    (window as any).__firebase_warned = true;
+    console.info('Cinemix running in local-first demo mode (Firebase offline).');
+  }
 }
 
 export { app, auth, db, storage };
