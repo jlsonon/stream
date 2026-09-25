@@ -703,7 +703,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={content.title}
-                {...(isPro ? { sandbox: 'allow-scripts allow-same-origin allow-forms allow-presentation' } : {})}
               />
             </>
           ) : (
