@@ -296,6 +296,23 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [showEpisodesDrawer, selectedDrawerSeason, content.tmdbId, isSeries, fetchSeasonEpisodes]);
 
+  // Compute active season and episode numbers for embed player
+  const seasonNum = currentEpisode?.seasonNumber || activeSeasonNumber || 1;
+  const episodeNum = currentEpisode?.episodeNumber || activeEpisodeNumber || 1;
+
+  // Always auto-scroll to the current playing episode when drawer opens or updates
+  useEffect(() => {
+    if (showEpisodesDrawer) {
+      const timer = setTimeout(() => {
+        const activeEpEl = document.getElementById(`drawer-ep-${seasonNum}-${episodeNum}`);
+        if (activeEpEl) {
+          activeEpEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [showEpisodesDrawer, selectedDrawerSeason, seasonNum, episodeNum, fetchingSeason]);
+
   const handleEpisodeSelect = (ep: Episode) => {
     setCurrentEpisode(ep);
     setActiveSeasonNumber(ep.seasonNumber);
@@ -306,10 +323,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       onSelectEpisode(ep);
     }
   };
-
-  // Compute active season and episode numbers for embed player
-  const seasonNum = currentEpisode?.seasonNumber || activeSeasonNumber || 1;
-  const episodeNum = currentEpisode?.episodeNumber || activeEpisodeNumber || 1;
 
   // Dynamic next episode computation across episodes and season boundaries
   const computedNextEpisode = React.useMemo(() => {
@@ -1374,6 +1387,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     return (
                       <button
                         key={ep.id || `${ep.seasonNumber}-${ep.episodeNumber}`}
+                        id={`drawer-ep-${ep.seasonNumber}-${ep.episodeNumber}`}
                         onClick={() => handleEpisodeSelect(ep)}
                         className={`w-full text-left p-3 rounded-2xl transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 group ${
                           isPlayingThis

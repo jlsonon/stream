@@ -25,15 +25,32 @@ import { ContentCard } from '@/components/catalog/ContentCard';
 import { TitleDetailsModal } from '@/components/catalog/TitleDetailsModal';
 import { COMPREHENSIVE_CATALOG } from '@/lib/catalog-data';
 
+const PLATFORM_TAGS = [
+  'Netflix',
+  'HBO Max',
+  'Disney+',
+  'Apple TV+',
+  'Prime Video',
+  'Paramount+',
+  'Crunchyroll',
+  'Philippine TV'
+];
+
 const POPULAR_SEARCHES = [
   'Breaking Bad', 
+  'Stranger Things',
+  'House of the Dragon',
+  'The Boys',
+  'The Last of Us',
+  'Severance',
   'Attack on Titan', 
+  'Demon Slayer',
+  'Solo Leveling',
   'Batang Quiapo', 
-  'Stranger Things', 
   'Oppenheimer', 
   'Squid Game', 
-  'Demon Slayer', 
-  'Rewind', 
+  'Fallout',
+  'Shogun',
   'Dune', 
   'Interstellar'
 ];
@@ -322,17 +339,36 @@ export default function SearchPage() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 overflow-x-auto pt-4 hide-scrollbar">
-            <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">Suggested:</span>
-            {POPULAR_SEARCHES.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setQuery(tag)}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-surface-200/70 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/[0.04] whitespace-nowrap transition-colors"
-              >
-                {tag}
-              </button>
-            ))}
+          <div className="space-y-2.5 pt-4">
+            {/* Streaming Platform Discovery Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-0.5 hide-scrollbar">
+              <span className="text-xs font-bold text-cinemix-primary whitespace-nowrap">Platforms:</span>
+              {PLATFORM_TAGS.map((platform) => (
+                <button
+                  key={platform}
+                  type="button"
+                  onClick={() => setQuery(platform)}
+                  className="px-3 py-1 rounded-full text-xs font-bold bg-cinemix-primary/10 hover:bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30 whitespace-nowrap transition-all hover:scale-105"
+                >
+                  {platform}
+                </button>
+              ))}
+            </div>
+
+            {/* Worldwide Trending Shows */}
+            <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
+              <span className="text-xs font-semibold text-gray-400 whitespace-nowrap">Worldwide:</span>
+              {POPULAR_SEARCHES.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setQuery(tag)}
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-surface-200/70 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/[0.04] whitespace-nowrap transition-colors"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

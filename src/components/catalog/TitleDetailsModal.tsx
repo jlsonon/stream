@@ -139,11 +139,31 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
     }
   }, [selectedSeason, modalItem?.tmdbId]);
 
-  if (!isOpen || !item) return null;
-
   const activeItem = modalItem || item;
-  const isSeries = activeItem.type === 'series' || activeItem.type === 'anime' || (activeItem.seasons && activeItem.seasons.length > 0);
-  const currentSeason = activeItem.seasons?.find(s => s.seasonNumber === selectedSeason) || activeItem.seasons?.[0];
+  const isSeries = activeItem ? (activeItem.type === 'series' || activeItem.type === 'anime' || (activeItem.seasons && activeItem.seasons.length > 0)) : false;
+  const currentSeason = activeItem?.seasons?.find(s => s.seasonNumber === selectedSeason) || activeItem?.seasons?.[0];
+
+  // Resolve current episode from profile watch progress
+  const watchProgress = item && activeProfile ? catalogService.getWatchProgress(activeProfile.id, item.id) : null;
+  const currentEpNumber = watchProgress?.episodeId 
+    ? (currentSeason?.episodes?.find(e => e.id === watchProgress.episodeId)?.episodeNumber || 1)
+    : 1;
+
+  // Always auto-scroll to the current episode in the episodes list
+  useEffect(() => {
+    if (isOpen && isSeries) {
+      const timer = setTimeout(() => {
+        const activeEpEl = document.getElementById(`modal-ep-${selectedSeason}-${currentEpNumber}`);
+        if (activeEpEl) {
+          activeEpEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isSeries, selectedSeason, currentEpNumber, isFetchingSeason]);
+
+  if (!isOpen || !item || !activeItem) return null;
+
   const firstEpisode = currentSeason?.episodes?.[0];
 
   const primaryPlayUrl = isSeries && firstEpisode
@@ -471,12 +491,19 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                       ))}
                     </div>
                   ) : currentSeason?.episodes && currentSeason.episodes.length > 0 ? (
-                    currentSeason.episodes.map((ep) => (
-                      <Link
-                        key={ep.id || `${ep.seasonNumber}-${ep.episodeNumber}`}
-                        href={`/watch/${activeItem.id}?season=${ep.seasonNumber}&episode=${ep.episodeNumber}`}
-                        className="group relative flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4 p-3 sm:p-3.5 rounded-2xl bg-surface-100 hover:bg-surface-200 border border-white/[0.05] hover:border-cinemix-primary/50 transition-all duration-200 shadow-sm hover:shadow-xl"
-                      >
+                    currentSeason.episodes.map((ep) => {
+                      const isCurrent = ep.episodeNumber === currentEpNumber;
+                      return (
+                        <Link
+                          key={ep.id || `${ep.seasonNumber}-${ep.episodeNumber}`}
+                          id={`modal-ep-${ep.seasonNumber}-${ep.episodeNumber}`}
+                          href={`/watch/${activeItem.id}?season=${ep.seasonNumber}&episode=${ep.episodeNumber}`}
+                          className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4 p-3 sm:p-3.5 rounded-2xl transition-all duration-200 shadow-sm hover:shadow-xl ${
+                            isCurrent
+                              ? 'bg-surface-200/90 border-2 border-cinemix-primary shadow-cinemix-primary/10'
+                              : 'bg-surface-100 hover:bg-surface-200 border border-white/[0.05] hover:border-cinemix-primary/50'
+                          }`}
+                        >
                         {/* Episode Thumbnail */}
                         <div className="relative aspect-video w-full sm:w-44 sm:min-w-[176px] rounded-xl overflow-hidden bg-surface-300 border border-white/5 flex-shrink-0">
                           <img
@@ -515,8 +542,9 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                           </p>
                         </div>
                       </Link>
-                    ))
-                  ) : (
+                    );
+                  })
+                ) : (
                     <div className="py-12 text-center text-gray-400 space-y-2">
                       <p className="text-sm font-semibold">No episodes cataloged for this season yet.</p>
                       <p className="text-xs text-gray-500">Live stream mirrors remain active in player.</p>

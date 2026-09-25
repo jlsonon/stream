@@ -44,33 +44,68 @@ export async function GET(req: NextRequest) {
       },
       {
         type: 'series' as ContentType,
-        tag: 'Airing Today',
-        url: `https://api.themoviedb.org/3/tv/airing_today?api_key=${TMDB_API_KEY}`
-      },
-      {
-        type: 'series' as ContentType,
-        tag: 'On The Air Now',
-        url: `https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_API_KEY}`
-      },
-      {
-        type: 'movie' as ContentType,
-        tag: 'Trending Blockbusters',
-        url: `https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`
-      },
-      {
-        type: 'series' as ContentType,
         tag: 'Global TV Series',
         url: `https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_API_KEY}`
       },
       {
+        type: 'series' as ContentType,
+        tag: 'Netflix Originals',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=213&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'HBO & Max Originals',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=49|3186&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Disney+ Originals',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=2739&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Apple TV+ Originals',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=2552&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Amazon Prime Hits',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=1024&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Paramount+ & Showtime',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=4330|67&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Hulu & FX Masterpieces',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_networks=453|88&sort_by=popularity.desc`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Korean Dramas',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=ko&sort_by=popularity.desc`
+      },
+      {
         type: 'anime' as ContentType,
-        tag: 'Top Anime',
+        tag: 'Top Anime & Crunchyroll',
         url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`
+      },
+      {
+        type: 'ph_content' as ContentType,
+        tag: 'Philippine Cinema & Series',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc`
       },
       {
         type: 'ph_content' as ContentType,
         tag: 'Philippine Cinema',
         url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc`
+      },
+      {
+        type: 'movie' as ContentType,
+        tag: 'Trending Blockbusters',
+        url: `https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`
       },
       {
         type: 'movie' as ContentType,
