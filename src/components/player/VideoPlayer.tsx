@@ -98,56 +98,64 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Stream URL selection
   const streamUrl = episode?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
 
-  // Multi-Server Selection State
-  // 'vidsrc': Server 1 (Full Stream Mirror)
-  // 'autoembed': Server 2 (Cloud Mirror)
-  // 'videasy': Server 3 (Videasy Cineby Resolver)
-  // 'multiembed': Server 4 (MultiEmbed 4K Mirror)
-  // 'hls': Server 5 (Direct HLS Cloud CDN)
-  // 'trailer': Server 6 (Official 4K Trailer)
+  // Multi-Server Selection State: Exact Cineby Mirrors + Cinemix Native Engine
+  const validServers = [
+    'comet', 'flux', 'glow', 'pulse', 'vega', 'quill', 'zeta', 'blaze', 'haze', 'iris', 'omega', 'vidsrc', 'videasy', 'hls', 'trailer'
+  ] as const;
+  type ServerType = typeof validServers[number];
+
   const searchParams = useSearchParams();
   const urlServerParam = searchParams?.get('server');
-  const validServers = ['vidsrc', 'autoembed', 'videasy', 'multiembed', 'hls', 'trailer'] as const;
-  const initialServer = validServers.includes(urlServerParam as any)
-    ? (urlServerParam as 'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer')
-    : (content.tmdbId ? 'vidsrc' : 'hls');
+  const initialServer: ServerType = validServers.includes(urlServerParam as any)
+    ? (urlServerParam as ServerType)
+    : (content.tmdbId ? 'comet' : 'hls');
 
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer'>(initialServer);
+  const [selectedServer, setSelectedServer] = useState<ServerType>(initialServer);
 
   // Compute Embed URLs based on TMDB ID
   const seasonNum = episode?.seasonNumber || 1;
   const episodeNum = episode?.episodeNumber || 1;
   const isSeries = content.type === 'series' || content.type === 'anime' || !!content.seasons?.length;
 
-  const vidsrcUrl = isSeries
-    ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}`
-    : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
+  const getEmbedUrl = (srv: ServerType): string => {
+    if (!content.tmdbId) return content.trailerUrl || '';
+    switch (srv) {
+      case 'comet':
+        return isSeries ? `https://vidnest.fun/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidnest.fun/movie/${content.tmdbId}`;
+      case 'flux':
+        return isSeries ? `https://vsembed.ru/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vsembed.ru/embed/movie/${content.tmdbId}`;
+      case 'glow':
+        return isSeries ? `https://play.xpass.top/e/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://play.xpass.top/e/movie/${content.tmdbId}`;
+      case 'pulse':
+        return isSeries ? `https://vidcore.io/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?autoPlay=true&theme=e50914&sub=en` : `https://vidcore.io/movie/${content.tmdbId}?autoPlay=true`;
+      case 'vega':
+        return isSeries ? `https://moviesapi.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://moviesapi.to/movie/${content.tmdbId}`;
+      case 'quill':
+        return isSeries ? `https://vidrock.ru/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidrock.ru/movie/${content.tmdbId}`;
+      case 'zeta':
+        return isSeries ? `https://player.zxcstream.xyz/player/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://player.zxcstream.xyz/player/movie/${content.tmdbId}`;
+      case 'blaze':
+        return isSeries ? `https://vidup.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?autoPlay=true&autoNext=true&nextButton=true` : `https://vidup.to/movie/${content.tmdbId}`;
+      case 'haze':
+        return isSeries ? `https://primesrc.me/embed/tv?tmdb=${content.tmdbId}&season=${seasonNum}&episode=${episodeNum}&fallback=true` : `https://primesrc.me/embed/movie?tmdb=${content.tmdbId}`;
+      case 'iris':
+        return isSeries ? `https://vaplayer.ru/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vaplayer.ru/embed/movie/${content.tmdbId}`;
+      case 'omega':
+        return isSeries ? `https://vidfast.vc/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidfast.vc/movie/${content.tmdbId}`;
+      case 'vidsrc':
+        return isSeries ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
+      case 'videasy':
+        return isSeries ? `https://player.videasy.net/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://player.videasy.net/movie/${content.tmdbId}`;
+      case 'trailer':
+        return content.trailerUrl || '';
+      default:
+        return '';
+    }
+  };
 
-  const autoembedUrl = isSeries
-    ? `https://autoembed.to/tv/tmdb/${content.tmdbId}/${seasonNum}/${episodeNum}`
-    : `https://autoembed.to/movie/tmdb/${content.tmdbId}`;
+  const activeEmbedUrl = getEmbedUrl(selectedServer);
 
-  const videasyUrl = isSeries
-    ? `https://player.videasy.net/tv/${content.tmdbId}/${seasonNum}/${episodeNum}`
-    : `https://player.videasy.net/movie/${content.tmdbId}`;
-
-  const multiembedUrl = isSeries
-    ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}`
-    : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
-
-  const activeEmbedUrl = selectedServer === 'vidsrc'
-    ? vidsrcUrl
-    : selectedServer === 'autoembed'
-    ? autoembedUrl
-    : selectedServer === 'videasy'
-    ? videasyUrl
-    : selectedServer === 'multiembed'
-    ? multiembedUrl
-    : selectedServer === 'trailer'
-    ? (content.trailerUrl || '')
-    : '';
-
-  const handleServerChange = (newServer: 'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer') => {
+  const handleServerChange = (newServer: ServerType) => {
     if (newServer !== 'hls' && videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -554,92 +562,74 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
 
-        {/* Server Switcher Navigation */}
-        <div className="flex items-center gap-1 sm:gap-1.5 bg-black/80 backdrop-blur-md rounded-xl p-1 border border-white/15 pointer-events-auto shadow-2xl">
-          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-[10px] text-green-400 font-bold border-r border-white/10 mr-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            <span>ONLINE</span>
-          </div>
-          {content.tmdbId && (
-            <>
-              <button
-                onClick={() => handleServerChange('vidsrc')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedServer === 'vidsrc'
-                    ? 'bg-cinemix-primary text-white shadow-md'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-                title="Server 1: Full Stream VIP (VidSrc)"
-              >
-                Server 1 (VidSrc)
-              </button>
-              <button
-                onClick={() => handleServerChange('autoembed')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedServer === 'autoembed'
-                    ? 'bg-cinemix-primary text-white shadow-md'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-                title="Server 2: High-speed backup CDN (AutoEmbed)"
-              >
-                Server 2 (AutoEmbed)
-              </button>
-              <button
-                onClick={() => handleServerChange('videasy')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedServer === 'videasy'
-                    ? 'bg-cinemix-primary text-white shadow-md'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-                title="Server 3: Cineby Resolver Engine (Videasy)"
-              >
-                Server 3 (Videasy)
-              </button>
-              <button
-                onClick={() => handleServerChange('multiembed')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  selectedServer === 'multiembed'
-                    ? 'bg-cinemix-primary text-white shadow-md'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-                title="Server 4: MultiEmbed 4K Mirror"
-              >
-                Server 4 (MultiEmbed)
-              </button>
-            </>
-          )}
-          <button
-            onClick={() => handleServerChange('hls')}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              selectedServer === 'hls'
-                ? 'bg-cinemix-primary text-white shadow-md'
-                : 'text-gray-300 hover:text-white'
-            }`}
-            title="Server 5: Fast Direct HLS Cloud CDN"
-          >
-            Server 5 (HLS Cloud)
-          </button>
-          {content.trailerUrl && (
+        {/* Cineby Multi-Server Switcher Navigation */}
+        <div className="flex flex-col gap-1.5 max-w-full pointer-events-auto">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-black/85 backdrop-blur-xl rounded-2xl p-1.5 border border-white/15 shadow-2xl max-w-full overflow-x-auto hide-scrollbar">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 text-[10px] text-green-400 font-extrabold border-r border-white/10 mr-1 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span>ONLINE</span>
+            </div>
+
+            {/* Cineby Servers + Native Engines */}
+            {[
+              { id: 'comet', label: 'Comet', tag: 'Fast' },
+              { id: 'flux', label: 'Flux', tag: 'Cloud' },
+              { id: 'glow', label: 'Glow', tag: 'HD' },
+              { id: 'pulse', label: 'Pulse', tag: 'CC' },
+              { id: 'vega', label: 'Vega', tag: 'Top' },
+              { id: 'quill', label: 'Quill', tag: 'Low' },
+              { id: 'zeta', label: 'Zeta', tag: 'Sync' },
+              { id: 'blaze', label: 'Blaze', tag: 'Auto' },
+              { id: 'haze', label: 'Haze', tag: 'Prime' },
+              { id: 'iris', label: 'Iris', tag: 'FHD' },
+              { id: 'omega', label: 'Omega', tag: 'Turbo' },
+              { id: 'vidsrc', label: 'VidSrc', tag: 'VIP' },
+              { id: 'videasy', label: 'Videasy', tag: 'Engine' },
+              { id: 'hls', label: 'Cinemix HLS', tag: '4K Native' },
+              ...(content.trailerUrl ? [{ id: 'trailer', label: '4K Trailer', tag: 'Preview' }] : [])
+            ].filter(s => s.id === 'hls' || s.id === 'trailer' || !!content.tmdbId).map((s) => {
+              const isActive = selectedServer === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => handleServerChange(s.id as ServerType)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-cinemix-primary to-indigo-600 text-white shadow-lg shadow-indigo-500/30 scale-102 border border-indigo-400/40'
+                      : 'text-gray-300 hover:text-white bg-surface-100/60 hover:bg-surface-200 border border-white/[0.06]'
+                  }`}
+                  title={`Switch to Server: ${s.label}`}
+                >
+                  <span>{s.label}</span>
+                  <span className={`text-[9px] px-1 rounded font-black uppercase ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-gray-400'
+                  }`}>
+                    {s.tag}
+                  </span>
+                </button>
+              );
+            })}
+
+            {/* Where to Watch Trigger */}
             <button
-              onClick={() => handleServerChange('trailer')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                selectedServer === 'trailer'
-                  ? 'bg-cinemix-primary text-white shadow-md'
-                  : 'text-gray-300 hover:text-white'
-              }`}
-              title="Server 6: Official 4K Trailer"
+              onClick={() => setShowWhereToWatch(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap ml-1"
+              title="See authorized streaming providers (Netflix, Prime, Disney+, Vivamax)"
             >
-              Trailer
+              <Globe className="w-3.5 h-3.5" /> Where to Watch 🇵🇭
             </button>
-          )}
-          {/* Where to Watch Trigger */}
-          <button
-            onClick={() => setShowWhereToWatch(true)}
-            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all flex items-center gap-1.5 shadow-sm"
-            title="See authorized streaming providers (Netflix, Prime, Disney+)"
-          >
-            <Globe className="w-3.5 h-3.5" /> Where to Watch
-          </button>
+          </div>
+
+          {/* Cineby-style Hint Pill */}
+          <div className="flex items-center justify-between px-2 text-[11px] text-gray-400">
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>Server not working? Switch to another server above.</span>
+            </span>
+            <span className="text-[10px] text-gray-500 font-mono hidden sm:inline">
+              Active: {selectedServer.toUpperCase()} · 1080p Full HD
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">
