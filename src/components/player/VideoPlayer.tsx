@@ -169,9 +169,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [isPro]);
 
-  // Stream URL selection
-  const streamUrl = episode?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
-
   const searchParams = useSearchParams();
   const urlServerParam = searchParams?.get('server');
   const initialServer: ServerType = normalizeServer(urlServerParam || (content.tmdbId ? 'aurora' : 'hls'));
@@ -218,6 +215,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [currentEpisode, setCurrentEpisode] = useState<Episode | undefined>(episode);
   const [activeSeasonNumber, setActiveSeasonNumber] = useState<number>(episode?.seasonNumber || 1);
   const [activeEpisodeNumber, setActiveEpisodeNumber] = useState<number>(episode?.episodeNumber || 1);
+
+  // Active episode resolution & Stream URL selection
+  const activeEp = currentEpisode || episode;
+  const streamUrl = activeEp?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
   const [showEpisodesDrawer, setShowEpisodesDrawer] = useState(false);
   const [selectedDrawerSeason, setSelectedDrawerSeason] = useState<number>(episode?.seasonNumber || 1);
   const [fetchingSeason, setFetchingSeason] = useState(false);
@@ -390,6 +391,30 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         return isSeries 
           ? `https://vidsrc.pro/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
           : `https://vidsrc.pro/embed/movie/${content.tmdbId}`;
+      case 'pulse':
+        return isSeries
+          ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}`
+          : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
+      case 'zenith':
+      case 'vega':
+        return isSeries 
+          ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
+      case 'vortex':
+      case 'quill':
+        return isSeries 
+          ? `https://vidsrc.xyz/embed/tv/${content.tmdbId}/${seasonNum}-${episodeNum}` 
+          : `https://vidsrc.xyz/embed/movie/${content.tmdbId}`;
+      case 'horizon':
+      case 'zeta':
+        return isSeries 
+          ? `https://player.autoembed.cc/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://player.autoembed.cc/embed/movie/${content.tmdbId}`;
+      case 'titan':
+      case 'blaze':
+        return isSeries 
+          ? `https://vidsrc.vip/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.vip/embed/movie/${content.tmdbId}`;
       case 'sol':
       case 'haze':
         return isSeries 
@@ -403,14 +428,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         return isSeries ? `https://vidfast.vc/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidfast.vc/movie/${content.tmdbId}`;
       case 'aether':
       case 'vidsrc':
-        return isSeries ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
+        return isSeries ? `https://vidsrc.pm/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidsrc.pm/embed/movie/${content.tmdbId}`;
       case 'nova':
       case 'videasy':
         return isSeries ? `https://player.videasy.net/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://player.videasy.net/movie/${content.tmdbId}`;
       case 'trailer':
         return content.trailerUrl || '';
       default:
-        return '';
+        // Universal fallback to VidLink Pro VIP node whenever tmdbId is present
+        if (content.tmdbId) {
+          return isSeries 
+            ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914` 
+            : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914`;
+        }
+        return content.trailerUrl || '';
     }
   };
 
@@ -442,48 +473,97 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     const video = videoRef.current;
     if (!video || !entitlement.allowed || selectedServer !== 'hls') return;
 
+    let hlsInstance: Hls | null = null;
+
     if (Hls.isSupported()) {
-      const hls = new Hls({
+      hlsInstance = new Hls({
         capLevelToPlayerSize: true,
-        autoStartLoad: true
+        autoStartLoad: true,
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 90
       });
-      hlsRef.current = hls;
+      hlsRef.current = hlsInstance;
 
-      hls.loadSource(streamUrl);
-      hls.attachMedia(video);
+      hlsInstance.loadSource(streamUrl);
+      hlsInstance.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
         const levels = data.levels.map(l => ({
           label: `${l.height}p`,
           height: l.height
         }));
         setAvailableQualities(levels);
+
+        // Resume playback position if saved in profile
+        if (activeProfile) {
+          const progress = catalogService.getWatchProgress(activeProfile.id, content.id);
+          if (progress && progress.progressSeconds > 10 && !progress.completed) {
+            video.currentTime = progress.progressSeconds;
+          }
+        }
+
+        // Attempt autoplay with audio; gracefully fall back to muted autoplay if browser blocks
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch(() => {
+              video.muted = true;
+              setIsMuted(true);
+              video.play().then(() => setIsPlaying(true)).catch(() => {});
+            });
+        }
       });
 
-      hls.on(Hls.Events.ERROR, (event, data) => {
+      hlsInstance.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad();
+              hlsInstance?.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
+              hlsInstance?.recoverMediaError();
               break;
             default:
-              hls.destroy();
+              hlsInstance?.destroy();
+              // Try alternate multi-bitrate HLS stream if primary failed
+              if (streamUrl !== 'https://test-streams.mux.dev/test_001/stream.m3u8') {
+                const fallbackHls = new Hls({ autoStartLoad: true });
+                hlsRef.current = fallbackHls;
+                fallbackHls.loadSource('https://test-streams.mux.dev/test_001/stream.m3u8');
+                fallbackHls.attachMedia(video);
+                fallbackHls.on(Hls.Events.MANIFEST_PARSED, () => {
+                  video.play().then(() => setIsPlaying(true)).catch(() => {});
+                });
+              }
               break;
           }
         }
       });
 
       return () => {
-        hls.destroy();
+        if (hlsInstance) {
+          hlsInstance.destroy();
+          hlsRef.current = null;
+        }
       };
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native Safari HLS
+      // Native Apple Safari / iOS HLS
       video.src = streamUrl;
+      const onLoaded = () => {
+        video.play().then(() => setIsPlaying(true)).catch(() => {
+          video.muted = true;
+          setIsMuted(true);
+          video.play().then(() => setIsPlaying(true)).catch(() => {});
+        });
+      };
+      video.addEventListener('loadedmetadata', onLoaded);
+      return () => {
+        video.removeEventListener('loadedmetadata', onLoaded);
+      };
     }
-  }, [streamUrl, entitlement.allowed]);
+  }, [selectedServer, streamUrl, entitlement.allowed, activeProfile, content.id]);
 
   // Handle Ad Countdown (Only for free tier users)
   useEffect(() => {
@@ -738,14 +818,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               />
             </>
           ) : (
-            <div className="text-center p-6 text-gray-400 z-20 max-w-sm">
-              <p className="text-sm font-medium mb-3">No stream source found on this server mirror.</p>
-              <button
-                onClick={() => handleServerChange('hls')}
-                className="px-4 py-2 bg-cinemix-primary text-white rounded-xl text-xs font-bold hover:bg-cinemix-primary-hover transition-colors shadow-lg"
-              >
-                Switch to Cinemix Native 4K
-              </button>
+            <div className="text-center p-6 text-gray-400 z-20 max-w-sm space-y-3">
+              <p className="text-sm font-medium">No stream source found on this server mirror.</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleServerChange('aurora')}
+                  className="px-4 py-2 bg-surface-200 hover:bg-surface-300 text-white rounded-xl text-xs font-bold transition-colors shadow-md"
+                >
+                  Switch to Aurora VIP (Zero Ads)
+                </button>
+                <button
+                  onClick={() => handleServerChange('hls')}
+                  className="px-4 py-2 bg-cinemix-primary text-white rounded-xl text-xs font-bold hover:bg-cinemix-primary-hover transition-colors shadow-lg"
+                >
+                  Switch to Cinemix Native 4K
+                </button>
+              </div>
             </div>
           )}
         </div>
