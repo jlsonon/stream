@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Play, Plus, Check, Info, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Play, Plus, Check, Info, Sparkles, Volume2, VolumeX, Globe, Film } from 'lucide-react';
 import { ContentItem } from '@/types';
 import { catalogService } from '@/lib/catalog-service';
 import { useProfile } from '@/lib/profile-context';
@@ -64,10 +64,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
                 <Sparkles className="w-3.5 h-3.5" /> Pro Exclusive
               </span>
             )}
+            {item.score > 0 && (
+              <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-black/70 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
+                ⭐ {item.score.toFixed(1)}
+              </span>
+            )}
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10">
               {item.maturityRating}
             </span>
-            <span className="text-xs font-semibold text-green-400">
+            <span className="text-xs font-semibold text-emerald-400">
               {Math.round(item.score * 10)}% Match
             </span>
           </div>
@@ -83,7 +88,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
             <span>•</span>
             <span className="uppercase">{item.type.replace('_', ' ')}</span>
             <span>•</span>
-            <span className="px-1.5 py-0.5 rounded bg-white/10 font-medium text-white">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold text-emerald-400">
               {item.maxQuality}
             </span>
             {item.duration ? (
@@ -101,21 +106,30 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
             {item.longSynopsis || item.synopsis}
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
+          {/* Action Buttons (Cineby Style) */}
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
               href={`/watch/${item.id}`}
-              className="py-3 px-6 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-bold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-xl hover:scale-105"
+              className="py-3 px-6 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-xl hover:scale-105"
             >
               <Play className="w-5 h-5 fill-current" /> Watch Now
             </Link>
 
             <button
               onClick={() => onOpenDetails(item)}
-              className="py-3 px-5 sm:px-6 rounded-xl bg-surface-100/80 hover:bg-surface-200/90 text-white font-semibold text-sm sm:text-base border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105"
+              className="py-3 px-5 sm:px-6 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm sm:text-base border border-emerald-500/30 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 shadow-md"
             >
-              <Info className="w-5 h-5" /> Details
+              <Globe className="w-4 h-4" /> Where to Watch
             </button>
+
+            {item.trailerUrl && (
+              <Link
+                href={`/watch/${item.id}?server=trailer`}
+                className="py-3 px-4 sm:px-5 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-semibold text-sm border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105"
+              >
+                <Film className="w-4 h-4 text-cinemix-primary" /> Trailer
+              </Link>
+            )}
 
             <button
               onClick={handleToggleMyList}

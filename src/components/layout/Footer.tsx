@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li>
                 <Link href="/upgrade" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-400" /> Cinemix Pro (₱349)
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Cinemix Pro (₱399)
                 </Link>
               </li>
               <li>

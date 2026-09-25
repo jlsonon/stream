@@ -303,7 +303,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-2 shadow-md"
             >
-              <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro (₱349)
+              <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro (₱399)
             </Link>
             <Link
               href="/superadmin"

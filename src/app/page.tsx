@@ -243,7 +243,7 @@ export default function HomePage() {
               Unlock 4K Ultra HD & Zero Advertisements
             </h3>
             <p className="text-sm text-gray-300 leading-relaxed">
-              Experience the full cinema library in uncompressed 4K bitrate, Dolby 5.1 surround sound, and unlimited simultaneous screens for only ₱349/month.
+              Experience the full cinema library in uncompressed 4K bitrate, Dolby 5.1 surround sound, and unlimited simultaneous screens for only ₱399/month.
             </p>
           </div>
 

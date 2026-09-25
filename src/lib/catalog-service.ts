@@ -30,7 +30,7 @@ export const STARTER_CATALOG: ContentItem[] = COMPREHENSIVE_CATALOG;
 
 // Default Platform Settings
 export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
-  proPriceMonthly: 349,
+  proPriceMonthly: 399,
   currency: 'PHP',
   paymentInstructions: {
     gcash: {

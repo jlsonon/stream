@@ -53,12 +53,12 @@ export default function UpgradePage() {
     GCash: {
       accountName: 'Cinemix Media Philippines Inc.',
       accountNumber: '0917-888-2469',
-      instructions: 'Open your GCash App > Send Money > Express Send. Enter the mobile number below, input ₱349, and type your email in the message. Save screenshot of the receipt.',
+      instructions: 'Open your GCash App > Send Money > Express Send. Enter the mobile number below, input ₱399, and type your email in the message. Save screenshot of the receipt.',
     },
     Maya: {
       accountName: 'Cinemix Digital Entertainment',
       accountNumber: '0998-555-7389',
-      instructions: 'Open your Maya app > Send Money to Maya user. Input ₱349 and take a screenshot of the completed transaction slip.',
+      instructions: 'Open your Maya app > Send Money to Maya user. Input ₱399 and take a screenshot of the completed transaction slip.',
     },
     BDO: {
       accountName: 'Cinemix Interactive Corp.',
@@ -108,7 +108,7 @@ export default function UpgradePage() {
     const receipt: PaymentReceipt = {
       id: 'pay-' + Date.now(),
       userId: user?.uid || 'guest-user',
-      amount: 349,
+      amount: 399,
       currency: 'PHP',
       plan: 'PRO',
       method: selectedMethod,
@@ -145,7 +145,7 @@ export default function UpgradePage() {
           Upgrade to Cinemix <span className="text-gradient from-amber-400 to-amber-600">Pro</span>
         </h1>
         <p className="text-sm sm:text-base text-gray-400">
-          Experience uncompressed 4K streaming, zero commercial interruptions, and unlimited family profiles for only <strong className="text-white">₱349/month</strong>.
+          Experience uncompressed 4K streaming, zero commercial interruptions, and unlimited family profiles for only <strong className="text-white">₱399/month</strong>.
         </p>
       </div>
 
@@ -193,7 +193,7 @@ export default function UpgradePage() {
               </h3>
             </div>
             <div className="text-3xl font-extrabold text-white">
-              ₱349 <span className="text-xs text-amber-400/80 font-normal">/ 30 days</span>
+              ₱399 <span className="text-xs text-amber-400/80 font-normal">/ 30 days</span>
             </div>
             <p className="text-xs text-gray-300">The ultimate home theater cinema experience.</p>
 
@@ -221,7 +221,7 @@ export default function UpgradePage() {
               href="#payment-section"
               className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl hover:scale-102 transition-transform"
             >
-              <Sparkles className="w-4 h-4" /> Subscribe Now for ₱349
+              <Sparkles className="w-4 h-4" /> Subscribe Now for ₱399
             </a>
           </div>
         </div>
@@ -372,7 +372,7 @@ export default function UpgradePage() {
             disabled={submitting}
             className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 transition-all hover:scale-105 disabled:opacity-50"
           >
-            {submitting ? 'Submitting Receipt...' : 'Submit Receipt for Verification (₱349)'}
+            {submitting ? 'Submitting Receipt...' : 'Submit Receipt for Verification (₱399)'}
           </button>
         </form>
 

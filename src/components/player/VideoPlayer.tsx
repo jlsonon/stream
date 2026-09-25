@@ -20,13 +20,16 @@ import {
   Check, 
   Lock, 
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Globe,
+  X
 } from 'lucide-react';
 import { ContentItem, Episode, VideoQuality } from '@/types';
 import { useAuth } from '@/lib/auth-context';
 import { useProfile } from '@/lib/profile-context';
 import { canWatchContent, getMaxQuality, hasAds } from '@/lib/entitlements';
 import { catalogService } from '@/lib/catalog-service';
+import { WhereToWatch } from '@/components/catalog/WhereToWatch';
 import Link from 'next/link';
 
 interface VideoPlayerProps {
@@ -70,6 +73,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [selectedAudio, setSelectedAudio] = useState<string>('default');
   const [selectedSubtitle, setSelectedSubtitle] = useState<string>('off');
   const [availableQualities, setAvailableQualities] = useState<{ label: string; height: number }[]>([]);
+  const [showWhereToWatch, setShowWhereToWatch] = useState(false);
 
   // Ad Engine State
   const userHasAds = hasAds(user || { uid: 'guest', email: '', displayName: 'Guest', photoURL: '', role: 'user', plan: 'FREE', createdAt: new Date(), lastLoginAt: new Date() });
@@ -474,7 +478,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     href="/upgrade"
                     className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
                   >
-                    <Sparkles className="w-4 h-4" /> Go Ad-Free for ₱349/mo
+                    <Sparkles className="w-4 h-4" /> Go Ad-Free for ₱399/mo
                   </Link>
                 </div>
               </div>
@@ -592,6 +596,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               Trailer
             </button>
           )}
+          {/* Where to Watch Trigger */}
+          <button
+            onClick={() => setShowWhereToWatch(true)}
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all flex items-center gap-1.5 shadow-sm"
+            title="See authorized streaming providers (Netflix, Prime, Disney+)"
+          >
+            <Globe className="w-3.5 h-3.5" /> Where to Watch
+          </button>
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -854,6 +866,28 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
       </div>
+      )}
+
+      {/* Where to Watch Modal Overlay */}
+      {showWhereToWatch && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setShowWhereToWatch(false)}
+        >
+          <div 
+            className="relative w-full max-w-2xl bg-surface-100 rounded-3xl p-6 border border-white/10 shadow-2xl shadow-black animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowWhereToWatch(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <WhereToWatch item={content} />
+          </div>
+        </div>
       )}
     </div>
   );

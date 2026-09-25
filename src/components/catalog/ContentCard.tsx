@@ -58,26 +58,33 @@ export const ContentCard: React.FC<ContentCardProps> = ({
           loading="lazy"
         />
 
-        {/* Top Badges */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
+        {/* Top Badges (Cineby Style) */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
           {item.isProOnly ? (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> Pro
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> PRO
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-surface-300/80 backdrop-blur-md text-gray-200 border border-white/10">
-              {item.maxQuality}
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-black/70 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+              {item.maxQuality === '2160p' ? '4K' : 'HD'}
             </span>
           )}
 
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-black/60 backdrop-blur-md text-white border border-white/10">
-            {item.maturityRating}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {item.score > 0 && (
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-black/75 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                ⭐ {item.score.toFixed(1)}
+              </span>
+            )}
+            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-black/60 backdrop-blur-md text-white border border-white/10">
+              {item.maturityRating}
+            </span>
+          </div>
         </div>
 
         {/* Watch Progress Bar */}
         {progressPercent !== undefined && progressPercent > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/60">
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/60 z-10">
             <div 
               className="h-full bg-cinemix-primary transition-all duration-300"
               style={{ width: `${Math.min(100, Math.max(3, progressPercent))}%` }}
@@ -86,7 +93,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
         )}
 
         {/* Hover / Touch Quick Action Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end z-20">
           <div className="space-y-2">
             <h3 className="font-bold text-white text-sm sm:text-base line-clamp-1">
               {item.title}
@@ -124,13 +131,31 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                   e.stopPropagation();
                   onOpenDetails?.(item);
                 }}
-                title="More Information"
+                title="More Information & Where to Watch"
                 className="p-2 rounded-lg bg-surface-100/80 hover:bg-surface-200 border border-white/10 text-white transition-colors"
               >
                 <Info className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Cineby-Style Persistent Card Footer */}
+      <div className="pt-2 px-1 pb-1">
+        <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 group-hover:text-cinemix-primary transition-colors">
+          {item.title}
+        </h4>
+        <div className="flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5">
+          <span>{item.releaseYear}</span>
+          <span>•</span>
+          <span className="capitalize">{item.type.replace('_', ' ')}</span>
+          {item.genres?.[0] && (
+            <>
+              <span>•</span>
+              <span className="text-gray-400 truncate max-w-[85px]">{item.genres[0]}</span>
+            </>
+          )}
         </div>
       </div>
     </div>

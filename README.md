@@ -23,7 +23,7 @@ Built with Next.js 14 App Router, TypeScript, Tailwind CSS, HLS.js adaptive bitr
 - **Kids Profile Protection**: Automatically locks and hides R, NC-17, and TV-MA titles across Home, Browse, Search, and Player routes.
 - Individual watch history and watchlist per profile.
 
-### 3. Philippine Payment & Pro Subscription System (₱349/month)
+### 3. Philippine Payment & Pro Subscription System (₱399/month)
 - Direct payment channels: **GCash**, **Maya**, **BDO Unibank**, and **BPI**.
 - Account details with one-click copy buttons.
 - Receipt upload workflow: Reference number, sender account name, mobile number, and receipt screenshot.

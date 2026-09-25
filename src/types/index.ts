@@ -107,6 +107,23 @@ export interface Season {
   episodes: Episode[];
 }
 
+export interface WatchProvider {
+  id: number;
+  name: string;
+  logoUrl: string;
+  type: 'stream' | 'rent' | 'buy' | 'free';
+  displayPriority?: number;
+}
+
+export interface WatchAvailability {
+  country: string;
+  justWatchUrl?: string;
+  stream: WatchProvider[];
+  rent: WatchProvider[];
+  buy: WatchProvider[];
+  free: WatchProvider[];
+}
+
 export interface ContentItem {
   id: string;
   title: string;
@@ -137,6 +154,7 @@ export interface ContentItem {
   producers: string[];
   studio?: string;
   regionAvailability: string[];
+  watchAvailability?: Record<string, WatchAvailability>;
   featured: boolean;
   trending: boolean;
   newRelease: boolean;

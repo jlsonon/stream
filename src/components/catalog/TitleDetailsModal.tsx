@@ -20,6 +20,7 @@ import { ContentItem, Episode } from '@/types';
 import { catalogService } from '@/lib/catalog-service';
 import { useProfile } from '@/lib/profile-context';
 import { useToast } from '@/components/ui/Toast';
+import { WhereToWatch } from './WhereToWatch';
 
 interface TitleDetailsModalProps {
   item: ContentItem | null;
@@ -36,7 +37,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
   const { toast } = useToast();
   const [isInList, setIsInList] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(1);
-  const [activeTab, setActiveTab] = useState<'overview' | 'episodes'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'where-to-watch' | 'episodes'>('where-to-watch');
 
   React.useEffect(() => {
     if (item && activeProfile) {
@@ -135,12 +136,22 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Modal Tabs if Series/Anime */}
-        {item.seasons && item.seasons.length > 0 && (
-          <div className="flex items-center gap-4 px-6 border-b border-white/[0.06] bg-surface-50/50">
+        {/* Modal Navigation Tabs */}
+        <div className="flex items-center gap-4 px-6 border-b border-white/[0.06] bg-surface-50/70 overflow-x-auto hide-scrollbar">
+          <button
+            onClick={() => setActiveTab('where-to-watch')}
+            className={`py-3 text-sm font-bold transition-colors border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'where-to-watch'
+                ? 'border-cinemix-primary text-white'
+                : 'border-transparent text-gray-400 hover:text-white'
+            }`}
+          >
+            <Globe className="w-4 h-4 text-emerald-400" /> Where to Watch
+          </button>
+          {item.seasons && item.seasons.length > 0 && (
             <button
               onClick={() => setActiveTab('episodes')}
-              className={`py-3 text-sm font-semibold transition-colors border-b-2 ${
+              className={`py-3 text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === 'episodes'
                   ? 'border-cinemix-primary text-white'
                   : 'border-transparent text-gray-400 hover:text-white'
@@ -148,22 +159,26 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
             >
               Episodes ({item.seasons.reduce((acc, s) => acc + s.episodes.length, 0)})
             </button>
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`py-3 text-sm font-semibold transition-colors border-b-2 ${
-                activeTab === 'overview'
-                  ? 'border-cinemix-primary text-white'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              Overview & Details
-            </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`py-3 text-sm font-semibold transition-colors border-b-2 whitespace-nowrap ${
+              activeTab === 'overview'
+                ? 'border-cinemix-primary text-white'
+                : 'border-transparent text-gray-400 hover:text-white'
+            }`}
+          >
+            Overview & Cast
+          </button>
+        </div>
 
         {/* Body Content */}
         <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
-          {activeTab === 'episodes' && item.seasons && item.seasons.length > 0 ? (
+          {activeTab === 'where-to-watch' && (
+            <WhereToWatch item={item} />
+          )}
+
+          {activeTab === 'episodes' && item.seasons && item.seasons.length > 0 && (
             <div className="space-y-4">
               {/* Season Selector */}
               {item.seasons.length > 1 && (
@@ -221,7 +236,9 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                 ))}
               </div>
             </div>
-          ) : (
+          )}
+
+          {activeTab === 'overview' && (
             <div className="grid md:grid-cols-3 gap-6">
               {/* Left Column: Synopses */}
               <div className="md:col-span-2 space-y-4">
@@ -302,6 +319,11 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                     Rated {item.maturityRating} for thematic elements.
                   </p>
                 </div>
+              </div>
+
+              {/* Where to Watch Section in Overview */}
+              <div className="md:col-span-3 pt-2">
+                <WhereToWatch item={item} />
               </div>
             </div>
           )}

@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/Toast';
 
 const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'All Content', value: 'all' },
+  { label: 'Where to Watch 🇵🇭', value: 'where_to_watch' },
   { label: 'Movies', value: 'movie' },
   { label: 'TV Series', value: 'series' },
   { label: 'Anime & Animation', value: 'anime' },
@@ -104,6 +105,8 @@ function BrowseContent() {
           if (item.type !== 'ph_content' && !item.genres.includes('Philippine Cinema')) {
             return false;
           }
+        } else if (selectedType === 'where_to_watch') {
+          // Keep all items so users can discover where to watch any title
         } else if (item.type !== selectedType) {
           return false;
         }
@@ -184,7 +187,7 @@ function BrowseContent() {
       </div>
 
       {/* Genre Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 hide-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar">
         {GENRE_CHIPS.map((g) => (
           <button
             key={g}
@@ -199,6 +202,26 @@ function BrowseContent() {
           </button>
         ))}
       </div>
+
+      {/* Where to Watch Banner */}
+      {selectedType === 'where_to_watch' && (
+        <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500 text-black">
+                Cineby Aggregation Layer
+              </span>
+              <span className="text-xs text-amber-400 font-semibold">🇵🇭 Philippines & Global Availability</span>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-300">
+              Browse streaming availability across Netflix, Disney+, Prime Video, Apple TV, HBO Max, and Vivamax. Click any title to view verified provider links or launch the 4-server player.
+            </p>
+          </div>
+          <span className="text-xs font-bold text-amber-300 bg-black/40 border border-white/10 px-3 py-2 rounded-xl whitespace-nowrap self-start sm:self-auto">
+            ⚡ Powered by JustWatch & TMDB
+          </span>
+        </div>
+      )}
 
       {/* Content Grid */}
       {loading ? (

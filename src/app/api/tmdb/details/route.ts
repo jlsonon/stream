@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const endpoint = type === 'movie' ? 'movie' : 'tv';
-    const url = `https://api.themoviedb.org/3/${endpoint}/${id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits`;
+    const url = `https://api.themoviedb.org/3/${endpoint}/${id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits,watch/providers`;
     
     const res = await fetch(url);
     if (!res.ok) {
@@ -27,6 +27,43 @@ export async function GET(req: NextRequest) {
     const title = data.title || data.name || 'Untitled';
     const dateStr = data.release_date || data.first_air_date || '';
     const releaseYear = dateStr ? parseInt(dateStr.slice(0, 4), 10) : new Date().getFullYear();
+
+    // Parse Watch Providers (Legitimate where-to-watch streaming destinations)
+    const rawProviders = data['watch/providers']?.results || {};
+    const parseCountryProviders = (countryCode: string, entry: any) => {
+      if (!entry) {
+        return {
+          country: countryCode,
+          stream: [],
+          rent: [],
+          buy: [],
+          free: []
+        };
+      }
+      const mapList = (arr: any[], providerType: 'stream' | 'rent' | 'buy' | 'free') => {
+        return (arr || []).map((p: any) => ({
+          id: p.provider_id,
+          name: p.provider_name,
+          logoUrl: p.logo_path ? `https://image.tmdb.org/t/p/original${p.logo_path}` : '',
+          type: providerType,
+          displayPriority: p.display_priority
+        }));
+      };
+      return {
+        country: countryCode,
+        justWatchUrl: entry.link || undefined,
+        stream: mapList(entry.flatrate, 'stream'),
+        rent: mapList(entry.rent, 'rent'),
+        buy: mapList(entry.buy, 'buy'),
+        free: mapList(entry.free || entry.ads, 'free')
+      };
+    };
+
+    const watchAvailability: Record<string, any> = {
+      PH: parseCountryProviders('PH', rawProviders.PH),
+      US: parseCountryProviders('US', rawProviders.US),
+      GLOBAL: parseCountryProviders('GLOBAL', rawProviders.PH || rawProviders.US || Object.values(rawProviders)[0])
+    };
 
     // Check if anime
     const isAnime = data.original_language === 'ja' && data.genres?.some((g: any) => g.name === 'Animation');
@@ -117,6 +154,7 @@ export async function GET(req: NextRequest) {
       producers: (data.production_companies || []).slice(0, 2).map((c: any) => c.name),
       studio: data.production_companies?.[0]?.name || 'Cinemix Studios',
       regionAvailability: ['GLOBAL'],
+      watchAvailability,
       featured: false,
       trending: true,
       newRelease: true,
