@@ -732,7 +732,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 className={`w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300 ${
                   isIframeLoading ? 'opacity-0' : 'opacity-100'
                 }`}
-                sandbox={isPro && proShieldActive ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox" : undefined}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={content.title}

@@ -11,7 +11,7 @@ interface ResolveResponse {
   episode?: number;
   proShield: {
     status: 'active' | 'inactive';
-    antiPopupSandbox: boolean;
+    popupSuppression: boolean;
     antiRedirectFirewall: boolean;
     cleanMirrorsOnly: boolean;
   };
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       episode: isSeries ? episode : undefined,
       proShield: {
         status: 'active',
-        antiPopupSandbox: true,
+        popupSuppression: true,
         antiRedirectFirewall: true,
         cleanMirrorsOnly: true,
       },
