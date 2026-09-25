@@ -20,7 +20,8 @@ import {
   Eye, 
   AlertCircle,
   ShieldCheck,
-  Search
+  Search,
+  Star
 } from 'lucide-react';
 import { 
   ContentItem, 
@@ -534,8 +535,9 @@ export default function SuperadminPage() {
                         <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[10px] font-bold text-white border border-white/10 uppercase">
                           {item.type}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md bg-amber-500/90 text-black text-[10px] font-extrabold">
-                          ★ {item.score}
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/90 text-black text-[10px] font-extrabold flex items-center gap-1">
+                          <Star className="w-2.5 h-2.5 fill-black text-black" />
+                          <span>{item.score}</span>
                         </span>
                       </div>
                     </div>
@@ -638,8 +640,11 @@ export default function SuperadminPage() {
                         {item.maturityRating}
                       </span>
                     </td>
-                    <td className="p-4 text-green-400 font-bold">
-                      ★ {item.score}
+                    <td className="p-4 text-amber-400 font-bold">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        <span>{item.score}</span>
+                      </div>
                     </td>
                     <td className="p-4">
                       {item.isProOnly ? (

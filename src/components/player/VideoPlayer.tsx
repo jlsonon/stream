@@ -23,9 +23,13 @@ import {
   ExternalLink,
   Globe,
   ChevronDown,
-  X
+  X,
+  List,
+  Calendar,
+  Clock,
+  Loader2
 } from 'lucide-react';
-import { ContentItem, Episode, VideoQuality } from '@/types';
+import { ContentItem, Episode, Season, VideoQuality } from '@/types';
 import { useAuth } from '@/lib/auth-context';
 import { useProfile } from '@/lib/profile-context';
 import { canWatchContent, getMaxQuality, hasAds } from '@/lib/entitlements';
@@ -94,6 +98,7 @@ interface VideoPlayerProps {
   episode?: Episode;
   nextEpisode?: Episode;
   onNextEpisode?: () => void;
+  onSelectEpisode?: (episode: Episode) => void;
   onBack?: () => void;
 }
 
@@ -102,6 +107,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   episode,
   nextEpisode,
   onNextEpisode,
+  onSelectEpisode,
   onBack
 }) => {
   const router = useRouter();
@@ -175,10 +181,151 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  // Compute Embed URLs based on TMDB ID
-  const seasonNum = episode?.seasonNumber || 1;
-  const episodeNum = episode?.episodeNumber || 1;
+  // Series Seasons & Episode Management
+  const [seasons, setSeasons] = useState<Season[]>(content.seasons || []);
+  const [currentEpisode, setCurrentEpisode] = useState<Episode | undefined>(episode);
+  const [activeSeasonNumber, setActiveSeasonNumber] = useState<number>(episode?.seasonNumber || 1);
+  const [activeEpisodeNumber, setActiveEpisodeNumber] = useState<number>(episode?.episodeNumber || 1);
+  const [showEpisodesDrawer, setShowEpisodesDrawer] = useState(false);
+  const [selectedDrawerSeason, setSelectedDrawerSeason] = useState<number>(episode?.seasonNumber || 1);
+  const [fetchingSeason, setFetchingSeason] = useState(false);
+  const [seasonEpisodesCache, setSeasonEpisodesCache] = useState<Record<number, Episode[]>>(() => {
+    const initial: Record<number, Episode[]> = {};
+    if (content.seasons) {
+      for (const s of content.seasons) {
+        if (s.episodes && s.episodes.length > 0) {
+          initial[s.seasonNumber] = s.episodes;
+        }
+      }
+    }
+    return initial;
+  });
+
+  // Keep in sync with incoming episode prop
+  useEffect(() => {
+    if (episode) {
+      setCurrentEpisode(episode);
+      setActiveSeasonNumber(episode.seasonNumber);
+      setActiveEpisodeNumber(episode.episodeNumber);
+      setSelectedDrawerSeason(episode.seasonNumber);
+    }
+  }, [episode]);
+
+  // Keep seasons in sync with incoming content.seasons
+  useEffect(() => {
+    if (content.seasons && content.seasons.length > 0) {
+      setSeasons(content.seasons);
+    }
+  }, [content.seasons]);
+
   const isSeries = content.type === 'series' || content.type === 'anime' || !!content.seasons?.length;
+
+  // Background auto-hydration of all seasons for TV shows if TMDB ID exists
+  useEffect(() => {
+    if (!content.tmdbId || !isSeries) return;
+    let isCancelled = false;
+
+    async function loadAllSeasons() {
+      try {
+        const res = await fetch(`/api/tmdb/details?id=${content.tmdbId}&type=tv`);
+        if (res.ok && !isCancelled) {
+          const data = await res.json();
+          if (data.item?.seasons && data.item.seasons.length > 0) {
+            setSeasons(prev => {
+              if (data.item.seasons.length >= prev.length) {
+                return data.item.seasons;
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (e) {
+        // Non-blocking background sync
+      }
+    }
+
+    loadAllSeasons();
+    return () => {
+      isCancelled = true;
+    };
+  }, [content.tmdbId, isSeries]);
+
+  // Dynamic fetcher for specific season episodes from TMDB
+  const fetchSeasonEpisodes = useCallback(async (sNum: number) => {
+    if (!content.tmdbId) return;
+    const cached = seasonEpisodesCache[sNum];
+    if (cached && cached.length > 0 && cached[0]?.title !== `Episode 1`) {
+      return;
+    }
+    setFetchingSeason(true);
+    try {
+      const res = await fetch(`/api/tmdb/season?id=${content.tmdbId}&season=${sNum}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.episodes && data.episodes.length > 0) {
+          setSeasonEpisodesCache(prev => ({ ...prev, [sNum]: data.episodes }));
+          setSeasons(prev => {
+            const idx = prev.findIndex(s => s.seasonNumber === sNum);
+            if (idx !== -1) {
+              const copy = [...prev];
+              copy[idx] = { ...copy[idx], episodes: data.episodes };
+              return copy;
+            }
+            return [...prev, { seasonNumber: sNum, title: data.name || `Season ${sNum}`, episodes: data.episodes }];
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch season episodes:', err);
+    } finally {
+      setFetchingSeason(false);
+    }
+  }, [content.tmdbId, seasonEpisodesCache]);
+
+  // When drawer opens or selected drawer season changes, ensure episodes are loaded
+  useEffect(() => {
+    if (showEpisodesDrawer && content.tmdbId && isSeries) {
+      fetchSeasonEpisodes(selectedDrawerSeason);
+    }
+  }, [showEpisodesDrawer, selectedDrawerSeason, content.tmdbId, isSeries, fetchSeasonEpisodes]);
+
+  const handleEpisodeSelect = (ep: Episode) => {
+    setCurrentEpisode(ep);
+    setActiveSeasonNumber(ep.seasonNumber);
+    setActiveEpisodeNumber(ep.episodeNumber);
+    setIsIframeLoading(true);
+    setShowEpisodesDrawer(false);
+    if (onSelectEpisode) {
+      onSelectEpisode(ep);
+    }
+  };
+
+  // Compute active season and episode numbers for embed player
+  const seasonNum = currentEpisode?.seasonNumber || activeSeasonNumber || 1;
+  const episodeNum = currentEpisode?.episodeNumber || activeEpisodeNumber || 1;
+
+  // Dynamic next episode computation across episodes and season boundaries
+  const computedNextEpisode = React.useMemo(() => {
+    if (nextEpisode) return nextEpisode;
+    const currentSeasonObj = seasons.find(s => s.seasonNumber === seasonNum);
+    const nextInCurrent = currentSeasonObj?.episodes?.find(e => e.episodeNumber === episodeNum + 1);
+    if (nextInCurrent) return nextInCurrent;
+    const nextSeasonObj = seasons.find(s => s.seasonNumber === seasonNum + 1);
+    if (nextSeasonObj && nextSeasonObj.episodes?.length > 0) {
+      return nextSeasonObj.episodes[0];
+    }
+    return undefined;
+  }, [nextEpisode, seasons, seasonNum, episodeNum]);
+
+  const handleSmartNextEpisode = () => {
+    if (computedNextEpisode) {
+      handleEpisodeSelect(computedNextEpisode);
+      return;
+    }
+    if (onNextEpisode) {
+      onNextEpisode();
+    }
+  };
 
   const getEmbedUrl = (srv: ServerType): string => {
     if (!content.tmdbId) return content.trailerUrl || '';
@@ -667,9 +814,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <h2 className="font-bold text-white text-xs sm:text-base drop-shadow truncate">
               {content.title}
             </h2>
-            {episode ? (
-              <p className="text-[11px] sm:text-xs text-gray-300 drop-shadow truncate">
-                S{episode.seasonNumber} E{episode.episodeNumber}: {episode.title}
+            {isSeries ? (
+              <p className="text-[11px] sm:text-xs text-gray-300 drop-shadow truncate flex items-center gap-1.5">
+                <span className="font-bold text-cinemix-primary">S{seasonNum} E{episodeNum}</span>
+                {currentEpisode?.title && (
+                  <>
+                    <span>•</span>
+                    <span className="text-gray-300 truncate max-w-[130px] sm:max-w-[240px]">{currentEpisode.title}</span>
+                  </>
+                )}
               </p>
             ) : (
               <p className="text-[10px] sm:text-[11px] text-gray-400 drop-shadow flex items-center gap-1.5 truncate">
@@ -681,8 +834,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
 
-        {/* Center: Proprietary Cinemix Server Dropdown */}
-        <div ref={serverDropdownRef} className="relative pointer-events-auto flex flex-col items-center">
+        {/* Center: Server Dropdown & Season/Episode Selector */}
+        <div className="flex items-center gap-2 sm:gap-2.5 pointer-events-auto">
+          <div ref={serverDropdownRef} className="relative flex flex-col items-center">
           <button
             onClick={() => setShowServerDropdown(!showServerDropdown)}
             className={`group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border transition-all duration-200 flex items-center gap-2 sm:gap-2.5 shadow-2xl ${
@@ -808,10 +962,31 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   }}
                   className="w-full py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
                 >
-                  <Globe className="w-3.5 h-3.5" /> Where to Watch in the Philippines 🇵🇭
+                  <Globe className="w-3.5 h-3.5" /> Where to Watch (Philippines & Global)
                 </button>
               </div>
             </div>
+          )}
+          </div>
+
+          {/* Episode Drawer Button for Series / Anime */}
+          {isSeries && (
+            <button
+              onClick={() => setShowEpisodesDrawer(true)}
+              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinemix-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
+              title="Open Season and Episode Selector"
+            >
+              <List className="w-3.5 h-3.5 text-cinemix-primary group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs sm:text-sm font-black tracking-wide">
+                  S{seasonNum}:E{episodeNum}
+                </span>
+                <span className="hidden md:inline text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30">
+                  Episodes
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" />
+            </button>
           )}
         </div>
 
@@ -823,14 +998,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm whitespace-nowrap"
             title="See authorized streaming platforms in the Philippines (Netflix, Prime, Disney+, Vivamax)"
           >
-            <Globe className="w-3.5 h-3.5" /> <span className="hidden md:inline">Where to Watch</span> 🇵🇭
+            <Globe className="w-3.5 h-3.5" /> <span className="hidden md:inline">Where to Watch</span>
           </button>
 
-          {nextEpisode && onNextEpisode && (
+          {computedNextEpisode && (
             <button
-              onClick={onNextEpisode}
+              onClick={handleSmartNextEpisode}
               className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-200/80 hover:bg-surface-200 text-white border border-white/10 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
-              title={`Next Episode: ${nextEpisode.title}`}
+              title={`Next: S${computedNextEpisode.seasonNumber} E${computedNextEpisode.episodeNumber} - ${computedNextEpisode.title}`}
             >
               <span className="hidden sm:inline">Next</span> <SkipForward className="w-3.5 h-3.5" />
             </button>
@@ -1106,6 +1281,169 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <X className="w-5 h-5" />
             </button>
             <WhereToWatch item={content} />
+          </div>
+        </div>
+      )}
+
+      {/* Cinemix Seasons & Episodes Drawer Modal */}
+      {showEpisodesDrawer && (
+        <div 
+          className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex justify-end animate-fade-in pointer-events-auto"
+          onClick={() => setShowEpisodesDrawer(false)}
+        >
+          <div 
+            className="relative w-full max-w-2xl bg-surface-100/95 border-l border-white/10 h-full flex flex-col shadow-2xl backdrop-blur-2xl animate-slide-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drawer Header */}
+            <div className="p-4 sm:p-6 border-b border-white/[0.08] flex items-center justify-between bg-black/40">
+              <div className="min-w-0 pr-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-cinemix-primary px-2 py-0.5 rounded bg-cinemix-primary/10 border border-cinemix-primary/20">
+                    Episodes & Seasons
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {seasons.length} Season{seasons.length > 1 ? 's' : ''} • {seasons.reduce((acc, s) => acc + (s.episodes?.length || 0), 0)} Total Episodes
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-extrabold text-white truncate drop-shadow">
+                  {content.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowEpisodesDrawer(false)}
+                className="p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors border border-white/10 flex-shrink-0"
+                title="Close Drawer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Season Pill Bar */}
+            <div className="px-4 sm:px-6 py-3 border-b border-white/[0.06] bg-black/20 flex items-center gap-2 overflow-x-auto hide-scrollbar">
+              {seasons.map((s) => {
+                const isActive = s.seasonNumber === selectedDrawerSeason;
+                return (
+                  <button
+                    key={s.seasonNumber}
+                    onClick={() => {
+                      setSelectedDrawerSeason(s.seasonNumber);
+                      fetchSeasonEpisodes(s.seasonNumber);
+                    }}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all duration-200 ${
+                      isActive
+                        ? 'bg-cinemix-primary text-white shadow-lg shadow-cinemix-primary/30 scale-102 border border-cinemix-primary'
+                        : 'bg-surface-200/80 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/5'
+                    }`}
+                  >
+                    Season {s.seasonNumber}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Episodes List Container */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 hide-scrollbar">
+              {fetchingSeason ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center py-8 text-gray-400 gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-cinemix-primary" />
+                    <span className="text-xs font-medium">Fetching Season {selectedDrawerSeason} from TMDB...</span>
+                  </div>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-24 rounded-xl bg-surface-200/50 animate-pulse border border-white/5" />
+                  ))}
+                </div>
+              ) : (
+                (() => {
+                  const currentSeasonData = seasons.find(s => s.seasonNumber === selectedDrawerSeason);
+                  const epList = currentSeasonData?.episodes || [];
+
+                  if (epList.length === 0) {
+                    return (
+                      <div className="py-12 text-center text-gray-400 space-y-2">
+                        <p className="text-sm font-semibold">No episodes listed yet for Season {selectedDrawerSeason}.</p>
+                        <button
+                          onClick={() => fetchSeasonEpisodes(selectedDrawerSeason)}
+                          className="px-4 py-2 rounded-xl bg-cinemix-primary text-white text-xs font-bold hover:bg-cinemix-primary/90 transition-colors"
+                        >
+                          Refresh Season Data
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return epList.map((ep) => {
+                    const isPlayingThis = ep.seasonNumber === seasonNum && ep.episodeNumber === episodeNum;
+
+                    return (
+                      <button
+                        key={ep.id || `${ep.seasonNumber}-${ep.episodeNumber}`}
+                        onClick={() => handleEpisodeSelect(ep)}
+                        className={`w-full text-left p-3 rounded-2xl transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 group ${
+                          isPlayingThis
+                            ? 'bg-gradient-to-r from-cinemix-primary/20 via-surface-200 to-surface-200 border-2 border-cinemix-primary shadow-xl shadow-cinemix-primary/10'
+                            : 'bg-surface-200/60 hover:bg-surface-200 border border-white/5 hover:border-white/15'
+                        }`}
+                      >
+                        {/* Thumbnail with overlay badges */}
+                        <div className="relative aspect-video w-full sm:w-40 flex-shrink-0 rounded-xl overflow-hidden bg-surface-300">
+                          <img
+                            src={ep.thumbnailUrl || content.backdropUrl || content.posterUrl}
+                            alt={ep.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 flex items-center justify-center transition-colors">
+                            <div className={`p-2 rounded-full shadow-lg transition-transform group-hover:scale-110 ${
+                              isPlayingThis ? 'bg-cinemix-primary text-white' : 'bg-white/90 text-black'
+                            }`}>
+                              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                            </div>
+                          </div>
+                          {/* Duration Badge */}
+                          {ep.duration && (
+                            <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-black/80 text-white backdrop-blur-sm">
+                              {ep.duration}m
+                            </span>
+                          )}
+                          {/* Episode Number Pin */}
+                          <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-black/80 text-gray-200 backdrop-blur-sm">
+                            EP {ep.episodeNumber}
+                          </span>
+                        </div>
+
+                        {/* Episode Info */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className={`text-sm font-bold truncate transition-colors ${
+                              isPlayingThis ? 'text-cinemix-primary' : 'text-white group-hover:text-cinemix-primary'
+                            }`}>
+                              {ep.episodeNumber}. {ep.title}
+                            </h4>
+                            {isPlayingThis && (
+                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-cinemix-primary text-white flex-shrink-0 animate-pulse">
+                                Now Watching
+                              </span>
+                            )}
+                          </div>
+
+                          {ep.airDate && (
+                            <p className="text-[10px] font-medium text-gray-400">
+                              Aired {ep.airDate}
+                            </p>
+                          )}
+
+                          <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                            {ep.synopsis || `${content.title} Season ${ep.seasonNumber}, Episode ${ep.episodeNumber}`}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  });
+                })()
+              )}
+            </div>
           </div>
         </div>
       )}

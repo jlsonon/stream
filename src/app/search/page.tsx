@@ -39,12 +39,12 @@ const POPULAR_SEARCHES = [
 ];
 
 const AI_PROMPTS = [
-  { label: '⚡ Mind-bending Sci-Fi like Inception', prompt: 'mind-bending sci-fi thriller like inception with time and space twists' },
-  { label: '⛩️ Dark Psychological Anime', prompt: 'dark psychological anime thrillers with high suspense' },
-  { label: '🇵🇭 Masterpiece Philippine Cinema', prompt: 'critically acclaimed philippine cinema drama and romance' },
-  { label: '🔪 High-Stakes Crime Drama', prompt: 'high-stakes crime drama series like breaking bad' },
-  { label: '🧟 Zombie Survival Masterpieces', prompt: 'intense horror zombie survival movies and series' },
-  { label: '💫 Heartwarming Fantasy & Adventure', prompt: 'heartwarming animated fantasy and adventure movies' },
+  { label: 'Mind-bending Sci-Fi like Inception', prompt: 'mind-bending sci-fi thriller like inception with time and space twists' },
+  { label: 'Dark Psychological Anime', prompt: 'dark psychological anime thrillers with high suspense' },
+  { label: 'Masterpiece Philippine Cinema', prompt: 'critically acclaimed philippine cinema drama and romance' },
+  { label: 'High-Stakes Crime Drama', prompt: 'high-stakes crime drama series like breaking bad' },
+  { label: 'Zombie Survival Masterpieces', prompt: 'intense horror zombie survival movies and series' },
+  { label: 'Heartwarming Fantasy & Adventure', prompt: 'heartwarming animated fantasy and adventure movies' },
 ];
 
 interface TmdbSearchResult {
@@ -374,8 +374,9 @@ export default function SearchPage() {
                 </div>
 
                 <div className="text-right self-start sm:self-auto">
-                  <span className="text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 px-3 py-1.5 rounded-xl whitespace-nowrap">
-                    ⭐ Min Rating: 7.0+
+                  <span className="text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 px-3 py-1.5 rounded-xl whitespace-nowrap inline-flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>Min Rating: 7.0+</span>
                   </span>
                 </div>
               </div>

@@ -126,7 +126,7 @@ function parseNaturalLanguageQuery(query: string): SemanticQueryInterpretation {
   }
 
   const genreNames = themeTags.length > 0 ? themeTags.join(', ') : 'Popular Highlights';
-  const explanation = `Cinemix AI identified semantic themes: [${genreNames}] with high critical ratings (minimum ${minRating}⭐).`;
+  const explanation = `Cinemix AI identified semantic themes: [${genreNames}] with high critical ratings (minimum ${minRating}/10).`;
 
   return {
     genres: Array.from(new Set(detectedGenres)),

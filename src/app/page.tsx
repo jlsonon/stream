@@ -150,12 +150,12 @@ export default function HomePage() {
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar py-1">
             {[
               { id: 'all', label: 'All Content' },
-              { id: 'ph', label: '🇵🇭 Pinoy Hits' },
-              { id: 'trending', label: '🔥 Trending' },
-              { id: 'series', label: '📺 Global TV' },
-              { id: 'anime', label: '⚡ Anime' },
-              { id: 'movies', label: '🎬 Movies' },
-              { id: 'kdrama', label: '🍿 K-Drama' }
+              { id: 'ph', label: 'Pinoy Hits' },
+              { id: 'trending', label: 'Trending' },
+              { id: 'series', label: 'Global TV' },
+              { id: 'anime', label: 'Anime' },
+              { id: 'movies', label: 'Movies' },
+              { id: 'kdrama', label: 'K-Drama' }
             ].map(tab => {
               const active = activeFilter === tab.id;
               return (
@@ -177,7 +177,7 @@ export default function HomePage() {
           {/* Region Status Indicator */}
           <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>🇵🇭 Philippines & Global Fast CDN Ready</span>
+            <span>Philippines & Global Fast CDN Ready</span>
           </div>
         </div>
       </div>

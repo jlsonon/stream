@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Play, Plus, Check, Info, ShieldAlert, Sparkles } from 'lucide-react';
+import { Play, Plus, Check, Info, ShieldAlert, Sparkles, Star } from 'lucide-react';
 import { ContentItem } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { catalogService } from '@/lib/catalog-service';
@@ -94,7 +94,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
             )}
             {isPinoy && (
               <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-md">
-                🇵🇭 Pinoy
+                Pinoy
               </span>
             )}
           </div>
@@ -102,7 +102,8 @@ export const ContentCard: React.FC<ContentCardProps> = ({
           <div className="flex items-center gap-1.5">
             {item.score > 0 && (
               <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-black/75 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                ⭐ {item.score.toFixed(1)}
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                <span>{item.score.toFixed(1)}</span>
               </span>
             )}
             <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-black/60 backdrop-blur-md text-white border border-white/10">

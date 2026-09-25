@@ -13,7 +13,7 @@ import { useToast } from '@/components/ui/Toast';
 
 const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'All Content', value: 'all' },
-  { label: 'Where to Watch 🇵🇭', value: 'where_to_watch' },
+  { label: 'Where to Watch', value: 'where_to_watch' },
   { label: 'Movies', value: 'movie' },
   { label: 'TV Series', value: 'series' },
   { label: 'Anime & Animation', value: 'anime' },
@@ -211,14 +211,14 @@ function BrowseContent() {
               <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500 text-black">
                 Cineby Aggregation Layer
               </span>
-              <span className="text-xs text-amber-400 font-semibold">🇵🇭 Philippines & Global Availability</span>
+              <span className="text-xs text-amber-400 font-semibold">Philippines & Global Availability</span>
             </div>
             <p className="text-xs sm:text-sm text-gray-300">
               Browse streaming availability across Netflix, Disney+, Prime Video, Apple TV, HBO Max, and Vivamax. Click any title to view verified provider links or launch the 4-server player.
             </p>
           </div>
           <span className="text-xs font-bold text-amber-300 bg-black/40 border border-white/10 px-3 py-2 rounded-xl whitespace-nowrap self-start sm:self-auto">
-            ⚡ Powered by JustWatch & TMDB
+            Powered by JustWatch & TMDB
           </span>
         </div>
       )}

@@ -14,7 +14,8 @@ import {
   Tv, 
   Calendar, 
   Clock, 
-  Star 
+  Star,
+  Loader2 
 } from 'lucide-react';
 import { ContentItem, Episode } from '@/types';
 import { catalogService } from '@/lib/catalog-service';
@@ -38,8 +39,11 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
   const [isInList, setIsInList] = useState(false);
   const [selectedSeason, setSelectedSeason] = useState(1);
   const [activeTab, setActiveTab] = useState<'overview' | 'where-to-watch' | 'episodes'>('where-to-watch');
+  const [modalItem, setModalItem] = useState<ContentItem | null>(item);
+  const [isFetchingSeason, setIsFetchingSeason] = useState(false);
 
   React.useEffect(() => {
+    setModalItem(item);
     if (item && activeProfile) {
       const list = catalogService.getMyListIds(activeProfile.id);
       setIsInList(list.includes(item.id));
@@ -51,20 +55,81 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
     }
   }, [item, activeProfile]);
 
+  // Background season expansion from TMDB if series
+  React.useEffect(() => {
+    if (!item?.tmdbId) return;
+    const isSeries = item.type === 'series' || item.type === 'anime' || (item.seasons && item.seasons.length <= 1);
+    if (!isSeries) return;
+
+    let cancelled = false;
+    async function hydrateSeasons() {
+      try {
+        const res = await fetch(`/api/tmdb/details?id=${item!.tmdbId}&type=tv`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.item?.seasons && data.item.seasons.length > 0) {
+            setModalItem(prev => {
+              if (!prev) return null;
+              if (data.item.seasons.length >= (prev.seasons?.length || 0)) {
+                return { ...prev, seasons: data.item.seasons };
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (err) {
+        // non-blocking
+      }
+    }
+    hydrateSeasons();
+    return () => { cancelled = true; };
+  }, [item?.id, item?.tmdbId, item?.type]);
+
+  // Fetch episodes for selected season if not yet populated with real titles
+  React.useEffect(() => {
+    if (!modalItem?.tmdbId) return;
+    const targetSeasonObj = modalItem.seasons?.find(s => s.seasonNumber === selectedSeason);
+    const hasRealEpisodes = targetSeasonObj?.episodes && targetSeasonObj.episodes.length > 0 && targetSeasonObj.episodes[0].title !== 'Episode 1';
+
+    if (!hasRealEpisodes && targetSeasonObj) {
+      setIsFetchingSeason(true);
+      fetch(`/api/tmdb/season?id=${modalItem.tmdbId}&season=${selectedSeason}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.episodes && data.episodes.length > 0) {
+            setModalItem(prev => {
+              if (!prev || !prev.seasons) return prev;
+              const updatedSeasons = prev.seasons.map(s => {
+                if (s.seasonNumber === selectedSeason) {
+                  return { ...s, episodes: data.episodes };
+                }
+                return s;
+              });
+              return { ...prev, seasons: updatedSeasons };
+            });
+          }
+        })
+        .catch(err => console.warn('Failed to load season episodes:', err))
+        .finally(() => setIsFetchingSeason(false));
+    }
+  }, [selectedSeason, modalItem?.tmdbId]);
+
   if (!isOpen || !item) return null;
 
+  const activeItem = modalItem || item;
+
   const handleToggleMyList = () => {
-    if (!activeProfile || !item) return;
-    const added = catalogService.toggleMyList(activeProfile.id, item.id);
+    if (!activeProfile || !activeItem) return;
+    const added = catalogService.toggleMyList(activeProfile.id, activeItem.id);
     setIsInList(added);
     toast({
       type: added ? 'success' : 'info',
-      message: added ? `Added "${item.title}" to My List` : `Removed "${item.title}" from My List`,
+      message: added ? `Added "${activeItem.title}" to My List` : `Removed "${activeItem.title}" from My List`,
       duration: 3000
     });
   };
 
-  const currentSeason = item.seasons?.find(s => s.seasonNumber === selectedSeason) || item.seasons?.[0];
+  const currentSeason = activeItem.seasons?.find(s => s.seasonNumber === selectedSeason) || activeItem.seasons?.[0];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-0 sm:p-4 md:p-6 animate-fade-in">
@@ -178,63 +243,73 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
             <WhereToWatch item={item} />
           )}
 
-          {activeTab === 'episodes' && item.seasons && item.seasons.length > 0 && (
+          {activeTab === 'episodes' && activeItem.seasons && activeItem.seasons.length > 0 && (
             <div className="space-y-4">
               {/* Season Selector */}
-              {item.seasons.length > 1 && (
+              {activeItem.seasons.length > 1 && (
                 <div className="flex items-center justify-between pb-2 border-b border-white/[0.04]">
                   <select
                     value={selectedSeason}
                     onChange={(e) => setSelectedSeason(Number(e.target.value))}
                     className="bg-surface-200 border border-white/10 text-white px-3 py-1.5 rounded-lg text-sm font-medium focus-ring"
                   >
-                    {item.seasons.map((s) => (
+                    {activeItem.seasons.map((s) => (
                       <option key={s.seasonNumber} value={s.seasonNumber}>
                         {s.title}
                       </option>
                     ))}
                   </select>
                   <span className="text-xs text-gray-400">
-                    {currentSeason?.episodes.length} Episodes
+                    {currentSeason?.episodes?.length || 0} Episodes
                   </span>
                 </div>
               )}
 
-              {/* Episodes List */}
-              <div className="space-y-3">
-                {currentSeason?.episodes.map((ep) => (
-                  <Link
-                    key={ep.id}
-                    href={`/watch/${item.id}?episode=${ep.id}`}
-                    className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 rounded-xl bg-surface-50 hover:bg-surface-200 border border-white/[0.04] transition-all"
-                  >
-                    <div className="relative aspect-video w-full sm:w-36 flex-shrink-0 rounded-lg overflow-hidden bg-surface-300">
-                      <img
-                        src={ep.thumbnailUrl || item.backdropUrl}
-                        alt={ep.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 flex items-center justify-center transition-colors">
-                        <div className="p-2 rounded-full bg-white/90 text-black shadow-md group-hover:scale-110 transition-transform">
-                          <Play className="w-4 h-4 fill-current ml-0.5" />
+              {/* Episodes List or Loading */}
+              {isFetchingSeason ? (
+                <div className="py-8 flex flex-col items-center justify-center space-y-3">
+                  <Loader2 className="w-6 h-6 animate-spin text-cinemix-primary" />
+                  <p className="text-xs text-gray-400">Loading Season {selectedSeason} episodes from TMDB...</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {currentSeason?.episodes?.map((ep) => (
+                    <Link
+                      key={ep.id || `${ep.seasonNumber}-${ep.episodeNumber}`}
+                      href={`/watch/${activeItem.id}?season=${ep.seasonNumber}&episode=${ep.episodeNumber}`}
+                      className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 rounded-xl bg-surface-50 hover:bg-surface-200 border border-white/[0.04] transition-all"
+                    >
+                      <div className="relative aspect-video w-full sm:w-36 flex-shrink-0 rounded-lg overflow-hidden bg-surface-300">
+                        <img
+                          src={ep.thumbnailUrl || activeItem.backdropUrl || activeItem.posterUrl}
+                          alt={ep.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 flex items-center justify-center transition-colors">
+                          <div className="p-2 rounded-full bg-white/90 text-black shadow-md group-hover:scale-110 transition-transform">
+                            <Play className="w-4 h-4 fill-current ml-0.5" />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <h4 className="font-bold text-white text-sm group-hover:text-cinemix-primary transition-colors line-clamp-1">
-                          {ep.episodeNumber}. {ep.title}
-                        </h4>
-                        <span className="text-xs text-gray-400 flex-shrink-0">{ep.duration}m</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h4 className="font-bold text-white text-sm group-hover:text-cinemix-primary transition-colors line-clamp-1">
+                            {ep.episodeNumber}. {ep.title}
+                          </h4>
+                          {ep.duration && (
+                            <span className="text-xs text-gray-400 flex-shrink-0">{ep.duration}m</span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                          {ep.synopsis}
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
-                        {ep.synopsis}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

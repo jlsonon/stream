@@ -57,7 +57,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: '🇵🇭 Pinoy Hits', href: '/browse?type=ph_content' },
+    { name: 'Pinoy Hits', href: '/browse?type=ph_content' },
     { name: 'Series', href: '/browse?type=series' },
     { name: 'Movies', href: '/browse?type=movie' },
     { name: 'Anime', href: '/browse?type=anime' },

@@ -94,33 +94,70 @@ export async function GET(req: NextRequest) {
     const baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const contentId = `${contentType}-${baseSlug}-${data.id}`;
 
-    // Seasons for TV Series
+    // Complete Seasons & Episodes for TV Series (All Seasons & All Episodes)
     let seasons: Season[] | undefined = undefined;
     if (!isMovie) {
-      // Create Season 1 with episodes
-      const epCount = data.number_of_episodes ? Math.min(data.number_of_episodes, 10) : 6;
-      const episodes: Episode[] = [];
-      for (let i = 1; i <= epCount; i++) {
-        episodes.push({
-          id: `${contentId}-s1e${i}`,
-          seasonNumber: 1,
-          episodeNumber: i,
-          title: `Episode ${i}`,
-          synopsis: `${title} — Season 1, Episode ${i}`,
-          duration: data.episode_run_time?.[0] || 45,
-          thumbnailUrl: backdropUrl,
-          videoSources: [
-            { quality: '1080p', url: DEFAULT_HLS_STREAM, bitrate: 5500, codec: 'H.264' }
-          ]
-        });
-      }
-      seasons = [
-        {
-          seasonNumber: 1,
-          title: 'Season 1',
-          episodes
+      const rawSeasons = (data.seasons || []).filter((s: any) => s.season_number > 0);
+      const totalSeasonsToBuild = rawSeasons.length > 0 
+        ? rawSeasons 
+        : [{ season_number: 1, name: 'Season 1', episode_count: data.number_of_episodes || 12 }];
+
+      // Pre-fetch actual episode metadata for Season 1
+      let season1RealEpisodes: Episode[] = [];
+      try {
+        const s1Res = await fetch(`https://api.themoviedb.org/3/tv/${data.id}/season/1?api_key=${TMDB_API_KEY}`);
+        if (s1Res.ok) {
+          const s1Data = await s1Res.json();
+          season1RealEpisodes = (s1Data.episodes || []).map((ep: any) => ({
+            id: `${contentId}-s1e${ep.episode_number}`,
+            seasonNumber: 1,
+            episodeNumber: ep.episode_number,
+            title: ep.name || `Episode ${ep.episode_number}`,
+            synopsis: ep.overview || `${title} — Season 1, Episode ${ep.episode_number}`,
+            duration: ep.runtime || data.episode_run_time?.[0] || 45,
+            thumbnailUrl: ep.still_path ? `https://image.tmdb.org/t/p/w500${ep.still_path}` : backdropUrl,
+            airDate: ep.air_date || '',
+            videoSources: [
+              { quality: '1080p', url: DEFAULT_HLS_STREAM, bitrate: 5500, codec: 'H.264' }
+            ]
+          }));
         }
-      ];
+      } catch (err) {
+        // non-blocking fallback
+      }
+
+      seasons = totalSeasonsToBuild.map((s: any) => {
+        const sNum = s.season_number;
+        if (sNum === 1 && season1RealEpisodes.length > 0) {
+          return {
+            seasonNumber: 1,
+            title: s.name || 'Season 1',
+            episodes: season1RealEpisodes
+          };
+        }
+
+        const count = Math.max(1, s.episode_count || 10);
+        const epList: Episode[] = [];
+        for (let ep = 1; ep <= count; ep++) {
+          epList.push({
+            id: `${contentId}-s${sNum}e${ep}`,
+            seasonNumber: sNum,
+            episodeNumber: ep,
+            title: `Episode ${ep}`,
+            synopsis: `${title} — Season ${sNum}, Episode ${ep}`,
+            duration: data.episode_run_time?.[0] || 45,
+            thumbnailUrl: s.poster_path ? `https://image.tmdb.org/t/p/w500${s.poster_path}` : backdropUrl,
+            videoSources: [
+              { quality: '1080p', url: DEFAULT_HLS_STREAM, bitrate: 5500, codec: 'H.264' }
+            ]
+          });
+        }
+        return {
+          seasonNumber: sNum,
+          title: s.name || `Season ${sNum}`,
+          episodes: epList
+        };
+      });
     }
 
     const item: ContentItem = {

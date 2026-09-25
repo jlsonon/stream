@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Play, Plus, Check, Info, Sparkles, Volume2, VolumeX, Globe, Film } from 'lucide-react';
+import { Play, Plus, Check, Info, Sparkles, Volume2, VolumeX, Globe, Film, Star } from 'lucide-react';
 import { ContentItem } from '@/types';
 import { catalogService } from '@/lib/catalog-service';
 import { useProfile } from '@/lib/profile-context';
@@ -66,7 +66,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
             )}
             {item.score > 0 && (
               <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-black/70 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
-                ⭐ {item.score.toFixed(1)}
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>{item.score.toFixed(1)}</span>
               </span>
             )}
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10">

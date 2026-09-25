@@ -124,31 +124,32 @@ export async function GET(req: NextRequest) {
       // Build episodic seasons for series and anime
       let seasons: Season[] | undefined = undefined;
       if (!isMovie) {
-        const episodes: Episode[] = Array.from({ length: 8 }, (_, i) => ({
-          id: `${contentId}-s1e${i + 1}`,
-          seasonNumber: 1,
-          episodeNumber: i + 1,
-          title: `Episode ${i + 1}`,
-          synopsis: `${title} — Season 1 Episode ${i + 1}`,
-          duration: 45,
-          thumbnailUrl: backdropUrl,
-          videoSources: [
-            {
-              quality: '1080p',
-              url: DEFAULT_STREAM,
-              bitrate: 5500,
-              codec: 'H.264'
-            }
-          ]
-        }));
-
-        seasons = [
-          {
-            seasonNumber: 1,
-            title: 'Season 1',
+        const estimatedSeasons = r.number_of_seasons || 3;
+        seasons = Array.from({ length: estimatedSeasons }, (_, sIdx) => {
+          const sNum = sIdx + 1;
+          const episodes: Episode[] = Array.from({ length: 12 }, (_, i) => ({
+            id: `${contentId}-s${sNum}e${i + 1}`,
+            seasonNumber: sNum,
+            episodeNumber: i + 1,
+            title: `Episode ${i + 1}`,
+            synopsis: `${title} — Season ${sNum} Episode ${i + 1}`,
+            duration: 45,
+            thumbnailUrl: backdropUrl,
+            videoSources: [
+              {
+                quality: '1080p',
+                url: DEFAULT_STREAM,
+                bitrate: 5500,
+                codec: 'H.264'
+              }
+            ]
+          }));
+          return {
+            seasonNumber: sNum,
+            title: `Season ${sNum}`,
             episodes
-          }
-        ];
+          };
+        });
       }
 
       const item: ContentItem = {

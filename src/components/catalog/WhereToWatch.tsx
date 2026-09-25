@@ -150,7 +150,7 @@ export const WhereToWatch: React.FC<WhereToWatchProps> = ({ item, className = ''
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <span>🇵🇭</span> Philippines
+            <span className="px-1 py-0.5 rounded text-[9px] font-black bg-blue-500/20 text-blue-300 leading-none">PH</span> Philippines
           </button>
           <button
             onClick={() => setSelectedCountry('US')}
@@ -160,7 +160,7 @@ export const WhereToWatch: React.FC<WhereToWatchProps> = ({ item, className = ''
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            <span>🇺🇸</span> US
+            <span className="px-1 py-0.5 rounded text-[9px] font-black bg-red-500/20 text-red-300 leading-none">US</span> US
           </button>
           <button
             onClick={() => setSelectedCountry('GLOBAL')}

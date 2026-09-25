@@ -14,10 +14,24 @@ function WatchContent() {
   const router = useRouter();
 
   const contentId = params?.id as string;
-  const episodeId = searchParams.get('episode');
+  const seasonParam = searchParams.get('season');
+  const episodeParam = searchParams.get('episode');
 
   const [content, setContent] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hashSeason, setHashSeason] = useState<number | null>(null);
+  const [hashEpisode, setHashEpisode] = useState<number | null>(null);
+
+  // Check URL hash for Cineby format: #s1-e1
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const match = window.location.hash.match(/#s(\d+)-e(\d+)/i);
+      if (match) {
+        setHashSeason(parseInt(match[1], 10));
+        setHashEpisode(parseInt(match[2], 10));
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -33,7 +47,6 @@ function WatchContent() {
           const tmdbId = tmdbMatch[2];
           try {
             let res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${rawType}`);
-            // If movie not found, try tv (or vice-versa)
             if (!res.ok) {
               const altType = rawType === 'tv' ? 'movie' : 'tv';
               res = await fetch(`/api/tmdb/details?id=${tmdbId}&type=${altType}`);
@@ -50,6 +63,26 @@ function WatchContent() {
           }
         }
       }
+
+      // If TV series and has TMDB ID, ensure all seasons are populated
+      if (item && item.tmdbId && (item.type === 'series' || item.type === 'anime' || (item.seasons && item.seasons.length <= 1))) {
+        try {
+          const detailsRes = await fetch(`/api/tmdb/details?id=${item.tmdbId}&type=tv`);
+          if (detailsRes.ok) {
+            const detailsData = await detailsRes.json();
+            if (detailsData.item?.seasons && detailsData.item.seasons.length > (item.seasons?.length || 0)) {
+              item = {
+                ...item,
+                seasons: detailsData.item.seasons
+              };
+              catalogService.saveContent(item);
+            }
+          }
+        } catch (err) {
+          // Non-blocking
+        }
+      }
+
       setContent(item);
       setLoading(false);
     }
@@ -90,18 +123,44 @@ function WatchContent() {
   if (content.seasons && content.seasons.length > 0) {
     const allEpisodes: Episode[] = [];
     for (const season of content.seasons) {
-      allEpisodes.push(...season.episodes);
+      if (season.episodes && season.episodes.length > 0) {
+        allEpisodes.push(...season.episodes);
+      }
     }
 
-    if (episodeId) {
-      const idx = allEpisodes.findIndex(e => e.id === episodeId);
+    const targetSeason = seasonParam ? parseInt(seasonParam, 10) : hashSeason;
+    const targetEpisode = episodeParam ? (parseInt(episodeParam, 10) || null) : hashEpisode;
+
+    // 1. Match by both Season and Episode number
+    if (targetSeason !== null && targetSeason !== undefined && targetEpisode !== null && targetEpisode !== undefined) {
+      const idx = allEpisodes.findIndex(
+        e => e.seasonNumber === targetSeason && e.episodeNumber === targetEpisode
+      );
       if (idx !== -1) {
         activeEpisode = allEpisodes[idx];
         nextEpisode = allEpisodes[idx + 1];
       }
     }
 
-    // Default to the very first episode if none specified or matched
+    // 2. Match by Episode ID or Episode Number
+    if (!activeEpisode && episodeParam) {
+      const idx = allEpisodes.findIndex(e => e.id === episodeParam || e.episodeNumber === parseInt(episodeParam, 10));
+      if (idx !== -1) {
+        activeEpisode = allEpisodes[idx];
+        nextEpisode = allEpisodes[idx + 1];
+      }
+    }
+
+    // 3. Match by Target Season first episode
+    if (!activeEpisode && targetSeason !== null && targetSeason !== undefined) {
+      const seasonObj = content.seasons.find(s => s.seasonNumber === targetSeason);
+      if (seasonObj && seasonObj.episodes.length > 0) {
+        activeEpisode = seasonObj.episodes[0];
+        nextEpisode = seasonObj.episodes[1];
+      }
+    }
+
+    // 4. Default to first available episode
     if (!activeEpisode && allEpisodes.length > 0) {
       activeEpisode = allEpisodes[0];
       nextEpisode = allEpisodes[1];
@@ -113,9 +172,12 @@ function WatchContent() {
       content={content}
       episode={activeEpisode}
       nextEpisode={nextEpisode}
+      onSelectEpisode={(ep) => {
+        router.replace(`/watch/${content.id}?season=${ep.seasonNumber}&episode=${ep.episodeNumber}`, { scroll: false });
+      }}
       onNextEpisode={() => {
         if (nextEpisode) {
-          router.push(`/watch/${content.id}?episode=${nextEpisode.id}`);
+          router.replace(`/watch/${content.id}?season=${nextEpisode.seasonNumber}&episode=${nextEpisode.episodeNumber}`, { scroll: false });
         }
       }}
       onBack={() => router.push('/')}
