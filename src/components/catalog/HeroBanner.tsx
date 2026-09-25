@@ -169,21 +169,21 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         <div className="max-w-2xl space-y-4">
           {/* Brand & Category Tag */}
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="px-2.5 py-1 rounded-md text-xs font-bold tracking-wider uppercase bg-cinemix-primary text-white shadow-lg shadow-indigo-500/30">
+            <span className="px-2.5 py-1 rounded-md text-[11px] font-extrabold tracking-wider uppercase bg-cinemix-primary text-black shadow-glow-primary">
               Cinemix Premiere
             </span>
             {currentItem.isProOnly && (
-              <span className="px-2.5 py-1 rounded-md text-xs font-bold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black flex items-center gap-1 shadow-lg">
-                <Sparkles className="w-3.5 h-3.5" /> Pro Exclusive
+              <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-cinemix-primary/30 flex items-center gap-1 shadow-sm">
+                <Sparkles className="w-3 h-3 fill-current" /> Pro Exclusive
               </span>
             )}
             {currentItem.score > 0 && (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-black/70 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
+              <span className="px-2.5 py-0.5 rounded-md text-xs font-mono font-black bg-black/75 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span>{currentItem.score.toFixed(1)}</span>
               </span>
             )}
-            <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10">
+            <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10 uppercase">
               {currentItem.maturityRating}
             </span>
             <span className="text-xs font-semibold text-emerald-400">
@@ -192,7 +192,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-md leading-tight transition-all duration-300">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white drop-shadow-lg leading-tight transition-all duration-300">
             {currentItem.title}
           </h1>
 

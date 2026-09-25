@@ -301,7 +301,7 @@ export const WhereToWatch: React.FC<WhereToWatchProps> = ({ item, className = ''
 
         <Link
           href={`/watch/${item.id}`}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cinemix-primary to-indigo-500 hover:opacity-90 text-white font-extrabold text-xs shadow-lg shadow-indigo-500/20 transition-all hover:scale-105"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs shadow-glow-primary transition-all hover:scale-105 active:scale-95"
         >
           <Play className="w-3.5 h-3.5 fill-current" /> Open Cinemix Cinema Player
         </Link>

@@ -13,11 +13,11 @@ export const Badge: React.FC<BadgeProps> = ({ variant = 'default', size = 'sm', 
   
   const variants = {
     default: 'bg-surface-200 text-foreground border border-white/[0.04]',
-    primary: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
+    primary: 'bg-cinemix-primary/15 text-cinemix-primary border border-cinemix-primary/25',
     success: 'bg-green-500/20 text-green-400 border border-green-500/30',
     warning: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
     danger: 'bg-red-500/20 text-red-400 border border-red-500/30',
-    pro: 'bg-gradient-to-r from-amber-200 to-yellow-500 text-black shadow-glow-accent border-none font-bold',
+    pro: 'bg-cinemix-primary text-black shadow-glow-primary border-none font-black',
   };
 
   const sizes = {

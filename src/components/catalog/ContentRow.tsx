@@ -13,6 +13,7 @@ interface ContentRowProps {
   seeAllHref?: string;
   badge?: string;
   progressMap?: Record<string, number>;
+  isTop10?: boolean;
 }
 
 export const ContentRow: React.FC<ContentRowProps> = ({
@@ -21,7 +22,8 @@ export const ContentRow: React.FC<ContentRowProps> = ({
   onOpenDetails,
   seeAllHref,
   badge,
-  progressMap
+  progressMap,
+  isTop10 = false
 }) => {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -50,11 +52,11 @@ export const ContentRow: React.FC<ContentRowProps> = ({
       {/* Row Header */}
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
         <div className="flex items-center gap-2.5">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white group-hover/row:text-cinemix-primary transition-colors">
+          <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white group-hover/row:text-cinemix-primary transition-colors">
             {title}
           </h2>
           {badge && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-white/10">
               {badge}
             </span>
           )}
@@ -63,9 +65,9 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         {seeAllHref && (
           <Link 
             href={seeAllHref}
-            className="text-xs sm:text-sm font-medium text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+            className="text-xs font-semibold text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
           >
-            Explore all <ChevronRight className="w-4 h-4" />
+            Explore all <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         )}
       </div>
@@ -76,10 +78,10 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         {showLeftArrow && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity backdrop-blur-sm"
+            className="absolute left-0 top-0 bottom-0 z-30 w-12 bg-black/80 hover:bg-black text-white/80 hover:text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity backdrop-blur-md border-r border-white/5"
             aria-label="Scroll left"
           >
-            <ChevronLeft className="w-8 h-8" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
         )}
 
@@ -87,15 +89,28 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         <div
           ref={rowRef}
           onScroll={handleScroll}
-          className="flex items-center gap-3 sm:gap-4 overflow-x-auto px-4 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth"
+          className="flex items-start gap-4 sm:gap-5 overflow-x-auto px-4 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth"
         >
-          {items.map((item) => (
-            <ContentCard
-              key={item.id}
-              item={item}
-              onOpenDetails={onOpenDetails}
-              progressPercent={progressMap ? progressMap[item.id] : undefined}
-            />
+          {items.map((item, idx) => (
+            <div key={item.id} className="relative flex items-end flex-shrink-0 group/card">
+              {isTop10 && (
+                <div className="relative -mr-3 sm:-mr-5 z-0 select-none pointer-events-none pb-7 sm:pb-9">
+                  <span 
+                    className="text-6xl sm:text-7xl md:text-8xl font-black font-mono tracking-tighter text-transparent select-none leading-none block"
+                    style={{ WebkitTextStroke: '2px rgba(255, 255, 255, 0.28)' }}
+                  >
+                    {idx + 1}
+                  </span>
+                </div>
+              )}
+              <div className="relative z-10">
+                <ContentCard
+                  item={item}
+                  onOpenDetails={onOpenDetails}
+                  progressPercent={progressMap ? progressMap[item.id] : undefined}
+                />
+              </div>
+            </div>
           ))}
         </div>
 
@@ -103,10 +118,10 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         {showRightArrow && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity backdrop-blur-sm"
+            className="absolute right-0 top-0 bottom-0 z-30 w-12 bg-black/80 hover:bg-black text-white/80 hover:text-white flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity backdrop-blur-md border-l border-white/5"
             aria-label="Scroll right"
           >
-            <ChevronRight className="w-8 h-8" />
+            <ChevronRight className="w-7 h-7" />
           </button>
         )}
       </div>

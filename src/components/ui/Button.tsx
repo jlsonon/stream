@@ -17,8 +17,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus-ring disabled:opacity-50 disabled:cursor-not-allowed';
     
     const variants = {
-      primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-glow-primary border border-transparent',
-      secondary: 'bg-surface-200 hover:bg-surface-300 text-foreground border border-white/[0.04]',
+      primary: 'bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold shadow-glow-primary border border-transparent',
+      secondary: 'bg-surface-200 hover:bg-surface-300 text-foreground border border-white/[0.06]',
       ghost: 'bg-transparent hover:bg-surface-100 text-foreground border border-transparent',
       danger: 'bg-red-600 hover:bg-red-700 text-white border border-transparent',
     };

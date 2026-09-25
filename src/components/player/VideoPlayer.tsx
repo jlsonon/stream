@@ -49,7 +49,7 @@ export interface ServerNode {
 export const CINEMIX_SERVERS: ServerNode[] = [
   { id: 'aurora', name: 'Aurora CDN', tag: 'Fast', description: 'Primary High-Speed 1080p FHD Mirror', latency: '24ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
   { id: 'apex', name: 'Apex Cloud', tag: 'Cloud', description: 'Adaptive Bitrate Global Cloud', latency: '32ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30' },
-  { id: 'quantum', name: 'Quantum Ultra', tag: '4K Ready', description: 'Ultra-Low Latency & High Definition', latency: '28ms', badgeColor: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30' },
+  { id: 'quantum', name: 'Quantum Ultra', tag: '4K Ready', description: 'Ultra-Low Latency & High Definition', latency: '28ms', badgeColor: 'text-amber-300 bg-amber-400/10 border-amber-400/30' },
   { id: 'pulse', name: 'Pulse Core', tag: 'Multi-CC', description: 'Multi-Language Subtitles & Closed Captions', latency: '36ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
   { id: 'zenith', name: 'Zenith Mirror', tag: 'Stable', description: 'Fault-Tolerant Redundant Stream', latency: '41ms', badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
   { id: 'vortex', name: 'Vortex Direct', tag: 'Low Ping', description: 'Direct Zero-Buffering Pipeline', latency: '29ms', badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' },
@@ -922,7 +922,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       onClick={() => handleServerChange(node.id as ServerType)}
                       className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group ${
                         isActive
-                          ? 'bg-gradient-to-r from-cinemix-primary/20 via-indigo-600/20 to-surface-200 border border-cinemix-primary/50 text-white shadow-lg'
+                          ? 'bg-surface-200 border border-cinemix-primary text-white shadow-glow-primary'
                           : 'hover:bg-surface-200/70 border border-transparent text-gray-300 hover:text-white'
                       }`}
                     >

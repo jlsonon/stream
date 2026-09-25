@@ -22,8 +22,8 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-100/90 backdrop-blur-lg border-t border-white/[0.06] px-2 py-2">
-      <div className="flex items-center justify-around">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface-50/95 backdrop-blur-2xl border-t border-white/[0.08] px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-cinema">
+      <div className="flex items-center justify-around max-w-md mx-auto">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
@@ -32,12 +32,15 @@ export const BottomNav: React.FC = () => {
             <Link
               key={link.name}
               href={link.href}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-lg transition-colors ${
+              className={`relative flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
                 isActive ? 'text-cinemix-primary font-bold' : 'text-gray-400 hover:text-white'
               }`}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight">{link.name}</span>
+              <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
+              <span className="text-[10px] font-mono tracking-tight">{link.name}</span>
+              {isActive && (
+                <span className="w-1 h-1 rounded-full bg-cinemix-primary shadow-glow-primary mt-0.5" />
+              )}
             </Link>
           );
         })}

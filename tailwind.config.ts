@@ -13,19 +13,21 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         surface: {
-          50: "#0f1120",
-          100: "#141628",
-          200: "#1a1d35",
-          300: "#21243d",
+          50: "#0D0E11",
+          100: "#121417",
+          200: "#17191E",
+          300: "#1E2127",
         },
         cinemix: {
-          primary: "#6366f1",
-          "primary-hover": "#818cf8",
-          accent: "#f59e0b",
-          "accent-hover": "#fbbf24",
-          secondary: "#14b8a6",
+          primary: "#E5A93C",
+          "primary-hover": "#F3B952",
+          accent: "#FF3B30",
+          "accent-hover": "#FF5449",
+          tungsten: "#E5A93C",
+          scarlet: "#E50914",
+          muted: "#8E95A5",
         },
-        border: "rgba(255, 255, 255, 0.06)",
+        border: "rgba(255, 255, 255, 0.08)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
@@ -33,8 +35,8 @@ const config: Config = {
       },
       animation: {
         'shimmer': 'shimmer 2s linear infinite',
-        'fade-in': 'fadeIn 0.5s ease-out',
-        'scale-in': 'scaleIn 0.3s ease-out',
+        'fade-in': 'fadeIn 0.4s ease-out',
+        'scale-in': 'scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         'pulse-subtle': 'pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
@@ -47,7 +49,7 @@ const config: Config = {
           '100%': { opacity: '1' },
         },
         scaleIn: {
-          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '0%': { transform: 'scale(0.96)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
         pulseSubtle: {
@@ -56,8 +58,10 @@ const config: Config = {
         }
       },
       boxShadow: {
-        'glow-primary': '0 0 20px rgba(99, 102, 241, 0.3)',
-        'glow-accent': '0 0 20px rgba(245, 158, 11, 0.3)',
+        'cinema': '0 12px 32px -4px rgba(0, 0, 0, 0.75)',
+        'elevated': '0 20px 48px -8px rgba(0, 0, 0, 0.88)',
+        'glow-primary': '0 0 24px rgba(229, 169, 60, 0.22)',
+        'glow-accent': '0 0 24px rgba(255, 59, 48, 0.2)',
       }
     },
   },

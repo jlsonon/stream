@@ -152,66 +152,66 @@ export default function UpgradePage() {
       {/* Plan Feature Comparison Cards */}
       <div className="grid md:grid-cols-2 gap-6 mb-16">
         {/* Free Plan */}
-        <div className="p-8 rounded-3xl bg-surface-50 border border-white/[0.06] space-y-6 flex flex-col justify-between">
+        <div className="p-8 rounded-3xl bg-surface-100 border border-white/[0.08] shadow-cinema space-y-6 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-white">Cinemix Free</h3>
-              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-surface-200 text-gray-400">
+              <h3 className="text-xl font-extrabold text-white">Cinemix Free</h3>
+              <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-surface-200 text-gray-400 border border-white/5">
                 Current Plan
               </span>
             </div>
-            <div className="text-3xl font-extrabold text-white">₱0 <span className="text-xs text-gray-400 font-normal">/ month</span></div>
-            <p className="text-xs text-gray-400">Basic streaming experience for casual viewers.</p>
+            <div className="text-4xl font-black text-white font-mono">₱0 <span className="text-xs text-gray-400 font-normal">/ month</span></div>
+            <p className="text-xs text-gray-400">Essential streaming experience for casual viewers.</p>
 
             <ul className="space-y-3 pt-4 text-xs sm:text-sm text-gray-300">
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-gray-400" /> Standard 720p HD streaming
+                <Check className="w-4 h-4 text-gray-500" /> Standard 720p HD streaming
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-gray-400" /> Watch with sponsor ads
+                <Check className="w-4 h-4 text-gray-500" /> Standard audio & sponsor spots
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-gray-400" /> 1 User profile
+                <Check className="w-4 h-4 text-gray-500" /> 1 User profile
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-gray-400" /> 60 minutes daily watch limit
+                <Check className="w-4 h-4 text-gray-500" /> Daily session limits
               </li>
             </ul>
           </div>
         </div>
 
         {/* Pro Plan */}
-        <div className="relative p-8 rounded-3xl bg-gradient-to-b from-surface-100 to-indigo-950/30 border-2 border-amber-500/50 shadow-2xl shadow-amber-500/10 space-y-6 flex flex-col justify-between">
-          <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-lg">
-            Recommended
+        <div className="relative p-8 rounded-3xl bg-surface-100 border-2 border-cinemix-primary/70 shadow-cinema space-y-6 flex flex-col justify-between">
+          <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-cinemix-primary text-black shadow-glow-primary">
+            Official Premiere Pass
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                Cinemix Pro <Sparkles className="w-5 h-5 text-amber-400" />
+              <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                Cinemix Pro <Sparkles className="w-5 h-5 text-cinemix-primary fill-current" />
               </h3>
             </div>
-            <div className="text-3xl font-extrabold text-white">
-              ₱399 <span className="text-xs text-amber-400/80 font-normal">/ 30 days</span>
+            <div className="text-4xl font-black text-white font-mono">
+              ₱399 <span className="text-xs text-cinemix-primary font-normal">/ 30 days</span>
             </div>
-            <p className="text-xs text-gray-300">The ultimate home theater cinema experience.</p>
+            <p className="text-xs text-gray-300">The authoritative high-bandwidth home theater experience.</p>
 
             <ul className="space-y-3 pt-4 text-xs sm:text-sm text-white">
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-amber-400 font-bold" /> 4K Ultra HD & 1080p Crystal Clear
+                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Native 4K Ultra HD & 1080p Crystal Clear
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-amber-400 font-bold" /> 100% Ad-Free uninterrupted playback
+                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> 100% Ad-Free uninterrupted playback
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-amber-400 font-bold" /> Up to 5 Profiles + Kids Protection
+                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Up to 5 Profiles + Kids Protection
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-amber-400 font-bold" /> Unlimited daily watch time
+                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Unlimited daily watch time on all devices
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-amber-400 font-bold" /> Dolby 5.1 Surround Sound & Subtitles
+                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Dolby Atmos / 5.1 Surround & Multi-Subtitles
               </li>
             </ul>
           </div>
@@ -219,49 +219,62 @@ export default function UpgradePage() {
           <div className="pt-4">
             <a
               href="#payment-section"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl hover:scale-102 transition-transform"
+              className="w-full py-3.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-glow-primary hover:scale-102 transition-all active:scale-98"
             >
-              <Sparkles className="w-4 h-4" /> Subscribe Now for ₱399
+              <Sparkles className="w-4 h-4 fill-current" /> Subscribe Now for ₱399
             </a>
           </div>
         </div>
       </div>
 
       {/* Manual Payment Section */}
-      <div id="payment-section" className="bg-surface-50 border border-white/[0.06] rounded-3xl p-6 sm:p-10 space-y-8">
+      <div id="payment-section" className="bg-surface-100 border border-white/[0.08] rounded-3xl p-6 sm:p-10 space-y-8 shadow-cinema">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Philippine Payment Instructions</h2>
-          <p className="text-xs sm:text-sm text-gray-400">
-            Pay via your preferred mobile wallet or local bank, then upload your transaction receipt below for immediate Superadmin review.
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+              QR Ph & InstaPay Verified
+            </span>
+          </div>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Philippine Payment Instructions</h2>
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">
+            Transfer via your preferred mobile wallet or bank, then upload your transaction reference below for immediate Superadmin activation.
           </p>
         </div>
 
-        {/* Payment Method Selector Tabs */}
+        {/* Payment Method Selector Tabs with Official Philippine Brand Accents */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {(['GCash', 'Maya', 'BDO', 'BPI'] as PaymentMethod[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setSelectedMethod(m)}
-              className={`p-4 rounded-2xl border text-center transition-all ${
-                selectedMethod === m
-                  ? 'bg-cinemix-primary/20 border-cinemix-primary text-white shadow-lg shadow-indigo-500/10'
-                  : 'bg-surface-100/60 border-white/[0.04] text-gray-400 hover:text-white'
-              }`}
-            >
-              <div className="font-bold text-sm sm:text-base">{m}</div>
-              <div className="text-[10px] text-gray-400 mt-1">Official Account</div>
-            </button>
-          ))}
+          {([
+            { id: 'GCash', label: 'GCash', tag: 'Instant QR Ph', borderActive: 'border-[#007DFE]', textActive: 'text-[#007DFE]', bgBadge: 'bg-[#007DFE]/15 text-[#007DFE]' },
+            { id: 'Maya', label: 'Maya', tag: 'Instant QR Ph', borderActive: 'border-[#00D632]', textActive: 'text-[#00D632]', bgBadge: 'bg-[#00D632]/15 text-[#00D632]' },
+            { id: 'BDO', label: 'BDO Unibank', tag: 'InstaPay / PESONet', borderActive: 'border-amber-400', textActive: 'text-amber-400', bgBadge: 'bg-amber-400/15 text-amber-300' },
+            { id: 'BPI', label: 'BPI Bank', tag: 'InstaPay / PESONet', borderActive: 'border-red-500', textActive: 'text-red-400', bgBadge: 'bg-red-500/15 text-red-300' }
+          ] as const).map((m) => {
+            const isSelected = selectedMethod === m.id;
+            return (
+              <button
+                key={m.id}
+                onClick={() => setSelectedMethod(m.id as PaymentMethod)}
+                className={`p-4 rounded-2xl border text-center transition-all ${
+                  isSelected
+                    ? `bg-surface-200 ${m.borderActive} text-white shadow-cinema`
+                    : 'bg-surface-200/50 border-white/[0.05] text-gray-400 hover:text-white hover:border-white/15'
+                }`}
+              >
+                <div className={`font-black text-sm sm:text-base ${isSelected ? m.textActive : 'text-white'}`}>{m.label}</div>
+                <div className={`text-[10px] font-mono mt-1 px-1.5 py-0.5 rounded inline-block ${m.bgBadge}`}>{m.tag}</div>
+              </button>
+            );
+          })}
         </div>
 
         {/* Selected Channel Details Box */}
         {selectedMethod && (
-          <div className="p-6 rounded-2xl bg-surface-100 border border-white/10 space-y-4">
+          <div className="p-6 rounded-2xl bg-surface-200 border border-white/10 space-y-4 shadow-sm">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <span className="text-xs text-gray-400 block mb-1">Account Name:</span>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-surface-200 border border-white/[0.04]">
-                  <span className="font-bold text-white text-sm">
+                <span className="text-xs font-mono text-gray-400 block mb-1">Account Name:</span>
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-100 border border-white/[0.06]">
+                  <span className="font-extrabold text-white text-sm">
                     {paymentChannels[selectedMethod as keyof typeof paymentChannels]?.accountName}
                   </span>
                   <button
@@ -274,9 +287,9 @@ export default function UpgradePage() {
               </div>
 
               <div>
-                <span className="text-xs text-gray-400 block mb-1">Account / Mobile Number:</span>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-surface-200 border border-white/[0.04]">
-                  <span className="font-mono font-bold text-amber-400 text-sm">
+                <span className="text-xs font-mono text-gray-400 block mb-1">Account / Mobile Number:</span>
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-100 border border-white/[0.06]">
+                  <span className="font-mono font-black text-cinemix-primary text-base">
                     {paymentChannels[selectedMethod as keyof typeof paymentChannels]?.accountNumber}
                   </span>
                   <button
@@ -289,15 +302,20 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <p className="text-xs text-gray-300 leading-relaxed bg-surface-200/50 p-3 rounded-xl">
-              {paymentChannels[selectedMethod as keyof typeof paymentChannels]?.instructions}
-            </p>
+            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-surface-100/70 border border-white/[0.04]">
+              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold mt-0.5">
+                INSTRUCTIONS
+              </span>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                {paymentChannels[selectedMethod as keyof typeof paymentChannels]?.instructions}
+              </p>
+            </div>
           </div>
         )}
 
         {/* Receipt Submission Form */}
-        <form onSubmit={handleSubmitReceipt} className="space-y-6 pt-4 border-t border-white/[0.06]">
-          <h3 className="text-lg font-bold text-white">Submit Payment Receipt</h3>
+        <form onSubmit={handleSubmitReceipt} className="space-y-6 pt-4 border-t border-white/[0.08]">
+          <h3 className="text-lg font-extrabold text-white">Submit Payment Receipt</h3>
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
@@ -310,7 +328,7 @@ export default function UpgradePage() {
                 value={referenceNumber}
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 placeholder="e.g. 100293849102"
-                className="w-full px-4 py-3 rounded-xl bg-surface-100 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring"
+                className="w-full px-4 py-3 rounded-xl bg-surface-200 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring font-mono"
               />
             </div>
 
@@ -324,7 +342,7 @@ export default function UpgradePage() {
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
                 placeholder="e.g. Maria Santos"
-                className="w-full px-4 py-3 rounded-xl bg-surface-100 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring"
+                className="w-full px-4 py-3 rounded-xl bg-surface-200 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring"
               />
             </div>
 
@@ -337,7 +355,7 @@ export default function UpgradePage() {
                 value={senderNumber}
                 onChange={(e) => setSenderNumber(e.target.value)}
                 placeholder="e.g. 0917-xxx-xxxx"
-                className="w-full px-4 py-3 rounded-xl bg-surface-100 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring"
+                className="w-full px-4 py-3 rounded-xl bg-surface-200 border border-white/10 text-white placeholder-gray-500 text-sm focus-ring font-mono"
               />
             </div>
           </div>
@@ -348,7 +366,7 @@ export default function UpgradePage() {
               Upload Receipt Screenshot / Photo (Optional but recommended)
             </label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <label className="cursor-pointer px-6 py-4 rounded-2xl bg-surface-100 border border-dashed border-white/20 hover:border-cinemix-primary flex items-center gap-3 transition-colors text-xs text-gray-300">
+              <label className="cursor-pointer px-6 py-4 rounded-2xl bg-surface-200 border border-dashed border-white/20 hover:border-cinemix-primary flex items-center gap-3 transition-colors text-xs text-gray-300">
                 <Upload className="w-5 h-5 text-cinemix-primary" />
                 <span>{receiptImage ? 'Change Image' : 'Select Screenshot (PNG, JPG)'}</span>
                 <input
@@ -360,7 +378,7 @@ export default function UpgradePage() {
               </label>
 
               {receiptImage && (
-                <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/20">
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-white/20 shadow-md">
                   <img src={receiptImage} alt="Receipt preview" className="w-full h-full object-cover" />
                 </div>
               )}
@@ -370,7 +388,7 @@ export default function UpgradePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 transition-all hover:scale-105 disabled:opacity-50"
+            className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {submitting ? 'Submitting Receipt...' : 'Submit Receipt for Verification (₱399)'}
           </button>

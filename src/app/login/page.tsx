@@ -73,13 +73,21 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cinemix-primary to-indigo-400 flex items-center justify-center shadow-xl shadow-indigo-500/25">
-              <Film className="w-6 h-6 text-white" />
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-2xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 transition-all">
+              <div className="relative flex items-center justify-center">
+                <span className="font-mono text-lg font-black tracking-tighter text-white">C</span>
+                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
+              </div>
             </div>
-            <span className="text-3xl font-black text-white">
-              Cine<span className="text-cinemix-primary">mix</span>
-            </span>
+            <div className="flex flex-col text-left">
+              <span className="text-2xl font-black tracking-wider text-white leading-none font-sans uppercase">
+                CINE<span className="text-cinemix-primary">MIX</span>
+              </span>
+              <span className="text-[9px] font-mono tracking-[0.22em] text-gray-500 uppercase leading-none mt-1">
+                ENTERTAINMENT
+              </span>
+            </div>
           </Link>
           <p className="text-xs sm:text-sm text-gray-400 mt-2">
             {mode === 'login' ? 'Sign in to access your watchlists and stream' : 'Create your Cinemix account in seconds'}
@@ -87,7 +95,7 @@ export default function LoginPage() {
         </div>
 
         {/* Auth Form Card */}
-        <div className="rounded-3xl bg-surface-100 border border-white/10 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="rounded-3xl bg-surface-100 border border-white/10 p-6 sm:p-8 shadow-cinema space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
               <div>
@@ -146,7 +154,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 transition-all hover:scale-102 disabled:opacity-50"
+              className="w-full py-3.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-102 disabled:opacity-50"
             >
               {loading ? 'Please wait...' : (mode === 'login' ? 'Sign In' : 'Create Free Account')}
             </button>

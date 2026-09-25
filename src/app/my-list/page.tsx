@@ -82,7 +82,7 @@ export default function MyListPage() {
           <div className="pt-2">
             <Link
               href="/browse"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-semibold text-xs transition-colors shadow-lg shadow-indigo-500/25"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs transition-all shadow-glow-primary hover:scale-105 active:scale-95"
             >
               Explore Catalog <ArrowRight className="w-4 h-4" />
             </Link>

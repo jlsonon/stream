@@ -68,35 +68,47 @@ export const Navbar: React.FC = () => {
     <header 
       className={`fixed top-0 w-full z-40 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-background/95 backdrop-blur-md border-b border-white/[0.06] shadow-lg shadow-black/40' 
-          : 'bg-gradient-to-b from-black/90 via-black/40 to-transparent'
+          ? 'bg-surface-50/95 backdrop-blur-xl border-b border-white/[0.08] shadow-cinema' 
+          : 'bg-gradient-to-b from-black/95 via-black/50 to-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo & Desktop Nav */}
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cinemix-primary to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-                <Film className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-8 lg:gap-10">
+            <Link href="/" className="flex items-center gap-3 group">
+              {/* Monolithic Cinema Emblem */}
+              <div className="w-9 h-9 rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 group-hover:shadow-glow-primary transition-all">
+                <div className="relative flex items-center justify-center">
+                  <span className="font-mono text-base font-black tracking-tighter text-white">C</span>
+                  <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
+                </div>
               </div>
-              <span className="text-2xl font-black tracking-tight text-white">
-                Cine<span className="text-cinemix-primary">mix</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="text-xl font-black tracking-wider text-white leading-none font-sans uppercase">
+                  CINE<span className="text-cinemix-primary">MIX</span>
+                </span>
+                <span className="text-[8.5px] font-mono tracking-[0.22em] text-gray-400 uppercase leading-none mt-1">
+                  ENTERTAINMENT
+                </span>
+              </div>
             </Link>
             
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link 
                     key={link.name} 
                     href={link.href}
-                    className={`text-sm font-medium transition-colors ${
-                      isActive ? 'text-white font-bold' : 'text-gray-300 hover:text-white'
+                    className={`relative text-xs lg:text-sm font-semibold tracking-wide transition-colors py-1 ${
+                      isActive ? 'text-white' : 'text-gray-400 hover:text-white'
                     }`}
                   >
-                    {link.name}
+                    <span>{link.name}</span>
+                    {isActive && (
+                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-cinemix-primary rounded-full shadow-glow-primary" />
+                    )}
                   </Link>
                 );
               })}
@@ -107,32 +119,25 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Upgrade Button or Pro Status */}
             {mounted && user?.plan === 'PRO' ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md">
-                <Sparkles className="w-3.5 h-3.5" /> PRO VIP
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-cinemix-primary text-black shadow-glow-primary">
+                <Sparkles className="w-3.5 h-3.5 fill-current" /> PRO VIP
               </span>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => loginAsDemo('pro')}
-                  className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 transition-transform hover:scale-105"
-                  title="Test Pro features (4K, zero ads, 5 profiles)"
-                >
-                  <Sparkles className="w-3.5 h-3.5" /> Demo Pro
-                </button>
-                <Link
-                  href="/upgrade"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:opacity-90 shadow-lg shadow-amber-500/20 transition-transform hover:scale-105"
-                >
-                  <Sparkles className="w-3.5 h-3.5" /> Upgrade Pro
-                </Link>
-              </div>
+              <Link
+                href="/upgrade"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-surface-200 hover:bg-surface-300 text-white border border-white/10 hover:border-cinemix-primary/50 transition-all shadow-sm"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" />
+                <span>Join Pro</span>
+                <span className="text-cinemix-primary font-mono font-bold">₱399</span>
+              </Link>
             )}
 
             {/* Search Icon */}
             <Link 
               href="/search"
-              className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors focus-ring"
-              title="Search"
+              className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring"
+              title="Search Catalog"
             >
               <Search className="w-5 h-5" />
             </Link>
@@ -140,10 +145,10 @@ export const Navbar: React.FC = () => {
             {/* Superadmin Link Button */}
             <Link
               href="/superadmin"
-              className="text-gray-300 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors focus-ring"
+              className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring"
               title="Superadmin Dashboard"
             >
-              <ShieldCheck className="w-5 h-5 text-cinemix-accent" />
+              <ShieldCheck className="w-5 h-5 text-cinemix-primary" />
             </Link>
 
             {/* Profile Avatar & Dropdown */}
@@ -300,20 +305,20 @@ export const Navbar: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-2 border-t border-white/[0.06] space-y-2">
+          <div className="pt-2 border-t border-white/[0.08] space-y-2">
             <Link
               href="/upgrade"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold text-xs flex items-center justify-center gap-2 shadow-md"
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md"
             >
-              <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro (₱399)
+              <Sparkles className="w-4 h-4 fill-current" /> Join Cinemix Pro (₱399/mo)
             </Link>
             <Link
               href="/superadmin"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full py-2 px-4 rounded-xl bg-surface-200 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2"
+              className="w-full py-2 px-4 rounded-xl bg-surface-200 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-surface-300"
             >
-              <ShieldCheck className="w-4 h-4 text-cinemix-accent" /> Superadmin CMS
+              <ShieldCheck className="w-4 h-4 text-cinemix-primary" /> Superadmin CMS
             </Link>
           </div>
         </div>

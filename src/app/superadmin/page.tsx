@@ -331,9 +331,9 @@ export default function SuperadminPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab('importer')}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-500/25 transition-transform hover:scale-105"
+            className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-cinemix-primary border border-cinemix-primary/30 text-xs font-extrabold flex items-center gap-2 shadow-sm transition-all hover:scale-105"
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-200" /> TMDB Importer
+            <Sparkles className="w-3.5 h-3.5 fill-current" /> TMDB Importer
           </button>
           <button
             onClick={handleSeedCatalog}
@@ -344,7 +344,7 @@ export default function SuperadminPage() {
           </button>
           <button
             onClick={() => setIsContentModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-transform hover:scale-105"
+            className="px-4 py-2 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black text-xs font-extrabold flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105"
           >
             <Plus className="w-4 h-4" /> Add Title
           </button>
@@ -369,9 +369,9 @@ export default function SuperadminPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-cinemix-primary text-white shadow-lg shadow-indigo-500/20'
+                  ? 'bg-cinemix-primary text-black shadow-glow-primary'
                   : 'bg-surface-100/60 hover:bg-surface-200 text-gray-300 border border-white/[0.04]'
               }`}
             >
@@ -443,9 +443,9 @@ export default function SuperadminPage() {
       {activeTab === 'importer' && (
         <div className="space-y-6">
           {/* Header Banner */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-purple-950/60 via-indigo-950/40 to-surface-50 border border-purple-500/30 space-y-3 shadow-xl">
-            <div className="flex items-center gap-2 text-purple-400 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-4 h-4" /> Global TMDB Catalog & Stream Importer
+          <div className="p-6 sm:p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-3 shadow-cinema">
+            <div className="flex items-center gap-2 text-cinemix-primary text-xs font-mono font-bold uppercase tracking-wider">
+              <Sparkles className="w-4 h-4 fill-current" /> Global TMDB Catalog & Stream Importer
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white">
               Search & Add Any Movie, Anime, or Series in the World
@@ -457,7 +457,7 @@ export default function SuperadminPage() {
               <button
                 onClick={handleTmdbMegaSync}
                 disabled={isSyncingMega}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-105 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               >
                 {isSyncingMega ? (
                   <>
@@ -465,7 +465,7 @@ export default function SuperadminPage() {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" /> 1-Click Sync Worldwide Library (80+ Global Hits)
+                    <Sparkles className="w-4 h-4 fill-current" /> 1-Click Sync Worldwide Library (80+ Global Hits)
                   </>
                 )}
               </button>
@@ -500,7 +500,7 @@ export default function SuperadminPage() {
               <button
                 onClick={handleTmdbSearch}
                 disabled={tmdbSearching || !tmdbSearchQuery.trim()}
-                className="px-6 py-3 bg-cinemix-primary hover:bg-cinemix-primary/90 disabled:opacity-50 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-all"
+                className="px-6 py-3 bg-cinemix-primary hover:bg-cinemix-primary-hover disabled:opacity-50 text-black font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-glow-primary transition-all"
               >
                 {tmdbSearching ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -569,7 +569,7 @@ export default function SuperadminPage() {
                           <button
                             onClick={() => handleImportTitle(item)}
                             disabled={isCurrentlyImporting}
-                            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-50"
+                            className="w-full py-2.5 px-3 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-glow-primary transition-all disabled:opacity-50"
                           >
                             {isCurrentlyImporting ? (
                               <>
@@ -578,7 +578,7 @@ export default function SuperadminPage() {
                               </>
                             ) : (
                               <>
-                                <Sparkles className="w-3.5 h-3.5" />
+                                <Sparkles className="w-3.5 h-3.5 fill-current" />
                                 <span>1-Click Import</span>
                               </>
                             )}

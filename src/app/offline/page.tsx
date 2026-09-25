@@ -19,7 +19,7 @@ export default function OfflinePage() {
 
       <button
         onClick={() => window.location.reload()}
-        className="px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition-transform hover:scale-105"
+        className="px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95"
       >
         <RefreshCw className="w-4 h-4" /> Reload Page
       </button>

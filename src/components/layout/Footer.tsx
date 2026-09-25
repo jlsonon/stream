@@ -18,13 +18,21 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cinemix-primary to-indigo-400 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-                <Film className="w-4 h-4 text-white" />
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 transition-all">
+                <div className="relative flex items-center justify-center">
+                  <span className="font-mono text-sm font-black tracking-tighter text-white">C</span>
+                  <span className="absolute -top-0.5 -right-1 w-1 h-1 rounded-full bg-cinemix-primary" />
+                </div>
               </div>
-              <span className="text-xl font-black tracking-tight text-white">
-                Cine<span className="text-cinemix-primary">mix</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="text-lg font-black tracking-wider text-white leading-none font-sans uppercase">
+                  CINE<span className="text-cinemix-primary">MIX</span>
+                </span>
+                <span className="text-[7.5px] font-mono tracking-[0.2em] text-gray-500 uppercase leading-none mt-1">
+                  ENTERTAINMENT
+                </span>
+              </div>
             </Link>
             <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
               Cinemix is an installable, high-performance global streaming platform delivering movies, television series, anime, Philippine cinema, and documentaries in 4K Ultra HD with adaptive multi-server playback.

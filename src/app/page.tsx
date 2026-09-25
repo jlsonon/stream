@@ -121,7 +121,7 @@ export default function HomePage() {
       <div className="min-h-screen bg-background text-foreground pb-20">
         {/* Hero Banner Skeleton */}
         <div className="relative h-[65vh] sm:h-[75vh] w-full bg-gradient-to-b from-surface-100 to-background overflow-hidden animate-pulse">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-background/40 to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/10 via-background/40 to-background" />
           <div className="absolute bottom-16 left-6 sm:left-12 space-y-4 max-w-xl">
             <div className="h-6 w-32 bg-white/10 rounded-full" />
             <div className="h-10 sm:h-14 w-3/4 bg-white/10 rounded-2xl" />
@@ -198,17 +198,76 @@ export default function HomePage() {
           />
         )}
 
-        {/* Trending Now */}
+        {/* Trending Now Ranked Leaderboard Rail */}
         {trendingItems.length > 0 && (
           <ContentRow
             title="Trending Now Worldwide"
             badge="Top 10"
-            items={trendingItems}
+            items={trendingItems.slice(0, 10)}
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?filter=trending"
             progressMap={progressMap}
+            isTop10={true}
           />
         )}
+
+        {/* Editorial Spotlight Billboard */}
+        {filteredContent.length > 0 && (() => {
+          const spotlight = filteredContent.find(i => i.id === 'movie-oppenheimer' || i.id === 'series-breaking-bad') || blockbusterMovies[0] || filteredContent[0];
+          if (!spotlight) return null;
+          return (
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+              <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-surface-100 shadow-cinema group">
+                <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
+                  <img
+                    src={spotlight.backdropUrl || spotlight.posterUrl}
+                    alt={spotlight.title}
+                    className="w-full h-full object-cover object-center group-hover:scale-102 transition-transform duration-700"
+                  />
+                  {/* Filmic Vignettes */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent md:w-3/5" />
+                  
+                  {/* Spotlight Content Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 max-w-2xl space-y-3 sm:space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-cinemix-primary text-black flex items-center gap-1 shadow-glow-primary">
+                        <Sparkles className="w-3 h-3 fill-current" /> Editorial Spotlight
+                      </span>
+                      <span className="text-[11px] font-mono text-gray-300 font-bold px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10">
+                        {spotlight.maxQuality} • Dolby Atmos
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-none drop-shadow">
+                      {spotlight.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-gray-300 line-clamp-2 leading-relaxed max-w-xl">
+                      {spotlight.longSynopsis || spotlight.synopsis}
+                    </p>
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <Link
+                        href={`/watch/${spotlight.id}`}
+                        className="py-2.5 px-6 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-current" /> Stream Feature
+                      </Link>
+
+                      <button
+                        onClick={() => setSelectedItem(spotlight)}
+                        className="py-2.5 px-5 rounded-xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/15 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+                      >
+                        Details & Cast
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* My List (Only if client mounted and items exist) */}
         {mounted && myListItems.length > 0 && (
@@ -292,27 +351,30 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Pro Subscription Callout Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-surface-100 via-surface-200 to-indigo-950/40 border border-white/10 p-8 sm:p-12 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3 max-w-xl text-center md:text-left">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-              <Sparkles className="w-3.5 h-3.5" /> Cinemix Pro Subscription
+      {/* Executive Cinema Ticket Pro Subscription Callout */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
+        <div className="relative overflow-hidden rounded-3xl bg-surface-100 border border-white/10 p-8 sm:p-12 shadow-cinema flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cinemix-primary/10 blur-3xl pointer-events-none" />
+
+          <div className="space-y-3.5 max-w-xl text-center md:text-left relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-surface-200 text-cinemix-primary border border-cinemix-primary/30">
+              <Sparkles className="w-3.5 h-3.5 fill-current" /> Executive Cinema Membership
             </span>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Unlock 4K Ultra HD & Zero Advertisements
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+              Unlock Pure 4K Ultra HD & 100% Ad-Free Cinema
             </h3>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              Experience the full cinema library in uncompressed 4K bitrate, Dolby 5.1 surround sound, and unlimited simultaneous screens for only ₱399/month.
+            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+              Experience the entire global catalog in native uncompressed bitrate, multi-device sync, and 5 family profiles for only <strong className="text-white font-mono">₱399/month</strong>.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 flex-shrink-0">
             <Link
               href="/upgrade"
-              className="py-3.5 px-8 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-sm sm:text-base shadow-xl shadow-amber-500/20 transition-all hover:scale-105 flex items-center gap-2"
+              className="py-3.5 px-8 rounded-2xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm sm:text-base shadow-glow-primary transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
             >
-              Get Cinemix Pro <ArrowRight className="w-4 h-4" />
+              <span>Join Cinemix Pro</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

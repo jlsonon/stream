@@ -78,7 +78,7 @@ export default function ProfilesPage() {
                 onClick={() => handleSelect(p)}
                 className="group flex flex-col items-center gap-3 cursor-pointer select-none"
               >
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden ring-4 transition-all duration-300 group-hover:scale-105 group-hover:ring-cinemix-primary group-hover:shadow-2xl group-hover:shadow-indigo-500/30 ring-white/10">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden ring-4 transition-all duration-300 group-hover:scale-105 group-hover:ring-cinemix-primary group-hover:shadow-cinema ring-white/10">
                   <img
                     src={p.avatarUrl}
                     alt={p.name}
@@ -90,7 +90,7 @@ export default function ProfilesPage() {
                     </div>
                   )}
                   {isCurrent && (
-                    <div className="absolute bottom-2 right-2 p-1 rounded-full bg-cinemix-primary text-white shadow-md">
+                    <div className="absolute bottom-2 right-2 p-1 rounded-full bg-cinemix-primary text-black font-bold shadow-glow-primary">
                       <Check className="w-3.5 h-3.5" />
                     </div>
                   )}

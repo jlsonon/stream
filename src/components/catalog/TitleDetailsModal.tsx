@@ -188,13 +188,13 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
     >
       {/* Top Seamless Full-Screen Navigation Bar */}
       <div 
-        className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/[0.08] bg-black/60 flex-shrink-0 z-20"
+        className="flex items-center justify-between px-4 sm:px-8 py-3.5 border-b border-white/[0.08] bg-surface-50/95 backdrop-blur-xl flex-shrink-0 z-20"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-all border border-white/10 hover:scale-105"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm transition-all border border-white/10 hover:border-cinemix-primary/50"
             title="Back to Catalog (Esc)"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -202,19 +202,19 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
           </button>
           
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[10px] font-black uppercase tracking-wider text-cinemix-primary px-2.5 py-0.5 rounded-full bg-cinemix-primary/10 border border-cinemix-primary/20 flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cinemix-primary px-2.5 py-0.5 rounded-full bg-cinemix-primary/10 border border-cinemix-primary/25 flex items-center gap-1.5 flex-shrink-0">
               {isSeries ? <Tv className="w-3 h-3" /> : <Film className="w-3 h-3" />}
               {isSeries ? 'Series & Episodes' : 'Feature Presentation'}
             </span>
-            <h2 className="text-sm sm:text-base font-extrabold text-white truncate max-w-[200px] sm:max-w-md">
-              {activeItem.title}
-            </h2>
+            <span className="text-xs text-gray-500 font-mono hidden sm:inline">
+              Cinema Hub
+            </span>
           </div>
         </div>
 
         <button
           onClick={onClose}
-          className="p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white transition-colors border border-white/10 flex-shrink-0"
+          className="p-2 sm:p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-gray-400 hover:text-white transition-colors border border-white/10 flex-shrink-0"
           title="Close (Esc)"
         >
           <X className="w-5 h-5" />
@@ -338,27 +338,32 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
             )}
 
             {/* Cast and Creators */}
-            <div className="space-y-1.5 pt-2 border-t border-white/[0.06]">
+            <div className="space-y-3 pt-3 border-t border-white/[0.08]">
               {activeItem.cast && activeItem.cast.length > 0 && (
-                <div className="line-clamp-2">
-                  <span className="text-gray-400 font-semibold">Starring: </span>
-                  <span className="text-gray-200">
-                    {activeItem.cast.map(c => `${c.name} (${c.role})`).slice(0, 4).join(', ')}
-                  </span>
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block">Starring Cast</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeItem.cast.slice(0, 5).map(c => (
+                      <span key={c.name} className="px-2.5 py-1 rounded-lg bg-surface-200 text-xs border border-white/5 text-gray-300">
+                        <strong className="text-white font-medium">{c.name}</strong>
+                        {c.role && <span className="text-gray-400 font-normal"> · {c.role}</span>}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {activeItem.directors && activeItem.directors.length > 0 && (
-                <div>
-                  <span className="text-gray-400 font-semibold">Directors: </span>
-                  <span className="text-gray-200">{activeItem.directors.join(', ')}</span>
+                <div className="text-xs">
+                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Directed By</span>
+                  <span className="text-white font-medium">{activeItem.directors.join(', ')}</span>
                 </div>
               )}
 
               {activeItem.studio && (
-                <div>
-                  <span className="text-gray-400 font-semibold">Studio: </span>
-                  <span className="text-gray-200">{activeItem.studio}</span>
+                <div className="text-xs">
+                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Production Studio</span>
+                  <span className="text-gray-300">{activeItem.studio}</span>
                 </div>
               )}
             </div>
@@ -506,8 +511,8 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6 sm:p-8">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-cinemix-primary text-white">
-                        Full 4K Ultra HD
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cinemix-primary text-black">
+                        4K Ultra HD Master
                       </span>
                       <span className="text-xs text-gray-300 font-medium">Dolby Atmos Audio</span>
                     </div>

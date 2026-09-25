@@ -191,9 +191,9 @@ function BrowseContent() {
           <button
             key={t.value}
             onClick={() => setSelectedType(t.value)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
               selectedType === t.value
-                ? 'bg-cinemix-primary text-white shadow-lg shadow-indigo-500/25'
+                ? 'bg-cinemix-primary text-black shadow-glow-primary'
                 : 'bg-surface-100/70 hover:bg-surface-200 text-gray-300 border border-white/[0.04]'
             }`}
           >

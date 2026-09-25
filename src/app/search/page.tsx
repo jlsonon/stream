@@ -242,9 +242,9 @@ export default function SearchPage() {
             setSearchMode('standard');
             setAiResults([]);
           }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'standard'
-              ? 'bg-cinemix-primary text-white shadow-lg shadow-indigo-500/25'
+              ? 'bg-cinemix-primary text-black shadow-glow-primary'
               : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
@@ -252,13 +252,13 @@ export default function SearchPage() {
         </button>
         <button
           onClick={() => setSearchMode('ai')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'ai'
-              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
-              : 'bg-surface-100 hover:bg-surface-200 text-purple-400 hover:text-white border border-purple-500/20'
+              ? 'bg-surface-200 text-cinemix-primary border border-cinemix-primary/50 shadow-glow-primary'
+              : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
-          <Bot className="w-4 h-4 text-purple-300 animate-pulse" /> Cinemix AI Semantic Search
+          <Bot className="w-4 h-4 text-cinemix-primary" /> Cinemix AI Semantic Search
         </button>
       </div>
 
@@ -387,13 +387,13 @@ export default function SearchPage() {
           ) : aiResults.length > 0 ? (
             <div className="space-y-6">
               {/* AI Insight Header Banner */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-surface-50 border border-purple-500/30 backdrop-blur-md shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-6 rounded-2xl bg-surface-100 border border-white/10 shadow-cinema flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-500 text-white">
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-cinemix-primary text-black shadow-glow-primary">
                       Cinemix AI Curator
                     </span>
-                    <span className="text-xs text-purple-300 font-semibold">{aiResults.length} Matched Titles</span>
+                    <span className="text-xs text-gray-400 font-semibold">{aiResults.length} Curated Titles</span>
                   </div>
                   <p className="text-xs sm:text-sm text-gray-200 leading-relaxed">
                     {aiExplanation}
@@ -401,7 +401,7 @@ export default function SearchPage() {
                   {aiThemeTags.length > 0 && (
                     <div className="flex items-center gap-1.5 pt-1">
                       {aiThemeTags.map(tag => (
-                        <span key={tag} className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/10 text-white border border-white/10">
+                        <span key={tag} className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-surface-200 text-gray-300 border border-white/10">
                           {tag}
                         </span>
                       ))}
@@ -410,9 +410,9 @@ export default function SearchPage() {
                 </div>
 
                 <div className="text-right self-start sm:self-auto">
-                  <span className="text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 px-3 py-1.5 rounded-xl whitespace-nowrap inline-flex items-center gap-1.5">
+                  <span className="text-xs font-mono font-bold text-amber-400 bg-surface-200 border border-white/10 px-3 py-1.5 rounded-xl whitespace-nowrap inline-flex items-center gap-1.5">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>Min Rating: 7.0+</span>
+                    <span>Rating: 7.0+</span>
                   </span>
                 </div>
               </div>
