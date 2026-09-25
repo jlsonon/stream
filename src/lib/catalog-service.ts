@@ -172,7 +172,8 @@ class CatalogService {
     if (isFirebaseConfigured() && db) {
       try {
         const itemRef = doc(db, 'content', item.id);
-        await setDoc(itemRef, { ...item, updatedAt: new Date() }, { merge: true });
+        const cleanDoc = JSON.parse(JSON.stringify({ ...item, updatedAt: new Date() }));
+        await setDoc(itemRef, cleanDoc, { merge: true });
       } catch (err) {
         console.warn('Failed to save content in Firestore', err);
       }
@@ -206,6 +207,40 @@ class CatalogService {
       await this.saveContent(item);
     }
     return STARTER_CATALOG.length;
+  }
+
+  // --- AUTOMATED BACKGROUND SYNC & STALENESS ENGINE ---
+
+  async checkAutoRefresh(): Promise<{ updated: boolean; count?: number }> {
+    if (typeof window === 'undefined') return { updated: false };
+    const LAST_SYNC_KEY = 'cinemix_last_sync_timestamp';
+    const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+    const FOUR_HOURS = 4 * 60 * 60 * 1000;
+
+    // Only sync if cache is older than 4 hours
+    if (lastSync && Date.now() - parseInt(lastSync, 10) < FOUR_HOURS) {
+      return { updated: false };
+    }
+
+    try {
+      localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+      const res = await fetch('/api/tmdb/sync');
+      if (!res.ok) return { updated: false };
+      const data = await res.json();
+      if (data.items && Array.isArray(data.items) && data.items.length > 0) {
+        for (const item of data.items) {
+          await this.saveContent(item);
+        }
+        window.dispatchEvent(
+          new CustomEvent('cinemix:catalog-refreshed', { detail: { count: data.items.length } })
+        );
+        return { updated: true, count: data.items.length };
+      }
+      return { updated: false };
+    } catch (err) {
+      console.warn('Background auto-refresh skipped:', err);
+      return { updated: false };
+    }
   }
 
   // --- WATCHLIST (MY LIST) ---

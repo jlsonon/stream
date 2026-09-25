@@ -17,7 +17,9 @@ export const isFirebaseConfigured = (): boolean => {
   return !!(
     firebaseConfig.apiKey &&
     firebaseConfig.authDomain &&
-    firebaseConfig.projectId
+    firebaseConfig.projectId &&
+    !firebaseConfig.projectId.includes('placeholder') &&
+    !firebaseConfig.apiKey.includes('placeholder')
   );
 };
 

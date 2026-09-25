@@ -51,6 +51,19 @@ export default function HomePage() {
 
   useEffect(() => {
     loadData();
+
+    // Fire non-blocking auto-refresh if catalog hasn't updated in >4 hours
+    catalogService.checkAutoRefresh();
+
+    const handleCatalogRefreshed = async () => {
+      const items = await catalogService.getAllContent();
+      setAllContent(items);
+    };
+
+    window.addEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
+    return () => {
+      window.removeEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
+    };
   }, [activeProfile]);
 
   // Filter content for Kids profile if active
@@ -61,9 +74,26 @@ export default function HomePage() {
       })
     : allContent;
 
-  // Rail Categories
-  const featuredItem = filteredContent.find(i => i.featured) || filteredContent[0];
+  // Rail Categories & Cineby-Style Rotating Hero Showcase
   const trendingItems = filteredContent.filter(i => i.trending);
+  const featuredItems = React.useMemo(() => {
+    const list: ContentItem[] = [];
+    const explicitlyFeatured = filteredContent.filter(i => i.featured);
+    list.push(...explicitlyFeatured);
+    for (const item of trendingItems) {
+      if (!list.some(i => i.id === item.id) && (item.backdropUrl || item.posterUrl)) {
+        list.push(item);
+      }
+    }
+    for (const item of filteredContent) {
+      if (!list.some(i => i.id === item.id) && (item.backdropUrl || item.posterUrl)) {
+        list.push(item);
+      }
+      if (list.length >= 8) break;
+    }
+    return list.slice(0, 8);
+  }, [filteredContent, trendingItems]);
+  const featuredItem = featuredItems[0];
   const tvSeriesItems = filteredContent.filter(i => i.type === 'series' && !i.tags.includes('K-Drama'));
   const kdramaItems = filteredContent.filter(i => i.tags.includes('K-Drama'));
   const animeItems = filteredContent.filter(i => i.type === 'anime' || i.genres.includes('Animation'));
@@ -121,9 +151,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
-      {/* Featured Hero Banner */}
-      {featuredItem ? (
+      {/* Cineby-Style Auto-Rotating Hero Carousel Banner */}
+      {featuredItems.length > 0 ? (
         <HeroBanner
+          items={featuredItems}
           item={featuredItem}
           onOpenDetails={(item) => setSelectedItem(item)}
         />

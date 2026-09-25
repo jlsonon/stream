@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ContentItem, ContentType, Episode, Season } from '@/types';
+import { db, isFirebaseConfigured } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY || 'bd32fd534e7f46e7bb4b3caf090d970b';
 const DEFAULT_STREAM = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
@@ -37,6 +39,26 @@ const GENRE_MAP: Record<number, string> = {
 export async function GET(req: NextRequest) {
   try {
     const endpoints = [
+      {
+        type: 'series' as ContentType,
+        tag: 'Airing Today Worldwide',
+        url: `https://api.themoviedb.org/3/tv/airing_today?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Currently Airing Series',
+        url: `https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'series' as ContentType,
+        tag: 'Trending Worldwide Today',
+        url: `https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}`
+      },
+      {
+        type: 'anime' as ContentType,
+        tag: 'New Anime Releases',
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=first_air_date.desc`
+      },
       {
         type: 'movie' as ContentType,
         tag: 'New in Theaters & Streaming',
@@ -136,8 +158,8 @@ export async function GET(req: NextRequest) {
       seenTmdbIds.add(r.id);
 
       const title = r.title || r.name || 'Untitled';
-      const isMovie = r.forcedType === 'movie' || r.forcedType === 'ph_content';
-      const contentType: ContentType = r.forcedType;
+      const isMovie = r.media_type ? r.media_type === 'movie' : (r.forcedType === 'movie' || r.forcedType === 'ph_content');
+      const contentType: ContentType = r.media_type === 'movie' ? 'movie' : (r.media_type === 'tv' ? (r.categoryTag?.toLowerCase().includes('anime') ? 'anime' : 'series') : r.forcedType);
       const dateStr = r.release_date || r.first_air_date || '';
       const releaseYear = dateStr ? parseInt(dateStr.slice(0, 4), 10) : new Date().getFullYear();
 
@@ -236,6 +258,19 @@ export async function GET(req: NextRequest) {
       };
 
       formattedItems.push(item);
+    }
+
+    // Persist newly discovered titles into Firestore if database is configured
+    if (isFirebaseConfigured() && db && formattedItems.length > 0) {
+      try {
+        const batchPromises = formattedItems.slice(0, 60).map((item) => {
+          const cleanItem = JSON.parse(JSON.stringify(item));
+          return setDoc(doc(db!, 'content', item.id), cleanItem, { merge: true });
+        });
+        await Promise.allSettled(batchPromises);
+      } catch (err) {
+        console.warn('Firestore server sync write skipped:', err);
+      }
     }
 
     return NextResponse.json({

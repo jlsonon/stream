@@ -1,124 +1,237 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Play, Plus, Check, Info, Sparkles, Volume2, VolumeX, Globe, Film, Star } from 'lucide-react';
+import { 
+  Play, 
+  Plus, 
+  Check, 
+  Info, 
+  Sparkles, 
+  Star, 
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
 import { ContentItem } from '@/types';
 import { catalogService } from '@/lib/catalog-service';
 import { useProfile } from '@/lib/profile-context';
 import { useToast } from '@/components/ui/Toast';
 
 interface HeroBannerProps {
-  item: ContentItem;
+  items?: ContentItem[];
+  item?: ContentItem;
   onOpenDetails: (item: ContentItem) => void;
+  autoPlayInterval?: number; // default 6500ms
 }
 
-export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) => {
+export const HeroBanner: React.FC<HeroBannerProps> = ({ 
+  items, 
+  item, 
+  onOpenDetails,
+  autoPlayInterval = 6500 
+}) => {
   const { activeProfile } = useProfile();
   const { toast } = useToast();
-  const [isInList, setIsInList] = React.useState(false);
-  const [isMuted, setIsMuted] = React.useState(true);
 
-  React.useEffect(() => {
-    if (activeProfile) {
+  // Normalize items array
+  const slideItems = React.useMemo(() => {
+    if (items && items.length > 0) return items;
+    if (item) return [item];
+    return [];
+  }, [items, item]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isInList, setIsInList] = useState(false);
+
+  // Active item
+  const currentItem = slideItems[currentIndex] || slideItems[0];
+
+  // Auto-play timer with smooth 100ms tick for progress bar
+  useEffect(() => {
+    if (slideItems.length <= 1 || isPaused) return;
+
+    const tickInterval = 100;
+    const step = (tickInterval / autoPlayInterval) * 100;
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          setCurrentIndex((idx) => (idx + 1) % slideItems.length);
+          return 0;
+        }
+        return prev + step;
+      });
+    }, tickInterval);
+
+    return () => clearInterval(timer);
+  }, [currentIndex, isPaused, slideItems.length, autoPlayInterval]);
+
+  // Reset progress when index changes
+  useEffect(() => {
+    setProgress(0);
+  }, [currentIndex]);
+
+  const handleNext = useCallback(() => {
+    if (slideItems.length <= 1) return;
+    setCurrentIndex((idx) => (idx + 1) % slideItems.length);
+    setProgress(0);
+  }, [slideItems.length]);
+
+  const handlePrev = useCallback(() => {
+    if (slideItems.length <= 1) return;
+    setCurrentIndex((idx) => (idx - 1 + slideItems.length) % slideItems.length);
+    setProgress(0);
+  }, [slideItems.length]);
+
+  const handleSelectIndex = (idx: number) => {
+    setCurrentIndex(idx);
+    setProgress(0);
+  };
+
+  // Watchlist status
+  useEffect(() => {
+    if (activeProfile && currentItem) {
       const list = catalogService.getMyListIds(activeProfile.id);
-      setIsInList(list.includes(item.id));
+      setIsInList(list.includes(currentItem.id));
     }
-  }, [activeProfile, item.id]);
+  }, [activeProfile, currentItem?.id]);
 
   const handleToggleMyList = () => {
-    if (!activeProfile) return;
-    const added = catalogService.toggleMyList(activeProfile.id, item.id);
+    if (!activeProfile || !currentItem) return;
+    const added = catalogService.toggleMyList(activeProfile.id, currentItem.id);
     setIsInList(added);
     toast({
       type: added ? 'success' : 'info',
-      message: added ? `Added "${item.title}" to My List` : `Removed "${item.title}" from My List`,
+      message: added ? `Added "${currentItem.title}" to My List` : `Removed "${currentItem.title}" from My List`,
       duration: 3000
     });
   };
 
+  if (!currentItem) return null;
+
   return (
-    <div className="relative w-full h-[75vh] sm:h-[82vh] lg:h-[88vh] select-none overflow-hidden">
-      {/* Backdrop Image */}
-      <div className="absolute inset-0">
-        <img
-          src={item.backdropUrl || item.posterUrl}
-          alt={item.title}
-          className="w-full h-full object-cover object-top transition-transform duration-1000 scale-105"
-        />
-        {/* Cinematic Vignettes */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent w-full md:w-3/4" />
-      </div>
+    <div 
+      className="group relative w-full h-[75vh] sm:h-[82vh] lg:h-[88vh] select-none overflow-hidden bg-background"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
+      {/* Background Backdrops with Crossfade */}
+      {slideItems.map((sItem, idx) => {
+        const isActive = idx === currentIndex;
+        return (
+          <div
+            key={sItem.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out pointer-events-none ${
+              isActive ? 'opacity-100 z-0' : 'opacity-0 -z-10'
+            }`}
+          >
+            <img
+              src={sItem.backdropUrl || sItem.posterUrl}
+              alt={sItem.title}
+              className={`w-full h-full object-cover object-top transition-transform duration-[7000ms] ease-out ${
+                isActive ? 'scale-105' : 'scale-100'
+              }`}
+            />
+          </div>
+        );
+      })}
+
+      {/* Cinematic Gradient Scrims */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-[1]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent w-full md:w-3/4 z-[1]" />
+
+      {/* Slide Navigation Arrows (Desktop & Tablet) */}
+      {slideItems.length > 1 && (
+        <>
+          <button
+            onClick={handlePrev}
+            aria-label="Previous Featured Title"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/40 hover:bg-black/80 text-white/70 hover:text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl hidden sm:flex items-center justify-center"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={handleNext}
+            aria-label="Next Featured Title"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full bg-black/40 hover:bg-black/80 text-white/70 hover:text-white border border-white/10 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl hidden sm:flex items-center justify-center"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
 
       {/* Content Container */}
       <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-16 sm:pb-20 z-10">
         <div className="max-w-2xl space-y-4">
           {/* Brand & Category Tag */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span className="px-2.5 py-1 rounded-md text-xs font-bold tracking-wider uppercase bg-cinemix-primary text-white shadow-lg shadow-indigo-500/30">
               Cinemix Premiere
             </span>
-            {item.isProOnly && (
+            {currentItem.isProOnly && (
               <span className="px-2.5 py-1 rounded-md text-xs font-bold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black flex items-center gap-1 shadow-lg">
                 <Sparkles className="w-3.5 h-3.5" /> Pro Exclusive
               </span>
             )}
-            {item.score > 0 && (
+            {currentItem.score > 0 && (
               <span className="px-2.5 py-0.5 rounded-md text-xs font-black bg-black/70 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span>{item.score.toFixed(1)}</span>
+                <span>{currentItem.score.toFixed(1)}</span>
               </span>
             )}
             <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10">
-              {item.maturityRating}
+              {currentItem.maturityRating}
             </span>
             <span className="text-xs font-semibold text-emerald-400">
-              {Math.round(item.score * 10)}% Match
+              {Math.round(currentItem.score * 10)}% Match
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-md leading-tight">
-            {item.title}
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-md leading-tight transition-all duration-300">
+            {currentItem.title}
           </h1>
 
           {/* Metadata Row */}
           <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-300">
-            <span>{item.releaseYear}</span>
+            <span>{currentItem.releaseYear}</span>
             <span>•</span>
-            <span className="uppercase">{item.type.replace('_', ' ')}</span>
+            <span className="uppercase">{currentItem.type.replace('_', ' ')}</span>
             <span>•</span>
             <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold text-emerald-400">
-              {item.maxQuality}
+              {currentItem.maxQuality}
             </span>
-            {item.duration ? (
+            {currentItem.duration ? (
               <>
                 <span>•</span>
-                <span>{item.duration} min</span>
+                <span>{currentItem.duration} min</span>
               </>
             ) : null}
             <span>•</span>
-            <span className="text-gray-400">{item.genres.join(', ')}</span>
+            <span className="text-gray-400">{currentItem.genres.join(', ')}</span>
           </div>
 
           {/* Synopsis */}
-          <p className="text-sm sm:text-base text-gray-200 line-clamp-3 leading-relaxed drop-shadow max-w-xl">
-            {item.longSynopsis || item.synopsis}
+          <p className="text-sm sm:text-base text-gray-200 line-clamp-3 leading-relaxed drop-shadow max-w-xl transition-all duration-300">
+            {currentItem.longSynopsis || currentItem.synopsis}
           </p>
 
           {/* Action Buttons (Cineby Style) */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
-              href={`/watch/${item.id}`}
-              className="py-3 px-6 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-xl hover:scale-105"
+              href={`/watch/${currentItem.id}`}
+              className="py-3 px-6 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-xl hover:scale-105 active:scale-95"
             >
               <Play className="w-5 h-5 fill-current" /> Watch Now
             </Link>
 
             <button
-              onClick={() => onOpenDetails(item)}
-              className="py-3 px-5 sm:px-6 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-bold text-sm sm:text-base border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 shadow-md"
+              onClick={() => onOpenDetails(currentItem)}
+              className="py-3 px-5 sm:px-6 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-bold text-sm sm:text-base border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-md"
             >
               <Info className="w-4 h-4 text-cinemix-primary" /> Details & Episodes
             </button>
@@ -126,12 +239,72 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
             <button
               onClick={handleToggleMyList}
               title={isInList ? 'Remove from My List' : 'Add to My List'}
-              className="p-3 rounded-xl bg-surface-100/80 hover:bg-surface-200/90 text-white border border-white/10 backdrop-blur-md transition-all hover:scale-105"
+              className="p-3 rounded-xl bg-surface-100/80 hover:bg-surface-200/90 text-white border border-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
             >
               {isInList ? <Check className="w-5 h-5 text-green-400" /> : <Plus className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {/* Cineby-Style Rotating Carousel Indicator Controls */}
+        {slideItems.length > 1 && (
+          <div className="mt-8 flex items-center justify-between gap-4 pt-4 border-t border-white/5">
+            {/* Numbered / Pill Slide Selectors with Live Progress Bar */}
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto hide-scrollbar py-1">
+              {slideItems.map((item, idx) => {
+                const isActive = idx === currentIndex;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectIndex(idx)}
+                    className={`group/btn relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 overflow-hidden ${
+                      isActive
+                        ? 'bg-white/15 text-white border border-white/20 shadow-lg'
+                        : 'bg-black/30 text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
+                    }`}
+                  >
+                    {/* Live Progress Bar for active item */}
+                    {isActive && !isPaused && (
+                      <div 
+                        className="absolute bottom-0 left-0 h-0.5 bg-cinemix-primary transition-all ease-linear"
+                        style={{ width: `${progress}%` }}
+                      />
+                    )}
+                    <span className="font-mono text-[11px] opacity-70">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span className="truncate max-w-[100px] sm:max-w-[140px] text-left hidden sm:inline">
+                      {item.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Slide Count & Controls */}
+            <div className="flex items-center gap-2 flex-shrink-0 text-xs font-mono text-gray-400">
+              <span className="text-white font-bold">{currentIndex + 1}</span>
+              <span>/</span>
+              <span>{slideItems.length}</span>
+              <div className="flex items-center gap-1 ml-2">
+                <button
+                  onClick={handlePrev}
+                  aria-label="Previous"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  aria-label="Next"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

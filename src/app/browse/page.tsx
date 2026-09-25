@@ -89,6 +89,19 @@ function BrowseContent() {
       setLoading(false);
     }
     load();
+
+    // Background staleness check
+    catalogService.checkAutoRefresh();
+
+    const handleCatalogRefreshed = async () => {
+      const items = await catalogService.getAllContent();
+      setAllContent(items);
+    };
+
+    window.addEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
+    return () => {
+      window.removeEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
+    };
   }, []);
 
   const filteredItems = useMemo(() => {
