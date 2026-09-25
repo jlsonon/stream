@@ -118,9 +118,9 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ item, onOpenDetails }) =
 
             <button
               onClick={() => onOpenDetails(item)}
-              className="py-3 px-5 sm:px-6 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 font-bold text-sm sm:text-base border border-emerald-500/30 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 shadow-md"
+              className="py-3 px-5 sm:px-6 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-bold text-sm sm:text-base border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 shadow-md"
             >
-              <Globe className="w-4 h-4" /> Where to Watch
+              <Info className="w-4 h-4 text-cinemix-primary" /> Details & Episodes
             </button>
 
             {item.trailerUrl && (

@@ -34,7 +34,6 @@ import { useAuth } from '@/lib/auth-context';
 import { useProfile } from '@/lib/profile-context';
 import { canWatchContent, getMaxQuality, hasAds } from '@/lib/entitlements';
 import { catalogService } from '@/lib/catalog-service';
-import { WhereToWatch } from '@/components/catalog/WhereToWatch';
 import Link from 'next/link';
 
 // Proprietary Cinemix CDN Streaming Nodes (De-plagiarized & High-Bandwidth)
@@ -136,14 +135,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [selectedAudio, setSelectedAudio] = useState<string>('default');
   const [selectedSubtitle, setSelectedSubtitle] = useState<string>('off');
   const [availableQualities, setAvailableQualities] = useState<{ label: string; height: number }[]>([]);
-  const [showWhereToWatch, setShowWhereToWatch] = useState(false);
 
-  // Ad Engine State
-  const userHasAds = hasAds(user || { uid: 'guest', email: '', displayName: 'Guest', photoURL: '', role: 'user', plan: 'FREE', createdAt: new Date(), lastLoginAt: new Date() });
-  const [adRemaining, setAdRemaining] = useState<number>(userHasAds ? 5 : 0);
-  const [adActive, setAdActive] = useState<boolean>(userHasAds);
-
-  // Check entitlements
+  // Check entitlements & Pro status
   const currentUser = user || {
     uid: 'guest',
     email: '',
@@ -155,8 +148,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     lastLoginAt: new Date()
   };
 
+  const isPro = currentUser.plan === 'PRO';
   const entitlement = canWatchContent(currentUser, content, activeProfile || undefined);
   const userMaxQuality = getMaxQuality(currentUser);
+
+  // Ad Engine State (Strictly 0 ads for Pro subscribers)
+  const userHasAds = !isPro && hasAds(currentUser);
+  const [adRemaining, setAdRemaining] = useState<number>(userHasAds ? 5 : 0);
+  const [adActive, setAdActive] = useState<boolean>(userHasAds);
+
+  // Ensure Pro users never trigger ads even if auth status updates dynamically
+  useEffect(() => {
+    if (isPro) {
+      setAdActive(false);
+      setAdRemaining(0);
+    }
+  }, [isPro]);
 
   // Stream URL selection
   const streamUrl = episode?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
@@ -446,9 +453,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [streamUrl, entitlement.allowed]);
 
-  // Handle Ad Countdown
+  // Handle Ad Countdown (Only for free tier users)
   useEffect(() => {
-    if (!adActive) return;
+    if (!adActive || isPro) return;
     const timer = setInterval(() => {
       setAdRemaining(prev => {
         if (prev <= 1) {
@@ -461,7 +468,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [adActive]);
+  }, [adActive, isPro]);
 
   // Save watch progress periodically
   useEffect(() => {
@@ -696,6 +703,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={content.title}
+                {...(isPro ? { sandbox: 'allow-scripts allow-same-origin allow-forms allow-presentation' } : {})}
               />
             </>
           ) : (
@@ -724,8 +732,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             className="w-full h-full object-contain cursor-pointer"
           />
 
-          {/* Pre-Roll Ad Overlay for Free Users */}
-          {adActive && (
+          {/* Pre-Roll Ad Overlay (Free Tier Only - Strictly Zero Ads for Pro) */}
+          {!isPro && adActive && (
             <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in pointer-events-auto">
               <div className="max-w-md p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-5 shadow-2xl">
                 <div className="flex items-center justify-between text-xs text-gray-400 border-b border-white/[0.06] pb-3">
@@ -953,17 +961,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 )}
               </div>
 
-              {/* Philippine Providers Fast Action Inside Dropdown */}
+              {/* Pro Zero-Ads Status / Upgrade Action */}
               <div className="pt-2 border-t border-white/[0.08]">
-                <button
-                  onClick={() => {
-                    setShowServerDropdown(false);
-                    setShowWhereToWatch(true);
-                  }}
-                  className="w-full py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
-                >
-                  <Globe className="w-3.5 h-3.5" /> Where to Watch (Philippines & Global)
-                </button>
+                {isPro ? (
+                  <div className="w-full py-1.5 px-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold text-[11px] flex items-center justify-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Cinemix Pro Active · Zero Ads
+                  </div>
+                ) : (
+                  <Link
+                    href="/upgrade"
+                    onClick={() => setShowServerDropdown(false)}
+                    className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Unlock 4K & Ad-Free · ₱399/mo
+                  </Link>
+                )}
               </div>
             </div>
           )}
@@ -990,16 +1002,22 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           )}
         </div>
 
-        {/* Right: Actions (Where to Watch + Next Episode + Maturity Rating) */}
+        {/* Right: Actions (Pro Badge/Upgrade + Next Episode + Maturity Rating) */}
         <div className="flex items-center gap-2 sm:gap-2.5 pointer-events-auto">
-          {/* Direct Where to Watch pill button */}
-          <button
-            onClick={() => setShowWhereToWatch(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm whitespace-nowrap"
-            title="See authorized streaming platforms in the Philippines (Netflix, Prime, Disney+, Vivamax)"
-          >
-            <Globe className="w-3.5 h-3.5" /> <span className="hidden md:inline">Where to Watch</span>
-          </button>
+          {/* Pro Ad-Free badge or Go Pro button */}
+          {isPro ? (
+            <span className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-300 border border-amber-500/40 shadow-sm whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Pro Ad-Free
+            </span>
+          ) : (
+            <Link
+              href="/upgrade"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:scale-105 transition-all shadow-md whitespace-nowrap"
+              title="Upgrade to Cinemix Pro for ₱399/mo to remove all ads and enable 4K streaming"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Go Pro ₱399
+            </Link>
+          )}
 
           {computedNextEpisode && (
             <button
@@ -1261,28 +1279,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
         </div>
       </div>
-      )}
-
-      {/* Where to Watch Modal Overlay */}
-      {showWhereToWatch && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
-          onClick={() => setShowWhereToWatch(false)}
-        >
-          <div 
-            className="relative w-full max-w-2xl bg-surface-100 rounded-3xl p-6 border border-white/10 shadow-2xl shadow-black animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowWhereToWatch(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-              title="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <WhereToWatch item={content} />
-          </div>
-        </div>
       )}
 
       {/* Cinemix Seasons & Episodes Drawer Modal */}

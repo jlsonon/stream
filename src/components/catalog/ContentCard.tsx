@@ -161,7 +161,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                   e.stopPropagation();
                   onOpenDetails?.(item);
                 }}
-                title="More Information & Where to Watch"
+                title="More Information & Episodes"
                 className="p-2 rounded-lg bg-surface-100/80 hover:bg-surface-200 border border-white/10 text-white transition-colors"
               >
                 <Info className="w-3.5 h-3.5" />
