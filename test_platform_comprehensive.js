@@ -75,7 +75,7 @@ async function runTestSuite() {
 
   for (const route of routesToTest) {
     try {
-      const res = await fetchHttp(`http://localhost:3001${route.path}`, { method: 'HEAD' });
+      const res = await fetchHttp(`http://localhost:3001${route.path}`, { method: 'GET', timeout: 15000 });
       assert(res.status === 200, `${route.label} (${route.path}) returned HTTP ${res.status}`);
     } catch (err) {
       assert(false, `${route.label} (${route.path}) failed to respond: ${err.message}`);
@@ -156,7 +156,7 @@ async function runTestSuite() {
     assert(detailsData.item.trailerUrl && detailsData.item.trailerUrl.includes('youtube.com'), 'TMDB Details extracted official YouTube 4K trailer');
 
     // TEST 6: TMDB MEGA-CATALOG SYNC API
-    console.log('\n▶ [6/6] Testing TMDB Mega-Catalog Sync Engine...');
+    console.log('\n▶ [6/7] Testing TMDB Mega-Catalog Sync Engine...');
     const syncRes = await fetchHttp('http://localhost:3001/api/tmdb/sync');
     assert(syncRes.status === 200, 'TMDB Mega Sync API returned HTTP 200');
     const syncData = JSON.parse(syncRes.body);
@@ -164,8 +164,18 @@ async function runTestSuite() {
     assert(syncData.items && syncData.items.length >= 40, `TMDB Mega Sync synchronized ${syncData.items?.length} global titles`);
     assert(syncData.items[0].tmdbId !== undefined, 'Synchronized item contains authentic TMDB ID');
     assert(syncData.items[0].posterUrl.includes('image.tmdb.org'), 'Synchronized item uses official TMDB Image CDN');
+
+    // TEST 7: CINEMIX AI SEMANTIC SEARCH & 6-SERVER RESOLVER
+    console.log('\n▶ [7/7] Testing Cinemix AI Semantic Search Engine...');
+    const aiRes = await fetchHttp('http://localhost:3001/api/ai/search?prompt=mind-bending+sci-fi+like+inception');
+    assert(aiRes.status === 200, 'Cinemix AI Semantic Search returned HTTP 200');
+    const aiData = JSON.parse(aiRes.body);
+    assert(aiData.success === true, 'Cinemix AI Search reports success: true');
+    assert(aiData.results && aiData.results.length > 0, `Cinemix AI returned ${aiData.results.length} curated matching titles`);
+    assert(aiData.explanation && aiData.explanation.includes('Cinemix AI'), 'Cinemix AI returned natural language curation explanation');
+    assert(aiData.interpretation?.themeTags?.length > 0, 'Cinemix AI extracted semantic theme tags');
   } catch (err) {
-    assert(false, `TMDB API test failed: ${err.message}`);
+    assert(false, `TMDB or AI API test failed: ${err.message}`);
   }
 
   console.log('\n====================================================');

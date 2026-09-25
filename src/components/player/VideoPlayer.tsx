@@ -101,16 +101,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Multi-Server Selection State
   // 'vidsrc': Server 1 (Full Stream Mirror)
   // 'autoembed': Server 2 (Cloud Mirror)
-  // 'hls': Server 3 (Direct HLS Cloud CDN)
-  // 'trailer': Server 4 (Official 4K Trailer)
+  // 'videasy': Server 3 (Videasy Cineby Resolver)
+  // 'multiembed': Server 4 (MultiEmbed 4K Mirror)
+  // 'hls': Server 5 (Direct HLS Cloud CDN)
+  // 'trailer': Server 6 (Official 4K Trailer)
   const searchParams = useSearchParams();
   const urlServerParam = searchParams?.get('server');
-  const validServers = ['vidsrc', 'autoembed', 'hls', 'trailer'] as const;
+  const validServers = ['vidsrc', 'autoembed', 'videasy', 'multiembed', 'hls', 'trailer'] as const;
   const initialServer = validServers.includes(urlServerParam as any)
-    ? (urlServerParam as 'vidsrc' | 'autoembed' | 'hls' | 'trailer')
+    ? (urlServerParam as 'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer')
     : (content.tmdbId ? 'vidsrc' : 'hls');
 
-  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'hls' | 'trailer'>(initialServer);
+  const [selectedServer, setSelectedServer] = useState<'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer'>(initialServer);
 
   // Compute Embed URLs based on TMDB ID
   const seasonNum = episode?.seasonNumber || 1;
@@ -125,15 +127,27 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     ? `https://autoembed.to/tv/tmdb/${content.tmdbId}/${seasonNum}/${episodeNum}`
     : `https://autoembed.to/movie/tmdb/${content.tmdbId}`;
 
+  const videasyUrl = isSeries
+    ? `https://player.videasy.net/tv/${content.tmdbId}/${seasonNum}/${episodeNum}`
+    : `https://player.videasy.net/movie/${content.tmdbId}`;
+
+  const multiembedUrl = isSeries
+    ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}`
+    : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
+
   const activeEmbedUrl = selectedServer === 'vidsrc'
     ? vidsrcUrl
     : selectedServer === 'autoembed'
     ? autoembedUrl
+    : selectedServer === 'videasy'
+    ? videasyUrl
+    : selectedServer === 'multiembed'
+    ? multiembedUrl
     : selectedServer === 'trailer'
     ? (content.trailerUrl || '')
     : '';
 
-  const handleServerChange = (newServer: 'vidsrc' | 'autoembed' | 'hls' | 'trailer') => {
+  const handleServerChange = (newServer: 'vidsrc' | 'autoembed' | 'videasy' | 'multiembed' | 'hls' | 'trailer') => {
     if (newServer !== 'hls' && videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -555,9 +569,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     ? 'bg-cinemix-primary text-white shadow-md'
                     : 'text-gray-300 hover:text-white'
                 }`}
-                title="Server 1: Full-Length Stream (VidSrc)"
+                title="Server 1: Full Stream VIP (VidSrc)"
               >
-                Server 1 (Full Stream)
+                Server 1 (VidSrc)
               </button>
               <button
                 onClick={() => handleServerChange('autoembed')}
@@ -566,9 +580,31 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     ? 'bg-cinemix-primary text-white shadow-md'
                     : 'text-gray-300 hover:text-white'
                 }`}
-                title="Server 2: High-speed backup mirror (AutoEmbed)"
+                title="Server 2: High-speed backup CDN (AutoEmbed)"
               >
-                Server 2 (Mirror)
+                Server 2 (AutoEmbed)
+              </button>
+              <button
+                onClick={() => handleServerChange('videasy')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  selectedServer === 'videasy'
+                    ? 'bg-cinemix-primary text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title="Server 3: Cineby Resolver Engine (Videasy)"
+              >
+                Server 3 (Videasy)
+              </button>
+              <button
+                onClick={() => handleServerChange('multiembed')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  selectedServer === 'multiembed'
+                    ? 'bg-cinemix-primary text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title="Server 4: MultiEmbed 4K Mirror"
+              >
+                Server 4 (MultiEmbed)
               </button>
             </>
           )}
@@ -579,9 +615,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 ? 'bg-cinemix-primary text-white shadow-md'
                 : 'text-gray-300 hover:text-white'
             }`}
-            title="Server 3: Fast Direct HLS Cloud CDN"
+            title="Server 5: Fast Direct HLS Cloud CDN"
           >
-            Server 3 (HLS Cloud)
+            Server 5 (HLS Cloud)
           </button>
           {content.trailerUrl && (
             <button
@@ -591,7 +627,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   ? 'bg-cinemix-primary text-white shadow-md'
                   : 'text-gray-300 hover:text-white'
               }`}
-              title="Server 4: Official 4K Trailer"
+              title="Server 6: Official 4K Trailer"
             >
               Trailer
             </button>
