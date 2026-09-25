@@ -60,6 +60,11 @@ async function runTestSuite() {
     { path: '/browse?type=series', label: 'Browse TV Series' },
     { path: '/browse?type=anime', label: 'Browse Anime' },
     { path: '/browse?type=ph_content', label: 'Browse Philippine Cinema' },
+    { path: '/browse?genre=Action', label: 'Browse Action Genre' },
+    { path: '/browse?genre=Comedy', label: 'Browse Comedy Genre' },
+    { path: '/browse?genre=Thriller', label: 'Browse Thriller Genre' },
+    { path: '/browse?type=kdrama', label: 'Browse Korean Drama' },
+    { path: '/browse?type=documentary', label: 'Browse Documentaries' },
     { path: '/search', label: 'Search Page' },
     { path: '/superadmin', label: 'Superadmin CMS & Approvals' },
     { path: '/upgrade', label: 'Upgrade & Payment Center' },
@@ -156,7 +161,7 @@ async function runTestSuite() {
     assert(detailsData.item.trailerUrl && detailsData.item.trailerUrl.includes('youtube.com'), 'TMDB Details extracted official YouTube 4K trailer');
 
     // TEST 6: TMDB MEGA-CATALOG SYNC API
-    console.log('\n▶ [6/7] Testing TMDB Mega-Catalog Sync Engine...');
+    console.log('\n▶ [6/8] Testing TMDB Mega-Catalog Sync Engine...');
     const syncRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/sync`);
     assert(syncRes.status === 200, 'TMDB Mega Sync API returned HTTP 200');
     const syncData = JSON.parse(syncRes.body);
@@ -165,8 +170,18 @@ async function runTestSuite() {
     assert(syncData.items[0].tmdbId !== undefined, 'Synchronized item contains authentic TMDB ID');
     assert(syncData.items[0].posterUrl.includes('image.tmdb.org'), 'Synchronized item uses official TMDB Image CDN');
 
-    // TEST 7: CINEMIX AI SEMANTIC SEARCH & 6-SERVER RESOLVER
-    console.log('\n▶ [7/7] Testing Cinemix AI Semantic Search Engine...');
+    // TEST 7: TMDB LIVE DISCOVER & WORLDWIDE BROWSE
+    console.log('\n▶ [7/8] Testing TMDB Live Worldwide Discover API...');
+    const discoverRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/discover?type=movie&genre=Action&page=1`);
+    assert(discoverRes.status === 200, 'TMDB Live Discover API returned HTTP 200');
+    const discoverData = JSON.parse(discoverRes.body);
+    assert(discoverData.success === true, 'TMDB Discover reports success: true');
+    assert(discoverData.items && discoverData.items.length > 0, `TMDB Discover returned ${discoverData.items?.length} live titles`);
+    assert(discoverData.items[0].genres.includes('Action'), 'Discovered item has requested genre (Action)');
+    assert(discoverData.items[0].score <= 10, `Discovered item score is scaled correctly: ${discoverData.items[0].score}/10`);
+
+    // TEST 8: CINEMIX AI SEMANTIC SEARCH & 6-SERVER RESOLVER
+    console.log('\n▶ [8/8] Testing Cinemix AI Semantic Search Engine...');
     const aiRes = await fetchHttp(`http://localhost:${PORT}/api/ai/search?prompt=mind-bending+sci-fi+like+inception`);
     assert(aiRes.status === 200, 'Cinemix AI Semantic Search returned HTTP 200');
     const aiData = JSON.parse(aiRes.body);

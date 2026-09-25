@@ -154,39 +154,76 @@ export async function GET(req: NextRequest) {
         genres.push('Anime');
       }
 
+      let seasons: any = undefined;
+      if (!isMovie) {
+        seasons = [
+          {
+            seasonNumber: 1,
+            title: 'Season 1',
+            episodes: Array.from({ length: 10 }, (_, i) => ({
+              id: `${forcedContentType}-${r.id}-s1e${i + 1}`,
+              seasonNumber: 1,
+              episodeNumber: i + 1,
+              title: `Episode ${i + 1}`,
+              synopsis: `${title} — Season 1 Episode ${i + 1}`,
+              duration: 45,
+              thumbnailUrl: r.backdrop_path
+                ? `https://image.tmdb.org/t/p/original${r.backdrop_path}`
+                : `https://image.tmdb.org/t/p/w500${r.poster_path}`,
+            })),
+          },
+        ];
+      }
+
       const item: ContentItem = {
         id: `${forcedContentType}-${r.id}`,
         tmdbId: r.id,
         title,
-        description: r.overview || 'Stream this title in Ultra High Definition exclusively on Cinemix.',
+        originalTitle: r.original_title || r.original_name,
+        status: 'PUBLISHED',
+        synopsis: r.overview || 'Stream this title in Ultra High Definition exclusively on Cinemix.',
+        longSynopsis: r.overview || 'Stream this title in Ultra High Definition exclusively on Cinemix.',
         type: forcedContentType,
         genres: genres.length > 0 ? genres : ['Entertainment', 'Drama'],
+        tags: [...genres, '4K UHD', 'Dolby Audio', 'TMDB Verified'],
         releaseYear,
         duration: isMovie ? 124 : 45,
-        rating: 'PG-13',
-        maturityRating: 'PG-13',
-        score: r.vote_average ? Math.round(r.vote_average * 10) : 85,
-        matchScore: r.vote_average ? Math.round(r.vote_average * 10) : 88,
-        popularity: r.popularity || 100,
-        thumbnailUrl: `https://image.tmdb.org/t/p/w500${r.poster_path}`,
+        maturityRating: r.adult ? 'R' : 'PG-13',
+        score: Number((r.vote_average || 8.0).toFixed(1)),
         posterUrl: `https://image.tmdb.org/t/p/w500${r.poster_path}`,
         backdropUrl: r.backdrop_path
           ? `https://image.tmdb.org/t/p/original${r.backdrop_path}`
           : `https://image.tmdb.org/t/p/w500${r.poster_path}`,
-        trailerUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        isFeatured: r.vote_average > 7.8,
-        isTrending: r.popularity > 80,
-        isPhilippineExclusive: type === 'ph_content' || r.original_language === 'tl',
-        requiredPlan: 'FREE',
+        trailerUrl: undefined,
+        featured: r.vote_average > 7.8,
+        trending: r.popularity > 80,
+        newRelease: false,
+        isProOnly: false,
+        maxQuality: '2160p',
+        cast: [],
+        directors: [],
+        producers: [],
+        regionAvailability: ['GLOBAL'],
+        seasons,
+        audioTracks: [
+          { language: 'en', label: 'English (Dolby 5.1)', isDefault: true },
+          { language: 'fil', label: 'Tagalog Subtitles', isDefault: false },
+        ],
+        subtitles: [
+          { language: 'en', label: 'English CC', url: '', isDefault: true },
+          { language: 'fil', label: 'Tagalog Subtitles', url: '', isDefault: false },
+        ],
         videoSources: [
           {
-            id: 'src-1',
-            label: 'Cinemix FHD Adaptive Master',
             quality: '1080p',
             url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-            type: 'hls',
+            bitrate: 5500,
+            codec: 'H.264',
           },
         ],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'tmdb-discover-engine',
       };
 
       items.push(item);

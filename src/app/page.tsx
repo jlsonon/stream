@@ -11,6 +11,22 @@ import { COMPREHENSIVE_CATALOG } from '@/lib/catalog-data';
 import { Sparkles, Film, ArrowRight, Play, RefreshCw, Globe, Zap, Tv, Clapperboard } from 'lucide-react';
 import Link from 'next/link';
 
+const HOME_CATEGORIES = [
+  { label: 'All', href: '/browse' },
+  { label: 'Action', href: '/browse?genre=Action' },
+  { label: 'Sci-Fi', href: '/browse?genre=Sci-Fi' },
+  { label: 'Fantasy', href: '/browse?genre=Fantasy' },
+  { label: 'Animation', href: '/browse?genre=Animation' },
+  { label: 'Drama', href: '/browse?genre=Drama' },
+  { label: 'Comedy', href: '/browse?genre=Comedy' },
+  { label: 'Thriller', href: '/browse?genre=Thriller' },
+  { label: 'Adventure', href: '/browse?genre=Adventure' },
+  { label: 'Family', href: '/browse?genre=Family' },
+  { label: 'Philippine Cinema', href: '/browse?type=ph_content' },
+  { label: 'K-Drama', href: '/browse?genre=Drama' },
+  { label: 'Documentaries', href: '/browse?type=documentary' },
+];
+
 export default function HomePage() {
   const { activeProfile, isKidsMode } = useProfile();
   const [allContent, setAllContent] = useState<ContentItem[]>(() => COMPREHENSIVE_CATALOG);
@@ -104,6 +120,10 @@ export default function HomePage() {
   );
   const blockbusterMovies = filteredContent.filter(i => i.type === 'movie' || (i.type as any) === 'film');
   const actionItems = filteredContent.filter(i => i.genres.includes('Action') || i.genres.includes('Sci-Fi'));
+  const comedyItems = filteredContent.filter(i => i.genres.includes('Comedy'));
+  const thrillerItems = filteredContent.filter(i => i.genres.includes('Thriller') || i.genres.includes('Crime') || i.genres.includes('Mystery'));
+  const fantasyItems = filteredContent.filter(i => i.genres.includes('Fantasy') || i.genres.includes('Adventure'));
+  const familyItems = filteredContent.filter(i => i.genres.includes('Family'));
   const docItems = filteredContent.filter(i => i.type === 'documentary');
 
   // My List
@@ -174,8 +194,23 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Category Quick Jump Bar */}
+      <div className="relative -mt-4 sm:-mt-10 mb-2 sm:mb-4 z-30 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-2 px-0.5 hide-scrollbar touch-pan-x overscroll-x-contain">
+          {HOME_CATEGORIES.map((cat) => (
+            <Link
+              key={cat.label}
+              href={cat.href}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-surface-100/90 hover:bg-surface-200 text-gray-200 hover:text-white border border-white/10 hover:border-cinemix-primary/50 backdrop-blur-md whitespace-nowrap transition-all shadow-md hover:scale-105 active:scale-95"
+            >
+              {cat.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Main Content Rails */}
-      <div className="relative -mt-6 sm:-mt-14 z-20 space-y-4 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden">
+      <div className="relative z-20 space-y-4 sm:space-y-8 w-full max-w-[100vw] overflow-x-hidden">
         {/* Continue Watching (Only if client mounted and progress exists) */}
         {mounted && continueWatchingItems.length > 0 && (
           <ContentRow
@@ -346,6 +381,50 @@ export default function HomePage() {
             items={docItems}
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?type=documentary"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Thriller & Mystery */}
+        {thrillerItems.length > 0 && (
+          <ContentRow
+            title="Suspense & Crime Thrillers"
+            items={thrillerItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?genre=Thriller"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Comedy Favorites */}
+        {comedyItems.length > 0 && (
+          <ContentRow
+            title="Comedy & Feel-Good Hits"
+            items={comedyItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?genre=Comedy"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Fantasy & Adventure */}
+        {fantasyItems.length > 0 && (
+          <ContentRow
+            title="Epic Fantasy & High Adventure"
+            items={fantasyItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?genre=Fantasy"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Family & Animation */}
+        {familyItems.length > 0 && (
+          <ContentRow
+            title="Family & Animated Wonders"
+            items={familyItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?genre=Family"
             progressMap={progressMap}
           />
         )}
