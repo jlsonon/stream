@@ -245,66 +245,6 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             </button>
           </div>
         </div>
-
-        {/* Cineby-Style Rotating Carousel Indicator Controls */}
-        {slideItems.length > 1 && (
-          <div className="mt-8 flex items-center justify-between gap-4 pt-4 border-t border-white/5">
-            {/* Numbered / Pill Slide Selectors with Live Progress Bar */}
-            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto hide-scrollbar py-1">
-              {slideItems.map((item, idx) => {
-                const isActive = idx === currentIndex;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleSelectIndex(idx)}
-                    className={`group/btn relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 overflow-hidden ${
-                      isActive
-                        ? 'bg-white/15 text-white border border-white/20 shadow-lg'
-                        : 'bg-black/30 text-gray-400 hover:text-white hover:bg-white/10 border border-transparent'
-                    }`}
-                  >
-                    {/* Live Progress Bar for active item */}
-                    {isActive && !isPaused && (
-                      <div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-cinemix-primary transition-all ease-linear"
-                        style={{ width: `${progress}%` }}
-                      />
-                    )}
-                    <span className="font-mono text-[11px] opacity-70">
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <span className="truncate max-w-[100px] sm:max-w-[140px] text-left hidden sm:inline">
-                      {item.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Slide Count & Controls */}
-            <div className="flex items-center gap-2 flex-shrink-0 text-xs font-mono text-gray-400">
-              <span className="text-white font-bold">{currentIndex + 1}</span>
-              <span>/</span>
-              <span>{slideItems.length}</span>
-              <div className="flex items-center gap-1 ml-2">
-                <button
-                  onClick={handlePrev}
-                  aria-label="Previous"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  aria-label="Next"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

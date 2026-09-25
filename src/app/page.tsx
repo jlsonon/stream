@@ -18,7 +18,6 @@ export default function HomePage() {
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [continueWatchingItems, setContinueWatchingItems] = useState<ContentItem[]>([]);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'ph' | 'trending' | 'series' | 'anime' | 'movies' | 'kdrama'>('all');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -174,49 +173,10 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Modern Filter Pill Bar & Region Status */}
-      <div className="relative -mt-8 sm:-mt-14 z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-        <div className="p-2 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-3">
-          {/* Quick Filter Chips */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar py-1">
-            {[
-              { id: 'all', label: 'All Content' },
-              { id: 'ph', label: 'Pinoy Hits' },
-              { id: 'trending', label: 'Trending' },
-              { id: 'series', label: 'Global TV' },
-              { id: 'anime', label: 'Anime' },
-              { id: 'movies', label: 'Movies' },
-              { id: 'kdrama', label: 'K-Drama' }
-            ].map(tab => {
-              const active = activeFilter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveFilter(tab.id as any)}
-                  className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
-                    active 
-                      ? 'bg-cinemix-primary text-white shadow-lg shadow-cinemix-primary/30 scale-102'
-                      : 'text-gray-300 hover:text-white bg-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Region Status Indicator */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Philippines & Global Fast CDN Ready</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content Rails */}
-      <div className="relative z-20 space-y-6 sm:space-y-8">
+      <div className="relative -mt-10 sm:-mt-16 z-20 space-y-6 sm:space-y-8">
         {/* Continue Watching (Only if client mounted and progress exists) */}
-        {mounted && continueWatchingItems.length > 0 && (activeFilter === 'all') && (
+        {mounted && continueWatchingItems.length > 0 && (
           <ContentRow
             title="Continue Watching"
             badge="Resume"
@@ -226,8 +186,8 @@ export default function HomePage() {
           />
         )}
 
-        {/* Highlighted Philippine Cinema Rail if filtered or default */}
-        {(activeFilter === 'all' || activeFilter === 'ph') && phItems.length > 0 && (
+        {/* Highlighted Philippine Cinema Rail */}
+        {phItems.length > 0 && (
           <ContentRow
             title="Philippine Cinema & Primetime Series"
             badge="Pinoy Exclusives"
@@ -239,7 +199,7 @@ export default function HomePage() {
         )}
 
         {/* Trending Now */}
-        {(activeFilter === 'all' || activeFilter === 'trending') && trendingItems.length > 0 && (
+        {trendingItems.length > 0 && (
           <ContentRow
             title="Trending Now Worldwide"
             badge="Top 10"
@@ -251,7 +211,7 @@ export default function HomePage() {
         )}
 
         {/* My List (Only if client mounted and items exist) */}
-        {mounted && myListItems.length > 0 && (activeFilter === 'all') && (
+        {mounted && myListItems.length > 0 && (
           <ContentRow
             title="My Watchlist"
             items={myListItems}
@@ -262,7 +222,7 @@ export default function HomePage() {
         )}
 
         {/* Binge-Worthy Global TV Series */}
-        {(activeFilter === 'all' || activeFilter === 'series') && tvSeriesItems.length > 0 && (
+        {tvSeriesItems.length > 0 && (
           <ContentRow
             title="Binge-Worthy Global TV Series"
             badge="Series"
@@ -274,7 +234,7 @@ export default function HomePage() {
         )}
 
         {/* Anime & Animation */}
-        {(activeFilter === 'all' || activeFilter === 'anime') && animeItems.length > 0 && (
+        {animeItems.length > 0 && (
           <ContentRow
             title="Anime Superstars & Animation"
             badge="Anime"
@@ -286,7 +246,7 @@ export default function HomePage() {
         )}
 
         {/* Korean Dramas */}
-        {(activeFilter === 'all' || activeFilter === 'kdrama') && kdramaItems.length > 0 && (
+        {kdramaItems.length > 0 && (
           <ContentRow
             title="Top Korean Dramas & Asian Hits"
             badge="K-Drama"
@@ -298,7 +258,7 @@ export default function HomePage() {
         )}
 
         {/* Hollywood Blockbuster Masterpieces */}
-        {(activeFilter === 'all' || activeFilter === 'movies') && blockbusterMovies.length > 0 && (
+        {blockbusterMovies.length > 0 && (
           <ContentRow
             title="Hollywood Blockbuster Masterpieces"
             badge="Blockbusters"
@@ -310,7 +270,7 @@ export default function HomePage() {
         )}
 
         {/* Action & Sci-Fi */}
-        {(activeFilter === 'all' || activeFilter === 'movies') && actionItems.length > 0 && (
+        {actionItems.length > 0 && (
           <ContentRow
             title="Action & Sci-Fi Thrillers"
             items={actionItems}
@@ -321,7 +281,7 @@ export default function HomePage() {
         )}
 
         {/* Documentaries */}
-        {activeFilter === 'all' && docItems.length > 0 && (
+        {docItems.length > 0 && (
           <ContentRow
             title="Nature & Documentaries in 4K"
             items={docItems}

@@ -106,6 +106,12 @@ function BrowseContent() {
 
   const filteredItems = useMemo(() => {
     return allContent.filter((item) => {
+      // Strict Vivamax exclusion
+      const text = `${item.title} ${item.originalTitle || ''} ${item.synopsis || ''} ${(item.tags || []).join(' ')}`.toLowerCase();
+      if (text.includes('vivamax') || text.includes('viva max') || text.includes('viva prime')) {
+        return false;
+      }
+
       // Kids mode filter
       if (isKidsMode && (item.maturityRating === 'R' || item.maturityRating === 'NC-17')) {
         return false;

@@ -78,7 +78,7 @@ function parseNaturalLanguageQuery(query: string): SemanticQueryInterpretation {
   }
 
   // Detect Philippine / Filipino intent
-  if (q.includes('philippine') || q.includes('filipino') || q.includes('pinoy') || q.includes('tagalog') || q.includes('batang quiapo') || q.includes('vivamax')) {
+  if (q.includes('philippine') || q.includes('filipino') || q.includes('pinoy') || q.includes('tagalog') || q.includes('batang quiapo')) {
     language = 'tl';
     themeTags.push('Philippine Cinema', 'Pinoy Content');
   }
@@ -179,6 +179,11 @@ export async function GET(request: NextRequest) {
 
       for (const raw of results.slice(0, 10)) {
         if (!raw.poster_path) continue;
+
+        const fullText = `${raw.name || ''} ${raw.title || ''} ${raw.original_name || ''} ${raw.original_title || ''} ${raw.overview || ''}`.toLowerCase();
+        if (fullText.includes('vivamax') || fullText.includes('viva max') || fullText.includes('viva prime') || raw.adult) {
+          continue;
+        }
 
         const title = isTv ? (raw.name || raw.original_name) : (raw.title || raw.original_title);
         const releaseDate = isTv ? raw.first_air_date : raw.release_date;

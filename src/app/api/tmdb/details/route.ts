@@ -23,6 +23,10 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
+    const fullText = `${data.title || ''} ${data.name || ''} ${data.original_title || ''} ${data.original_name || ''} ${data.overview || ''}`.toLowerCase();
+    if (fullText.includes('vivamax') || fullText.includes('viva max') || fullText.includes('viva prime') || data.adult) {
+      return NextResponse.json({ error: 'Content unavailable' }, { status: 404 });
+    }
     const isMovie = type === 'movie';
     const title = data.title || data.name || 'Untitled';
     const dateStr = data.release_date || data.first_air_date || '';

@@ -117,12 +117,12 @@ export async function GET(req: NextRequest) {
       {
         type: 'ph_content' as ContentType,
         tag: 'Philippine Cinema & Series',
-        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc`
+        url: `https://api.themoviedb.org/3/discover/tv?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc&without_companies=150066`
       },
       {
         type: 'ph_content' as ContentType,
         tag: 'Philippine Cinema',
-        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc`
+        url: `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&with_original_language=tl&sort_by=popularity.desc&without_companies=150066`
       },
       {
         type: 'movie' as ContentType,
@@ -155,6 +155,18 @@ export async function GET(req: NextRequest) {
 
     for (const r of flattened) {
       if (!r || !r.id || seenTmdbIds.has(r.id) || !r.poster_path) continue;
+
+      // Strict Vivamax and adult content exclusion
+      const fullText = `${r.title || ''} ${r.name || ''} ${r.original_title || ''} ${r.original_name || ''} ${r.overview || ''}`.toLowerCase();
+      if (
+        fullText.includes('vivamax') ||
+        fullText.includes('viva max') ||
+        fullText.includes('viva prime') ||
+        r.adult
+      ) {
+        continue;
+      }
+
       seenTmdbIds.add(r.id);
 
       const title = r.title || r.name || 'Untitled';

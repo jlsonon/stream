@@ -94,6 +94,11 @@ function toTimeMs(val: any): number {
   return new Date(val).getTime();
 }
 
+export function isVivamaxContent(item: { title?: string; originalTitle?: string; synopsis?: string; longSynopsis?: string; tags?: string[] }): boolean {
+  const text = `${item.title || ''} ${item.originalTitle || ''} ${item.synopsis || ''} ${item.longSynopsis || ''} ${(item.tags || []).join(' ')}`.toLowerCase();
+  return text.includes('vivamax') || text.includes('viva max') || text.includes('viva prime');
+}
+
 class CatalogService {
   private getLocal<T>(key: string, fallback: T): T {
     if (typeof window === 'undefined') return fallback;
@@ -122,7 +127,9 @@ class CatalogService {
       try {
         const snap = await getDocs(collection(db, 'content'));
         if (!snap.empty) {
-          const items = snap.docs.map(d => ({ id: d.id, ...d.data() } as ContentItem));
+          const items = snap.docs
+            .map(d => ({ id: d.id, ...d.data() } as ContentItem))
+            .filter(i => !isVivamaxContent(i));
           this.setLocal(STORAGE_KEYS.CATALOG, items);
           return items;
         }
@@ -132,14 +139,15 @@ class CatalogService {
     }
 
     // 2. Versioned Local Storage Cache
-    const CURRENT_VERSION = 'v5_tmdb_official_catalog';
+    const CURRENT_VERSION = 'v6_no_vivamax_cinemix';
     const cachedVersion = typeof window !== 'undefined' ? localStorage.getItem('cinemix_catalog_version') : null;
-    let cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []);
+    let cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []).filter(i => !isVivamaxContent(i));
 
     // Refresh if cache is empty or older version detected
     if (cached.length === 0 || cachedVersion !== CURRENT_VERSION || !cached.some(c => c.id === 'series-breaking-bad' && c.tmdbId)) {
-      const userAdded = cached.filter(item => item.createdBy && item.createdBy !== 'system');
-      const merged = [...STARTER_CATALOG, ...userAdded];
+      const userAdded = cached.filter(item => item.createdBy && item.createdBy !== 'system' && !isVivamaxContent(item));
+      const filteredStarter = STARTER_CATALOG.filter(i => !isVivamaxContent(i));
+      const merged = [...filteredStarter, ...userAdded];
       this.setLocal(STORAGE_KEYS.CATALOG, merged);
       if (typeof window !== 'undefined') {
         localStorage.setItem('cinemix_catalog_version', CURRENT_VERSION);
@@ -147,11 +155,11 @@ class CatalogService {
       return merged;
     }
 
-    // Ensure all items in starter catalog are present
+    // Ensure all items in starter catalog are present (excluding Vivamax)
     const existingIds = new Set(cached.map(c => c.id));
     let hasMissing = false;
     for (const starter of STARTER_CATALOG) {
-      if (!existingIds.has(starter.id)) {
+      if (!isVivamaxContent(starter) && !existingIds.has(starter.id)) {
         cached.push(starter);
         hasMissing = true;
       }
@@ -160,7 +168,7 @@ class CatalogService {
       this.setLocal(STORAGE_KEYS.CATALOG, cached);
     }
 
-    return cached;
+    return cached.filter(i => !isVivamaxContent(i));
   }
 
   async getContentById(id: string): Promise<ContentItem | null> {
@@ -169,6 +177,11 @@ class CatalogService {
   }
 
   async saveContent(item: ContentItem): Promise<void> {
+    // Strictly block and ignore any Vivamax content
+    if (isVivamaxContent(item)) {
+      return;
+    }
+
     if (isFirebaseConfigured() && db) {
       try {
         const itemRef = doc(db, 'content', item.id);

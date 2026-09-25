@@ -26,7 +26,13 @@ export async function GET(req: NextRequest) {
     const rawResults = data.results || [];
 
     const formatted = rawResults
-      .filter((r: any) => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv' || type !== 'all'))
+      .filter((r: any) => {
+        if (!r.poster_path) return false;
+        if (!(r.media_type === 'movie' || r.media_type === 'tv' || type !== 'all')) return false;
+        const text = `${r.title || ''} ${r.name || ''} ${r.original_title || ''} ${r.original_name || ''} ${r.overview || ''}`.toLowerCase();
+        if (text.includes('vivamax') || text.includes('viva max') || text.includes('viva prime') || r.adult) return false;
+        return true;
+      })
       .map((r: any) => {
         const isMovie = r.media_type ? r.media_type === 'movie' : type === 'movie';
         const title = r.title || r.name || 'Untitled';
