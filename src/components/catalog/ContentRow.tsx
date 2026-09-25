@@ -48,15 +48,15 @@ export const ContentRow: React.FC<ContentRowProps> = ({
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="relative py-4 group/row">
+    <section className="relative py-2.5 sm:py-4 group/row">
       {/* Row Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-white group-hover/row:text-cinemix-primary transition-colors">
+      <div className="flex items-center justify-between px-3 sm:px-6 lg:px-8 mb-2 sm:mb-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <h2 className="text-base sm:text-xl font-extrabold tracking-tight text-white group-hover/row:text-cinemix-primary transition-colors">
             {title}
           </h2>
           {badge && (
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-white/10">
+            <span className="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-white/10">
               {badge}
             </span>
           )}
@@ -65,7 +65,7 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         {seeAllHref && (
           <Link 
             href={seeAllHref}
-            className="text-xs font-semibold text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+            className="text-[11px] sm:text-xs font-semibold text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
           >
             Explore all <ChevronRight className="w-3.5 h-3.5" />
           </Link>
@@ -89,7 +89,7 @@ export const ContentRow: React.FC<ContentRowProps> = ({
         <div
           ref={rowRef}
           onScroll={handleScroll}
-          className="flex items-start gap-4 sm:gap-5 overflow-x-auto px-4 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth"
+          className="flex items-start gap-3 sm:gap-4 md:gap-5 overflow-x-auto px-3 sm:px-6 lg:px-8 py-2 hide-scrollbar scroll-smooth"
         >
           {items.map((item, idx) => (
             <div key={item.id} className="relative flex items-end flex-shrink-0 group/card">
@@ -104,6 +104,15 @@ export const ContentRow: React.FC<ContentRowProps> = ({
                 </div>
               )}
               <div className="relative z-10">
+                {/* Cineby-Style Stacked Top 10 Corner Rank Badge */}
+                {isTop10 && (
+                  <div className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded-md bg-black/85 backdrop-blur-md border border-white/20 text-center leading-none shadow-cinema pointer-events-none">
+                    <span className="text-[7.5px] font-black tracking-widest text-amber-400 block">TOP</span>
+                    <span className="text-[11px] sm:text-xs font-mono font-black text-white block mt-0.5">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                )}
                 <ContentCard
                   item={item}
                   onOpenDetails={onOpenDetails}

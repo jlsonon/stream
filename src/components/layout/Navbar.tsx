@@ -72,23 +72,23 @@ export const Navbar: React.FC = () => {
           : 'bg-gradient-to-b from-black/95 via-black/50 to-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-20">
           {/* Logo & Desktop Nav */}
-          <div className="flex items-center gap-8 lg:gap-10">
-            <Link href="/" className="flex items-center gap-3 group">
+          <div className="flex items-center gap-6 lg:gap-10">
+            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
               {/* Monolithic Cinema Emblem */}
-              <div className="w-9 h-9 rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 group-hover:shadow-glow-primary transition-all">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 group-hover:shadow-glow-primary transition-all">
                 <div className="relative flex items-center justify-center">
-                  <span className="font-mono text-base font-black tracking-tighter text-white">C</span>
-                  <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
+                  <span className="font-mono text-sm sm:text-base font-black tracking-tighter text-white">C</span>
+                  <span className="absolute -top-0.5 -right-0.5 sm:-right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black tracking-wider text-white leading-none font-sans uppercase">
+                <span className="text-lg sm:text-xl font-black tracking-wider text-white leading-none font-sans uppercase">
                   CINE<span className="text-cinemix-primary">MIX</span>
                 </span>
-                <span className="text-[8.5px] font-mono tracking-[0.22em] text-gray-400 uppercase leading-none mt-1">
+                <span className="text-[7.5px] sm:text-[8.5px] font-mono tracking-[0.2em] text-gray-400 uppercase leading-none mt-0.5 sm:mt-1">
                   ENTERTAINMENT
                 </span>
               </div>
@@ -116,11 +116,11 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Upgrade Button or Pro Status */}
             {mounted && user?.plan === 'PRO' ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-cinemix-primary text-black shadow-glow-primary">
-                <Sparkles className="w-3.5 h-3.5 fill-current" /> PRO VIP
+              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-cinemix-primary text-black shadow-glow-primary">
+                <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-current" /> PRO VIP
               </span>
             ) : (
               <Link
@@ -139,7 +139,7 @@ export const Navbar: React.FC = () => {
               className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring"
               title="Search Catalog"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
 
             {/* Superadmin Link Button */}

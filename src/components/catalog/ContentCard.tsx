@@ -14,12 +14,14 @@ interface ContentCardProps {
   item: ContentItem;
   onOpenDetails?: (item: ContentItem) => void;
   progressPercent?: number;
+  className?: string;
 }
 
 export const ContentCard: React.FC<ContentCardProps> = ({ 
   item, 
   onOpenDetails,
-  progressPercent 
+  progressPercent,
+  className
 }) => {
   const router = useRouter();
   const { activeProfile } = useProfile();
@@ -59,7 +61,9 @@ export const ContentCard: React.FC<ContentCardProps> = ({
 
   return (
     <div 
-      className="group relative flex-shrink-0 w-40 sm:w-48 md:w-56 cursor-pointer select-none transition-all duration-300 hover:-translate-y-1.5"
+      className={`group relative cursor-pointer select-none transition-all duration-300 hover:-translate-y-1.5 ${
+        className || 'flex-shrink-0 w-32 sm:w-44 md:w-52'
+      }`}
       onClick={() => onOpenDetails?.(item)}
       onMouseEnter={handleMouseEnter}
     >
@@ -82,8 +86,8 @@ export const ContentCard: React.FC<ContentCardProps> = ({
 
         {/* Minimalist Top Indicator: Single Micro Badge If Pro Only */}
         {item.isProOnly && (
-          <div className="absolute top-2.5 right-2.5 pointer-events-none z-10">
-            <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider uppercase bg-cinemix-primary text-black shadow-md flex items-center gap-1">
+          <div className="absolute top-2 right-2 pointer-events-none z-10">
+            <span className="px-1.5 py-0.5 rounded text-[8.5px] font-black tracking-wider uppercase bg-cinemix-primary text-black shadow-md flex items-center gap-0.5">
               <Sparkles className="w-2.5 h-2.5 fill-current" /> PRO
             </span>
           </div>
@@ -148,29 +152,29 @@ export const ContentCard: React.FC<ContentCardProps> = ({
         </div>
       </div>
 
-      {/* Tabular Precision Specs Below Poster */}
-      <div className="pt-2.5 px-0.5 space-y-1">
+      {/* Cineby-Grade Metadata Block Below Poster */}
+      <div className="pt-2 px-0.5 space-y-0.5">
         <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 tracking-tight group-hover:text-cinemix-primary transition-colors">
           {item.title}
         </h4>
-        <div className="flex items-center gap-2 text-[11px] text-gray-400 font-mono">
-          <span>{item.releaseYear}</span>
-          <span className="text-gray-600">•</span>
-          <span className="text-gray-300 font-bold uppercase tracking-wider text-[10px]">
-            {item.maxQuality === '2160p' ? '4K' : 'HD'}
-          </span>
+        <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-mono">
           {item.score > 0 && (
             <>
-              <span className="text-gray-600">•</span>
               <span className="text-amber-400 font-bold flex items-center gap-0.5">
                 <Star className="w-2.5 h-2.5 fill-current inline" />
                 {item.score.toFixed(1)}
               </span>
+              <span className="text-gray-600">·</span>
             </>
           )}
-          <span className="text-gray-600">•</span>
-          <span className="text-gray-400 truncate max-w-[70px] font-sans font-medium capitalize">
-            {item.type === 'ph_content' ? 'Pinoy' : item.type}
+          <span>{item.releaseYear}</span>
+          <span className="text-gray-600">·</span>
+          <span className="text-gray-300 font-bold uppercase text-[9.5px]">
+            {item.maxQuality === '2160p' ? '4K' : 'HD'}
+          </span>
+          <span className="text-gray-600">·</span>
+          <span className="text-gray-400 truncate max-w-[65px] font-sans capitalize">
+            {item.type === 'ph_content' ? 'Pinoy' : item.type === 'series' ? 'TV' : 'Movie'}
           </span>
         </div>
       </div>

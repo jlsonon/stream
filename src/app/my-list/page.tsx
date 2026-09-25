@@ -54,17 +54,18 @@ export default function MyListPage() {
 
       {/* Grid or Empty State */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="aspect-[2/3] rounded-xl bg-surface-100 animate-pulse" />
           ))}
         </div>
       ) : listItems.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
           {listItems.map((item) => (
-            <div key={item.id} className="flex justify-center">
+            <div key={item.id} className="w-full flex justify-center">
               <ContentCard
                 item={item}
+                className="w-full"
                 onOpenDetails={(i) => setSelectedItem(i)}
               />
             </div>

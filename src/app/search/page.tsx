@@ -418,11 +418,12 @@ export default function SearchPage() {
               </div>
 
               {/* AI Content Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
                 {aiResults.map((item) => (
-                  <div key={item.id} className="flex justify-center">
+                  <div key={item.id} className="w-full flex justify-center">
                     <ContentCard
                       item={item}
+                      className="w-full"
                       onOpenDetails={(i) => setSelectedItem(i)}
                     />
                   </div>
@@ -515,11 +516,12 @@ export default function SearchPage() {
                     </h3>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
                     {localResults.map((item) => (
-                      <div key={item.id} className="flex justify-center">
+                      <div key={item.id} className="w-full flex justify-center">
                         <ContentCard
                           item={item}
+                          className="w-full"
                           onOpenDetails={(i) => setSelectedItem(i)}
                         />
                       </div>

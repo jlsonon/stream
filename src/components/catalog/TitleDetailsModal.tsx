@@ -223,14 +223,14 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
 
       {/* Responsive Two-Column Layout (Full Screen Height, No Left Scrollbar) */}
       <div 
-        className="grid grid-cols-1 lg:grid-cols-12 flex-1 h-[calc(100vh-65px)] w-full overflow-hidden"
+        className="grid grid-cols-1 lg:grid-cols-12 flex-1 h-[calc(100vh-65px)] w-full overflow-y-auto lg:overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* ========================================================= */}
         {/* LEFT COLUMN: Title, Thumbnail, Actions, Details (No Scrollbar) */}
         {/* ========================================================= */}
-        <div className="lg:col-span-5 xl:col-span-4 p-5 sm:p-8 flex flex-col justify-start space-y-4 sm:space-y-5 border-b lg:border-b-0 lg:border-r border-white/[0.08] overflow-y-auto lg:overflow-hidden hide-scrollbar bg-surface-100/40">
+        <div className="lg:col-span-5 xl:col-span-4 p-4 sm:p-8 flex flex-col justify-start space-y-4 sm:space-y-5 border-b lg:border-b-0 lg:border-r border-white/[0.08] lg:overflow-hidden hide-scrollbar bg-surface-100/40 flex-shrink-0">
           
           {/* 1. Title */}
           <div>
@@ -374,7 +374,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
         {/* ========================================================= */}
         {/* RIGHT COLUMN: Season Selector at Top + Episode List Below */}
         {/* ========================================================= */}
-        <div className="lg:col-span-7 xl:col-span-8 flex flex-col p-5 sm:p-8 bg-black/40 h-full overflow-hidden">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col p-4 sm:p-8 bg-black/40 lg:h-full lg:overflow-hidden">
           
           {isSeries ? (
             <>
@@ -410,7 +410,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
               </div>
 
               {/* Episodes List Scrollable Body */}
-              <div className="flex-1 overflow-y-auto pr-1 sm:pr-3 space-y-3.5 custom-scrollbar">
+              <div className="flex-1 lg:overflow-y-auto pr-1 sm:pr-3 space-y-3 sm:space-y-3.5 custom-scrollbar">
                 {isFetchingSeason ? (
                   /* Skeletons while loading TMDB Season Episodes */
                   <div className="space-y-3">

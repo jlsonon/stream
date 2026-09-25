@@ -174,7 +174,7 @@ export default function HomePage() {
       )}
 
       {/* Main Content Rails */}
-      <div className="relative -mt-10 sm:-mt-16 z-20 space-y-6 sm:space-y-8">
+      <div className="relative -mt-6 sm:-mt-14 z-20 space-y-4 sm:space-y-8">
         {/* Continue Watching (Only if client mounted and progress exists) */}
         {mounted && continueWatchingItems.length > 0 && (
           <ContentRow
@@ -216,9 +216,9 @@ export default function HomePage() {
           const spotlight = filteredContent.find(i => i.id === 'movie-oppenheimer' || i.id === 'series-breaking-bad') || blockbusterMovies[0] || filteredContent[0];
           if (!spotlight) return null;
           return (
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-surface-100 shadow-cinema group">
-                <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
+            <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-surface-100 shadow-cinema group">
+                <div className="relative aspect-[16/10] sm:aspect-[21/9] w-full overflow-hidden">
                   <img
                     src={spotlight.backdropUrl || spotlight.posterUrl}
                     alt={spotlight.title}
@@ -247,17 +247,17 @@ export default function HomePage() {
                       {spotlight.longSynopsis || spotlight.synopsis}
                     </p>
 
-                    <div className="flex items-center gap-3 pt-1">
+                    <div className="flex items-center gap-2 sm:gap-3 pt-1">
                       <Link
                         href={`/watch/${spotlight.id}`}
-                        className="py-2.5 px-6 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all"
+                        className="py-2 sm:py-2.5 px-4 sm:px-6 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all"
                       >
                         <Play className="w-4 h-4 fill-current" /> Stream Feature
                       </Link>
 
                       <button
                         onClick={() => setSelectedItem(spotlight)}
-                        className="py-2.5 px-5 rounded-xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/15 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+                        className="py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/15 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
                       >
                         Details & Cast
                       </button>
@@ -352,8 +352,8 @@ export default function HomePage() {
       </div>
 
       {/* Executive Cinema Ticket Pro Subscription Callout */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 sm:mt-20">
-        <div className="relative overflow-hidden rounded-3xl bg-surface-100 border border-white/10 p-8 sm:p-12 shadow-cinema flex flex-col md:flex-row items-center justify-between gap-8">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-12 sm:mt-20">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-surface-100 border border-white/10 p-6 sm:p-12 shadow-cinema flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cinemix-primary/10 blur-3xl pointer-events-none" />
 
           <div className="space-y-3.5 max-w-xl text-center md:text-left relative z-10">

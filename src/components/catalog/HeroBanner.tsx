@@ -113,7 +113,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
 
   return (
     <div 
-      className="group relative w-full h-[75vh] sm:h-[82vh] lg:h-[88vh] select-none overflow-hidden bg-background"
+      className="group relative w-full h-[56vh] sm:h-[75vh] lg:h-[85vh] select-none overflow-hidden bg-background"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
@@ -165,85 +165,107 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
       )}
 
       {/* Content Container */}
-      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-16 sm:pb-20 z-10">
-        <div className="max-w-2xl space-y-4">
+      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-8 sm:pb-16 lg:pb-20 z-10">
+        <div className="max-w-2xl space-y-2.5 sm:space-y-4">
           {/* Brand & Category Tag */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="px-2.5 py-1 rounded-md text-[11px] font-extrabold tracking-wider uppercase bg-cinemix-primary text-black shadow-glow-primary">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-black tracking-wider uppercase bg-cinemix-primary text-black shadow-glow-primary">
               Cinemix Premiere
             </span>
             {currentItem.isProOnly && (
-              <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-cinemix-primary/30 flex items-center gap-1 shadow-sm">
-                <Sparkles className="w-3 h-3 fill-current" /> Pro Exclusive
+              <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-cinemix-primary/30 flex items-center gap-1 shadow-sm">
+                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" /> Pro
               </span>
             )}
             {currentItem.score > 0 && (
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-mono font-black bg-black/75 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span className="px-2 py-0.5 rounded text-[11px] sm:text-xs font-mono font-bold bg-black/75 backdrop-blur-md text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-md">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                 <span>{currentItem.score.toFixed(1)}</span>
               </span>
             )}
-            <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10 uppercase">
+            <span className="px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-mono font-bold bg-white/10 backdrop-blur-md text-gray-200 border border-white/10 uppercase">
               {currentItem.maturityRating}
             </span>
-            <span className="text-xs font-semibold text-emerald-400">
+            <span className="text-[11px] sm:text-xs font-semibold text-emerald-400">
               {Math.round(currentItem.score * 10)}% Match
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white drop-shadow-lg leading-tight transition-all duration-300">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg leading-tight line-clamp-2 transition-all duration-300">
             {currentItem.title}
           </h1>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-300">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300 font-mono">
             <span>{currentItem.releaseYear}</span>
             <span>•</span>
-            <span className="uppercase">{currentItem.type.replace('_', ' ')}</span>
+            <span className="uppercase">{currentItem.type === 'ph_content' ? 'Pinoy' : currentItem.type.replace('_', ' ')}</span>
             <span>•</span>
-            <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold text-emerald-400">
+            <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 font-bold text-emerald-400 text-[10px]">
               {currentItem.maxQuality}
             </span>
             {currentItem.duration ? (
               <>
                 <span>•</span>
-                <span>{currentItem.duration} min</span>
+                <span>{currentItem.duration}m</span>
               </>
             ) : null}
             <span>•</span>
-            <span className="text-gray-400">{currentItem.genres.join(', ')}</span>
+            <span className="text-gray-400 truncate max-w-[130px] sm:max-w-none font-sans font-medium">
+              {currentItem.genres.slice(0, 2).join(', ')}
+            </span>
           </div>
 
           {/* Synopsis */}
-          <p className="text-sm sm:text-base text-gray-200 line-clamp-3 leading-relaxed drop-shadow max-w-xl transition-all duration-300">
+          <p className="text-xs sm:text-sm md:text-base text-gray-200 line-clamp-2 sm:line-clamp-3 leading-relaxed drop-shadow max-w-xl transition-all duration-300">
             {currentItem.longSynopsis || currentItem.synopsis}
           </p>
 
-          {/* Action Buttons (Cineby Style) */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          {/* Action Buttons (Cineby Side-by-Side Mobile Layout) */}
+          <div className="flex items-center gap-2 sm:gap-3 pt-1 sm:pt-2 w-full sm:w-auto">
             <Link
               href={`/watch/${currentItem.id}`}
-              className="py-3 px-6 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-xl hover:scale-105 active:scale-95"
+              className="flex-1 sm:flex-none justify-center py-2.5 sm:py-3 px-4 sm:px-8 rounded-xl bg-white text-black hover:bg-gray-200 font-extrabold text-xs sm:text-sm md:text-base flex items-center gap-2 transition-all shadow-xl active:scale-95"
             >
-              <Play className="w-5 h-5 fill-current" /> Watch Now
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+              <span>Watch Now</span>
             </Link>
 
             <button
               onClick={() => onOpenDetails(currentItem)}
-              className="py-3 px-5 sm:px-6 rounded-xl bg-surface-100/80 hover:bg-surface-200 text-white font-bold text-sm sm:text-base border border-white/10 backdrop-blur-md flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-md"
+              className="flex-1 sm:flex-none justify-center py-2.5 sm:py-3 px-3.5 sm:px-6 rounded-xl bg-surface-100/90 hover:bg-surface-200 text-white font-bold text-xs sm:text-sm md:text-base border border-white/10 backdrop-blur-md flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 shadow-md"
             >
-              <Info className="w-4 h-4 text-cinemix-primary" /> Details & Episodes
+              <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cinemix-primary" />
+              <span>Details</span>
             </button>
 
             <button
               onClick={handleToggleMyList}
               title={isInList ? 'Remove from My List' : 'Add to My List'}
-              className="p-3 rounded-xl bg-surface-100/80 hover:bg-surface-200/90 text-white border border-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+              className="p-2.5 sm:p-3 rounded-xl bg-surface-100/90 hover:bg-surface-200 text-white border border-white/10 backdrop-blur-md transition-all active:scale-95 flex-shrink-0"
             >
-              {isInList ? <Check className="w-5 h-5 text-green-400" /> : <Plus className="w-5 h-5" />}
+              {isInList ? <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" /> : <Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
+
+          {/* Cineby-Style Slide Indicators / Progress Dots */}
+          {slideItems.length > 1 && (
+            <div className="flex items-center gap-1.5 pt-1">
+              {slideItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSelectIndex(idx)}
+                  aria-label={`Slide ${idx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === currentIndex 
+                      ? 'w-6 bg-cinemix-primary shadow-glow-primary' 
+                      : 'w-1.5 bg-white/30 hover:bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
