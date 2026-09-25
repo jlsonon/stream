@@ -51,6 +51,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://image.tmdb.org" />
+        <link rel="dns-prefetch" href="https://image.tmdb.org" />
+        <link rel="dns-prefetch" href="https://vidnest.fun" />
+        <link rel="dns-prefetch" href="https://vsembed.ru" />
+        <link rel="dns-prefetch" href="https://play.xpass.top" />
+        <link rel="dns-prefetch" href="https://vidcore.io" />
+        <link rel="dns-prefetch" href="https://moviesapi.to" />
+        <link rel="dns-prefetch" href="https://vaplayer.ru" />
+        <link rel="dns-prefetch" href="https://vidfast.vc" />
+        <link rel="dns-prefetch" href="https://vidsrc.cc" />
+        <link rel="dns-prefetch" href="https://player.videasy.net" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body

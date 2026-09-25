@@ -8,7 +8,7 @@ import { HeroBanner } from '@/components/catalog/HeroBanner';
 import { ContentRow } from '@/components/catalog/ContentRow';
 import { TitleDetailsModal } from '@/components/catalog/TitleDetailsModal';
 import { COMPREHENSIVE_CATALOG } from '@/lib/catalog-data';
-import { Sparkles, Film, ArrowRight, Play, RefreshCw } from 'lucide-react';
+import { Sparkles, Film, ArrowRight, Play, RefreshCw, Globe, Zap, Tv, Clapperboard } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -18,6 +18,7 @@ export default function HomePage() {
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [continueWatchingItems, setContinueWatchingItems] = useState<ContentItem[]>([]);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'ph' | 'trending' | 'series' | 'anime' | 'movies' | 'kdrama'>('all');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -66,7 +67,12 @@ export default function HomePage() {
   const tvSeriesItems = filteredContent.filter(i => i.type === 'series' && !i.tags.includes('K-Drama'));
   const kdramaItems = filteredContent.filter(i => i.tags.includes('K-Drama'));
   const animeItems = filteredContent.filter(i => i.type === 'anime' || i.genres.includes('Animation'));
-  const phItems = filteredContent.filter(i => i.type === 'ph_content' || i.genres.includes('Philippine Cinema'));
+  const phItems = filteredContent.filter(i => 
+    i.type === 'ph_content' || 
+    i.genres.includes('Philippine Cinema') ||
+    i.audioTracks?.some(a => a.language === 'fil') ||
+    i.tags.some(t => t.toLowerCase().includes('philippine') || t.toLowerCase().includes('pinoy'))
+  );
   const blockbusterMovies = filteredContent.filter(i => i.type === 'movie' || (i.type as any) === 'film');
   const actionItems = filteredContent.filter(i => i.genres.includes('Action') || i.genres.includes('Sci-Fi'));
   const docItems = filteredContent.filter(i => i.type === 'documentary');
@@ -80,11 +86,35 @@ export default function HomePage() {
     await loadData();
   };
 
+  // Ultra-Fast Shimmer Skeletons (Zero CLS, Emil-Grade Perceived Speed)
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4">
-        <div className="w-10 h-10 rounded-full border-4 border-cinemix-primary border-t-transparent animate-spin" />
-        <p className="text-sm font-medium text-gray-400">Loading Cinemix Catalog...</p>
+      <div className="min-h-screen bg-background text-foreground pb-20">
+        {/* Hero Banner Skeleton */}
+        <div className="relative h-[65vh] sm:h-[75vh] w-full bg-gradient-to-b from-surface-100 to-background overflow-hidden animate-pulse">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-background/40 to-background" />
+          <div className="absolute bottom-16 left-6 sm:left-12 space-y-4 max-w-xl">
+            <div className="h-6 w-32 bg-white/10 rounded-full" />
+            <div className="h-10 sm:h-14 w-3/4 bg-white/10 rounded-2xl" />
+            <div className="h-4 w-full bg-white/5 rounded-md" />
+            <div className="h-4 w-2/3 bg-white/5 rounded-md" />
+            <div className="flex gap-3 pt-2">
+              <div className="h-12 w-32 bg-white/15 rounded-xl" />
+              <div className="h-12 w-32 bg-white/10 rounded-xl" />
+            </div>
+          </div>
+        </div>
+        {/* Rail Skeletons */}
+        <div className="relative -mt-8 sm:-mt-12 z-20 space-y-8 px-4 sm:px-8">
+          <div className="space-y-3">
+            <div className="h-5 w-48 bg-white/10 rounded-md animate-pulse" />
+            <div className="flex gap-4 overflow-hidden">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="flex-shrink-0 w-44 sm:w-52 md:w-60 aspect-[2/3] bg-surface-200 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -113,10 +143,49 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Modern Filter Pill Bar & Region Status */}
+      <div className="relative -mt-8 sm:-mt-14 z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <div className="p-2 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+          {/* Quick Filter Chips */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scrollbar py-1">
+            {[
+              { id: 'all', label: 'All Content' },
+              { id: 'ph', label: '🇵🇭 Pinoy Hits' },
+              { id: 'trending', label: '🔥 Trending' },
+              { id: 'series', label: '📺 Global TV' },
+              { id: 'anime', label: '⚡ Anime' },
+              { id: 'movies', label: '🎬 Movies' },
+              { id: 'kdrama', label: '🍿 K-Drama' }
+            ].map(tab => {
+              const active = activeFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveFilter(tab.id as any)}
+                  className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                    active 
+                      ? 'bg-cinemix-primary text-white shadow-lg shadow-cinemix-primary/30 scale-102'
+                      : 'text-gray-300 hover:text-white bg-white/5 hover:bg-white/10'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Region Status Indicator */}
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>🇵🇭 Philippines & Global Fast CDN Ready</span>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content Rails */}
-      <div className="relative -mt-12 sm:-mt-20 z-20 space-y-6 sm:space-y-8">
+      <div className="relative z-20 space-y-6 sm:space-y-8">
         {/* Continue Watching (Only if client mounted and progress exists) */}
-        {mounted && continueWatchingItems.length > 0 && (
+        {mounted && continueWatchingItems.length > 0 && (activeFilter === 'all') && (
           <ContentRow
             title="Continue Watching"
             badge="Resume"
@@ -126,10 +195,22 @@ export default function HomePage() {
           />
         )}
 
-        {/* Trending Now */}
-        {trendingItems.length > 0 && (
+        {/* Highlighted Philippine Cinema Rail if filtered or default */}
+        {(activeFilter === 'all' || activeFilter === 'ph') && phItems.length > 0 && (
           <ContentRow
-            title="Trending Now"
+            title="Philippine Cinema & Primetime Series"
+            badge="Pinoy Exclusives"
+            items={phItems}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?type=ph_content"
+            progressMap={progressMap}
+          />
+        )}
+
+        {/* Trending Now */}
+        {(activeFilter === 'all' || activeFilter === 'trending') && trendingItems.length > 0 && (
+          <ContentRow
+            title="Trending Now Worldwide"
             badge="Top 10"
             items={trendingItems}
             onOpenDetails={(item) => setSelectedItem(item)}
@@ -139,7 +220,7 @@ export default function HomePage() {
         )}
 
         {/* My List (Only if client mounted and items exist) */}
-        {mounted && myListItems.length > 0 && (
+        {mounted && myListItems.length > 0 && (activeFilter === 'all') && (
           <ContentRow
             title="My Watchlist"
             items={myListItems}
@@ -150,7 +231,7 @@ export default function HomePage() {
         )}
 
         {/* Binge-Worthy Global TV Series */}
-        {tvSeriesItems.length > 0 && (
+        {(activeFilter === 'all' || activeFilter === 'series') && tvSeriesItems.length > 0 && (
           <ContentRow
             title="Binge-Worthy Global TV Series"
             badge="Series"
@@ -162,7 +243,7 @@ export default function HomePage() {
         )}
 
         {/* Anime & Animation */}
-        {animeItems.length > 0 && (
+        {(activeFilter === 'all' || activeFilter === 'anime') && animeItems.length > 0 && (
           <ContentRow
             title="Anime Superstars & Animation"
             badge="Anime"
@@ -173,20 +254,8 @@ export default function HomePage() {
           />
         )}
 
-        {/* Philippine Cinema & Exclusives */}
-        {phItems.length > 0 && (
-          <ContentRow
-            title="Philippine Cinema & Series"
-            badge="Pinoy Hits"
-            items={phItems}
-            onOpenDetails={(item) => setSelectedItem(item)}
-            seeAllHref="/browse?type=ph_content"
-            progressMap={progressMap}
-          />
-        )}
-
         {/* Korean Dramas */}
-        {kdramaItems.length > 0 && (
+        {(activeFilter === 'all' || activeFilter === 'kdrama') && kdramaItems.length > 0 && (
           <ContentRow
             title="Top Korean Dramas & Asian Hits"
             badge="K-Drama"
@@ -198,7 +267,7 @@ export default function HomePage() {
         )}
 
         {/* Hollywood Blockbuster Masterpieces */}
-        {blockbusterMovies.length > 0 && (
+        {(activeFilter === 'all' || activeFilter === 'movies') && blockbusterMovies.length > 0 && (
           <ContentRow
             title="Hollywood Blockbuster Masterpieces"
             badge="Blockbusters"
@@ -210,7 +279,7 @@ export default function HomePage() {
         )}
 
         {/* Action & Sci-Fi */}
-        {actionItems.length > 0 && (
+        {(activeFilter === 'all' || activeFilter === 'movies') && actionItems.length > 0 && (
           <ContentRow
             title="Action & Sci-Fi Thrillers"
             items={actionItems}
@@ -221,7 +290,7 @@ export default function HomePage() {
         )}
 
         {/* Documentaries */}
-        {docItems.length > 0 && (
+        {activeFilter === 'all' && docItems.length > 0 && (
           <ContentRow
             title="Nature & Documentaries in 4K"
             items={docItems}

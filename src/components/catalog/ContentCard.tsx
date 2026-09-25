@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Play, Plus, Check, Info, ShieldAlert, Sparkles } from 'lucide-react';
 import { ContentItem } from '@/types';
 import { Badge } from '@/components/ui/Badge';
@@ -20,9 +21,11 @@ export const ContentCard: React.FC<ContentCardProps> = ({
   onOpenDetails,
   progressPercent 
 }) => {
+  const router = useRouter();
   const { activeProfile } = useProfile();
   const { toast } = useToast();
-  const [isInList, setIsInList] = React.useState(false);
+  const [isInList, setIsInList] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   React.useEffect(() => {
     if (activeProfile) {
@@ -44,31 +47,57 @@ export const ContentCard: React.FC<ContentCardProps> = ({
     });
   };
 
+  // Pre-warm route cache on hover for instant playback transition
+  const handleMouseEnter = () => {
+    router.prefetch(`/watch/${item.id}`);
+  };
+
+  const isPinoy = item.type === 'ph_content' || 
+    item.genres.includes('Philippine Cinema') || 
+    item.audioTracks?.some(a => a.language === 'fil') ||
+    item.tags?.some(t => t.toLowerCase().includes('philippine') || t.toLowerCase().includes('pinoy'));
+
   return (
     <div 
       className="group relative flex-shrink-0 w-44 sm:w-52 md:w-60 cursor-pointer select-none rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:z-20 hover:shadow-2xl hover:shadow-indigo-500/20"
       onClick={() => onOpenDetails?.(item)}
+      onMouseEnter={handleMouseEnter}
     >
-      {/* Poster Image */}
-      <div className="relative aspect-[2/3] w-full bg-surface-100 overflow-hidden">
+      {/* Poster Image Container with Smooth Shimmer Skeleton */}
+      <div className="relative aspect-[2/3] w-full bg-surface-200 overflow-hidden">
+        {!imgLoaded && (
+          <div className="absolute inset-0 bg-surface-200 animate-pulse flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-2 border-white/10 border-t-cinemix-primary animate-spin" />
+          </div>
+        )}
         <img
           src={item.posterUrl}
           alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onLoad={() => setImgLoaded(true)}
+          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
+            imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}
           loading="lazy"
         />
 
         {/* Top Badges (Cineby Style) */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
-          {item.isProOnly ? (
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> PRO
-            </span>
-          ) : (
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-black/70 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
-              {item.maxQuality === '2160p' ? '4K' : 'HD'}
-            </span>
-          )}
+          <div className="flex items-center gap-1">
+            {item.isProOnly ? (
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wide uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black shadow-md flex items-center gap-1">
+                <Sparkles className="w-3 h-3" /> PRO
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-black/70 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                {item.maxQuality === '2160p' ? '4K' : 'HD'}
+              </span>
+            )}
+            {isPinoy && (
+              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-md">
+                🇵🇭 Pinoy
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-1.5">
             {item.score > 0 && (
