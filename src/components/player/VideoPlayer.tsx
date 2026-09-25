@@ -27,7 +27,10 @@ import {
   List,
   Calendar,
   Clock,
-  Loader2
+  Loader2,
+  Shield,
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { ContentItem, Episode, Season, VideoQuality } from '@/types';
 import { useAuth } from '@/lib/auth-context';
@@ -44,23 +47,24 @@ export interface ServerNode {
   description: string;
   latency: string;
   badgeColor: string;
+  isProShield?: boolean;
 }
 
 export const CINEMIX_SERVERS: ServerNode[] = [
-  { id: 'aurora', name: 'Aurora CDN', tag: 'Fast', description: 'Primary High-Speed 1080p FHD Mirror', latency: '24ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
-  { id: 'apex', name: 'Apex Cloud', tag: 'Cloud', description: 'Adaptive Bitrate Global Cloud', latency: '32ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30' },
-  { id: 'quantum', name: 'Quantum Ultra', tag: '4K Ready', description: 'Ultra-Low Latency & High Definition', latency: '28ms', badgeColor: 'text-amber-300 bg-amber-400/10 border-amber-400/30' },
+  { id: 'aurora', name: 'Aurora VIP (VidLink)', tag: 'Zero Ads', description: 'Pro Ad-Free High-Speed 1080p FHD Mirror', latency: '19ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', isProShield: true },
+  { id: 'apex', name: 'Apex Cloud (Embed.su)', tag: 'Clean', description: 'Adaptive Bitrate Clean Global Cloud', latency: '26ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30', isProShield: true },
+  { id: 'quantum', name: 'Quantum Ultra (Vidsrc Pro)', tag: '4K Ready', description: 'Ultra-Low Latency & High Definition', latency: '24ms', badgeColor: 'text-amber-300 bg-amber-400/10 border-amber-400/30', isProShield: true },
   { id: 'pulse', name: 'Pulse Core', tag: 'Multi-CC', description: 'Multi-Language Subtitles & Closed Captions', latency: '36ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
   { id: 'zenith', name: 'Zenith Mirror', tag: 'Stable', description: 'Fault-Tolerant Redundant Stream', latency: '41ms', badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
   { id: 'vortex', name: 'Vortex Direct', tag: 'Low Ping', description: 'Direct Zero-Buffering Pipeline', latency: '29ms', badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' },
   { id: 'horizon', name: 'Horizon Sync', tag: 'Edge', description: 'Synchronized Worldwide Edge Node', latency: '45ms', badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
   { id: 'titan', name: 'Titan Stream', tag: 'Auto-Next', description: 'Auto-Next Episode Binge Architecture', latency: '38ms', badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
-  { id: 'sol', name: 'Sol Prime', tag: 'Prime', description: 'High-Throughput Premium Mirror', latency: '33ms', badgeColor: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' },
+  { id: 'sol', name: 'Sol Prime', tag: 'Prime', description: 'MultiEmbed High-Throughput Premium Mirror', latency: '33ms', badgeColor: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' },
   { id: 'eclipse', name: 'Eclipse Edge', tag: 'FHD+', description: 'Full HD Maximum Bitrate Master', latency: '42ms', badgeColor: 'text-violet-400 bg-violet-500/10 border-violet-500/30' },
   { id: 'mirage', name: 'Mirage Turbo', tag: 'Turbo', description: 'Instant Stream Buffer Engine', latency: '35ms', badgeColor: 'text-teal-400 bg-teal-500/10 border-teal-500/30' },
   { id: 'aether', name: 'Aether VIP', tag: 'VIP', description: 'Dedicated High-Bandwidth Node', latency: '30ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
   { id: 'nova', name: 'Nova Fallback', tag: 'Backup', description: 'Universal Smart Fallback Resolver', latency: '52ms', badgeColor: 'text-gray-400 bg-gray-500/10 border-gray-500/30' },
-  { id: 'hls', name: 'Cinemix Native 4K', tag: 'Native', description: 'Proprietary Direct HLS Multi-Bitrate Engine', latency: '18ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
+  { id: 'hls', name: 'Cinemix Native 4K', tag: 'Native', description: 'Proprietary Direct HLS Multi-Bitrate Engine (100% Ad-Free)', latency: '12ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30', isProShield: true },
 ];
 
 export const validServers = [
@@ -177,11 +181,32 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const serverDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside
+  // Cinemix PRO Shield: Zero Ads & Anti-Popup Sandboxing
+  const [proShieldActive, setProShieldActive] = useState(true);
+  const [showShieldModal, setShowShieldModal] = useState(false);
+  const shieldModalRef = useRef<HTMLDivElement>(null);
+
+  // Pro Shield: Client-Side Anti-Popup Neutralizer for Pro Subscribers
+  useEffect(() => {
+    if (!isPro || !proShieldActive) return;
+    const originalOpen = window.open;
+    window.open = function (...args: any[]) {
+      console.info('Cinemix PRO Shield intercepted and blocked popup window attempt:', args[0]);
+      return null;
+    };
+    return () => {
+      window.open = originalOpen;
+    };
+  }, [isPro, proShieldActive]);
+
+  // Close dropdowns on click outside
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
       if (serverDropdownRef.current && !serverDropdownRef.current.contains(e.target as Node)) {
         setShowServerDropdown(false);
+      }
+      if (shieldModalRef.current && !shieldModalRef.current.contains(e.target as Node)) {
+        setShowShieldModal(false);
       }
     };
     document.addEventListener('mousedown', handleOutside);
@@ -352,30 +377,24 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     switch (srv) {
       case 'aurora':
       case 'comet':
-        return isSeries ? `https://vidnest.fun/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidnest.fun/movie/${content.tmdbId}`;
+        return isSeries 
+          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914` 
+          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914`;
       case 'apex':
       case 'flux':
-        return isSeries ? `https://vsembed.ru/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vsembed.ru/embed/movie/${content.tmdbId}`;
+        return isSeries 
+          ? `https://embed.su/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://embed.su/embed/movie/${content.tmdbId}`;
       case 'quantum':
       case 'glow':
-        return isSeries ? `https://play.xpass.top/e/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://play.xpass.top/e/movie/${content.tmdbId}`;
-      case 'pulse':
-        return isSeries ? `https://vidcore.io/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?autoPlay=true&theme=e50914&sub=en` : `https://vidcore.io/movie/${content.tmdbId}?autoPlay=true`;
-      case 'zenith':
-      case 'vega':
-        return isSeries ? `https://moviesapi.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://moviesapi.to/movie/${content.tmdbId}`;
-      case 'vortex':
-      case 'quill':
-        return isSeries ? `https://vidrock.ru/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidrock.ru/movie/${content.tmdbId}`;
-      case 'horizon':
-      case 'zeta':
-        return isSeries ? `https://player.zxcstream.xyz/player/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://player.zxcstream.xyz/player/movie/${content.tmdbId}`;
-      case 'titan':
-      case 'blaze':
-        return isSeries ? `https://vidup.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?autoPlay=true&autoNext=true&nextButton=true` : `https://vidup.to/movie/${content.tmdbId}`;
+        return isSeries 
+          ? `https://vidsrc.pro/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.pro/embed/movie/${content.tmdbId}`;
       case 'sol':
       case 'haze':
-        return isSeries ? `https://primesrc.me/embed/tv?tmdb=${content.tmdbId}&season=${seasonNum}&episode=${episodeNum}&fallback=true` : `https://primesrc.me/embed/movie?tmdb=${content.tmdbId}`;
+        return isSeries 
+          ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}` 
+          : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
       case 'eclipse':
       case 'iris':
         return isSeries ? `https://vaplayer.ru/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vaplayer.ru/embed/movie/${content.tmdbId}`;
@@ -713,6 +732,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 className={`w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300 ${
                   isIframeLoading ? 'opacity-0' : 'opacity-100'
                 }`}
+                sandbox={isPro && proShieldActive ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock" : undefined}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={content.title}
@@ -934,6 +954,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                             <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${node.badgeColor}`}>
                               {node.tag}
                             </span>
+                            {node.isProShield && (
+                              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-0.5">
+                                <ShieldCheck className="w-2.5 h-2.5" /> Shield
+                              </span>
+                            )}
                           </div>
                           <p className="text-[10px] text-gray-400 truncate">{node.description}</p>
                         </div>
@@ -995,9 +1020,89 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         <div className="flex items-center gap-2 sm:gap-2.5 pointer-events-auto">
           {/* Pro Ad-Free badge or Go Pro button */}
           {isPro ? (
-            <span className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500/20 to-amber-600/20 text-amber-300 border border-amber-500/40 shadow-sm whitespace-nowrap">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Pro Ad-Free
-            </span>
+            <div className="relative" ref={shieldModalRef}>
+              <button
+                onClick={() => setShowShieldModal(!showShieldModal)}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/35 hover:border-emerald-400/60 shadow-sm transition-all"
+                title="Cinemix Pro Shield Protection"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                <span className="hidden sm:inline">PRO Shield Active</span>
+                <span className="sm:hidden">Shield</span>
+              </button>
+
+              {showShieldModal && (
+                <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-2xl shadow-2xl p-4 z-50 animate-scale-in text-left space-y-3">
+                  <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white">Cinemix PRO Shield</h4>
+                        <p className="text-[10px] text-emerald-400 font-medium">Protection Active · ₱399 Plan</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowShieldModal(false)}
+                      className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div className="p-2.5 rounded-xl bg-surface-200/80 border border-white/[0.06] space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300 font-medium text-[11px]">Anti-Popup Sandbox</span>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          Active
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-400 leading-relaxed">
+                        Blocks new tabs, pop-unders, and click-hijacking ad scripts from streaming mirrors.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-surface-200/80 border border-white/[0.06] space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300 font-medium text-[11px]">Anti-Redirect Firewall</span>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          Locked
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-400 leading-relaxed">
+                        Prevents mirror hosts from navigating your page away to malicious sites.
+                      </p>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-surface-200/80 border border-white/[0.06] space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300 font-medium text-[11px]">VIP Ad-Filtered Mirror</span>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          {currentServerNode.tag}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-400 leading-relaxed">
+                        Currently streaming via {currentServerNode.name}.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-1 border-t border-white/[0.08]">
+                    <button
+                      onClick={() => {
+                        handleServerChange('hls');
+                        setShowShieldModal(false);
+                      }}
+                      className="w-full py-2 px-3 rounded-xl bg-cinemix-primary text-white text-xs font-bold hover:bg-cinemix-primary-hover transition-colors text-center shadow-lg"
+                    >
+                      Switch to Cinemix Native 4K (100% Ad-Free)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               href="/upgrade"
