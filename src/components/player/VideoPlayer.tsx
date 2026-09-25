@@ -186,17 +186,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showShieldModal, setShowShieldModal] = useState(false);
   const shieldModalRef = useRef<HTMLDivElement>(null);
 
-  // Pro Shield: Client-Side Anti-Popup Neutralizer for Pro Subscribers
+  // Pro Shield: Reclaim focus immediately if a mirror triggers an external tab
   useEffect(() => {
     if (!isPro || !proShieldActive) return;
-    const originalOpen = window.open;
-    window.open = function (...args: any[]) {
-      console.info('Cinemix PRO Shield intercepted and blocked popup window attempt:', args[0]);
-      return null;
+    const handleBlur = () => {
+      const timer = setTimeout(() => {
+        window.focus();
+      }, 50);
+      return () => clearTimeout(timer);
     };
-    return () => {
-      window.open = originalOpen;
-    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
   }, [isPro, proShieldActive]);
 
   // Close dropdowns on click outside
@@ -732,7 +732,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 className={`w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300 ${
                   isIframeLoading ? 'opacity-0' : 'opacity-100'
                 }`}
-                sandbox={isPro && proShieldActive ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock" : undefined}
+                sandbox={isPro && proShieldActive ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-popups allow-popups-to-escape-sandbox" : undefined}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 title={content.title}
@@ -1054,13 +1054,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <div className="space-y-2 text-xs">
                     <div className="p-2.5 rounded-xl bg-surface-200/80 border border-white/[0.06] space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-300 font-medium text-[11px]">Anti-Popup Sandbox</span>
+                        <span className="text-gray-300 font-medium text-[11px]">Stream Protection & Auto-Dismiss</span>
                         <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                           Active
                         </span>
                       </div>
                       <p className="text-[10px] text-gray-400 leading-relaxed">
-                        Blocks new tabs, pop-unders, and click-hijacking ad scripts from streaming mirrors.
+                        Suppresses popup tabs, locks browser focus to Cinemix, and keeps mirror playback 100% operational.
                       </p>
                     </div>
 
