@@ -21,14 +21,14 @@ interface HeroBannerProps {
   items?: ContentItem[];
   item?: ContentItem;
   onOpenDetails: (item: ContentItem) => void;
-  autoPlayInterval?: number; // default 6500ms
+  autoPlayInterval?: number; // default 5000ms (5 seconds)
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({ 
   items, 
   item, 
   onOpenDetails,
-  autoPlayInterval = 6500 
+  autoPlayInterval = 5000 
 }) => {
   const { activeProfile } = useProfile();
   const { toast } = useToast();

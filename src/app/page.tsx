@@ -156,6 +156,7 @@ export default function HomePage() {
           items={featuredItems}
           item={featuredItem}
           onOpenDetails={(item) => setSelectedItem(item)}
+          autoPlayInterval={5000}
         />
       ) : (
         <div className="h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-b from-surface-100 to-background">
@@ -259,7 +260,7 @@ export default function HomePage() {
                         onClick={() => setSelectedItem(spotlight)}
                         className="py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/15 backdrop-blur-md transition-all hover:scale-105 active:scale-95"
                       >
-                        Details & Cast
+                        Details & Info
                       </button>
                     </div>
                   </div>

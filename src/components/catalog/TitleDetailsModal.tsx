@@ -337,36 +337,24 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
               </div>
             )}
 
-            {/* Cast and Creators */}
-            <div className="space-y-3 pt-3 border-t border-white/[0.08]">
-              {activeItem.cast && activeItem.cast.length > 0 && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block">Starring Cast</span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {activeItem.cast.slice(0, 5).map(c => (
-                      <span key={c.name} className="px-2.5 py-1 rounded-lg bg-surface-200 text-xs border border-white/5 text-gray-300">
-                        <strong className="text-white font-medium">{c.name}</strong>
-                        {c.role && <span className="text-gray-400 font-normal"> · {c.role}</span>}
-                      </span>
-                    ))}
+            {/* Creators and Production Details */}
+            {(activeItem.directors?.length || activeItem.studio) ? (
+              <div className="space-y-2 pt-3 border-t border-white/[0.08]">
+                {activeItem.directors && activeItem.directors.length > 0 && (
+                  <div className="text-xs">
+                    <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Directed By</span>
+                    <span className="text-white font-medium">{activeItem.directors.join(', ')}</span>
                   </div>
-                </div>
-              )}
+                )}
 
-              {activeItem.directors && activeItem.directors.length > 0 && (
-                <div className="text-xs">
-                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Directed By</span>
-                  <span className="text-white font-medium">{activeItem.directors.join(', ')}</span>
-                </div>
-              )}
-
-              {activeItem.studio && (
-                <div className="text-xs">
-                  <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Production Studio</span>
-                  <span className="text-gray-300">{activeItem.studio}</span>
-                </div>
-              )}
-            </div>
+                {activeItem.studio && (
+                  <div className="text-xs">
+                    <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block mb-0.5">Production Studio</span>
+                    <span className="text-gray-300">{activeItem.studio}</span>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
 
         </div>
