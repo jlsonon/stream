@@ -374,14 +374,14 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
           {isSeries ? (
             <>
               {/* TOP OF RIGHT COLUMN: Interactive Season Selector Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/[0.08] flex-shrink-0">
-                <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/[0.08] flex-shrink-0">
+                <div className="flex items-center gap-3">
                   {/* Season Dropdown Selector */}
                   <div className="relative">
                     <select
                       value={selectedSeason}
                       onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                      className="bg-surface-200/90 hover:bg-surface-200 border border-white/15 text-white font-extrabold text-sm sm:text-base py-2 pl-4 pr-10 rounded-2xl appearance-none cursor-pointer focus:outline-none focus:border-cinemix-primary transition-all shadow-lg"
+                      className="bg-surface-200/90 hover:bg-surface-200 border border-white/15 text-white font-extrabold text-sm sm:text-base py-2.5 pl-4 pr-10 rounded-2xl appearance-none cursor-pointer focus:outline-none focus:border-cinemix-primary transition-all shadow-lg"
                     >
                       {activeItem.seasons?.map((s) => (
                         <option key={s.seasonNumber} value={s.seasonNumber} className="bg-surface-100 text-white font-bold">
@@ -389,30 +389,8 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
-
-                  {/* 1-Click Fast Season Pills */}
-                  {activeItem.seasons && activeItem.seasons.length > 1 && (
-                    <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar max-w-xs sm:max-w-md">
-                      {activeItem.seasons.map((s) => {
-                        const isSelected = selectedSeason === s.seasonNumber;
-                        return (
-                          <button
-                            key={s.seasonNumber}
-                            onClick={() => setSelectedSeason(s.seasonNumber)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                              isSelected
-                                ? 'bg-cinemix-primary text-white shadow-md shadow-cinemix-primary/30 border border-cinemix-primary'
-                                : 'bg-surface-200/60 hover:bg-surface-200 text-gray-300 border border-white/5'
-                            }`}
-                          >
-                            Season {s.seasonNumber}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
 
                 {/* Right Meta Indicator */}
