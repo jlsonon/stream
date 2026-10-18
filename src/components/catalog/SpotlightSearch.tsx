@@ -59,10 +59,12 @@ export const SpotlightSearch: React.FC = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('cinelog:open-spotlight', handleCustomOpen);
     window.addEventListener('cinemix:open-spotlight', handleCustomOpen);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('cinelog:open-spotlight', handleCustomOpen);
       window.removeEventListener('cinemix:open-spotlight', handleCustomOpen);
     };
   }, [isOpen]);
@@ -196,7 +198,7 @@ export const SpotlightSearch: React.FC = () => {
         <div className="max-h-[60vh] overflow-y-auto p-2 sm:p-3 hide-scrollbar">
           {loading ? (
             <div className="py-12 flex flex-col items-center justify-center space-y-3">
-              <div className="w-8 h-8 rounded-full border-2 border-cinemix-primary border-t-transparent animate-spin" />
+              <div className="w-8 h-8 rounded-full border-2 border-cinelog-primary border-t-transparent animate-spin" />
               <p className="text-xs font-medium text-gray-400">Searching global streaming index...</p>
             </div>
           ) : results.length > 0 ? (
@@ -214,7 +216,7 @@ export const SpotlightSearch: React.FC = () => {
                     onMouseEnter={() => setSelectedIndex(idx)}
                     className={`w-full p-2.5 sm:p-3 rounded-xl flex items-center gap-3 sm:gap-4 text-left transition-all ${
                       isSelected 
-                        ? 'bg-cinemix-primary/15 border border-cinemix-primary/30 text-white shadow-md' 
+                        ? 'bg-cinelog-primary/15 border border-cinelog-primary/30 text-white shadow-md' 
                         : 'hover:bg-white/5 border border-transparent text-gray-300'
                     }`}
                   >
@@ -256,12 +258,12 @@ export const SpotlightSearch: React.FC = () => {
                       </h4>
 
                       <p className="text-xs text-gray-400 truncate mt-0.5">
-                        {item.synopsis || 'Ready to stream on Cinemix.'}
+                        {item.synopsis || 'Ready to stream on Cinelog.'}
                       </p>
                     </div>
 
                     {/* Action Icon */}
-                    <div className={`p-2 rounded-lg ${isSelected ? 'text-cinemix-primary' : 'text-gray-500'}`}>
+                    <div className={`p-2 rounded-lg ${isSelected ? 'text-cinelog-primary' : 'text-gray-500'}`}>
                       <Play className="w-4 h-4 fill-current" />
                     </div>
                   </button>
@@ -278,7 +280,7 @@ export const SpotlightSearch: React.FC = () => {
             <div className="p-3 sm:p-4 space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-400">
-                  <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" /> Popular Searches
+                  <Sparkles className="w-3.5 h-3.5 text-cinelog-primary" /> Popular Searches
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {POPULAR_SEARCHES.map((term) => (

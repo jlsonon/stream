@@ -10,9 +10,9 @@ import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
 import { SpotlightSearch } from '@/components/catalog/SpotlightSearch';
 
 export const metadata: Metadata = {
-  title: 'Cinemix — Stream Movies, Anime & Philippine Shows',
+  title: 'Cinelog — Stream Movies, Anime & Series in 4K UHD',
   description:
-    'Experience high-definition anime, Philippine movies, Hollywood blockbusters, and 4K cinema on Cinemix.',
+    'Experience high-definition anime, Philippine movies, Hollywood blockbusters, and 4K cinema on Cinelog.',
   manifest: '/manifest.json',
   icons: {
     icon: '/icons/icon-192.svg',
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Cinemix',
+    title: 'Cinelog',
   },
   openGraph: {
-    title: 'Cinemix — Stream Movies, Anime & Philippine Shows',
+    title: 'Cinelog — Stream Movies, Anime & Series in 4K UHD',
     description:
-      'Experience high-definition anime, Philippine movies, Hollywood blockbusters, and 4K cinema on Cinemix.',
-    siteName: 'Cinemix',
+      'Experience high-definition anime, Philippine movies, Hollywood blockbusters, and 4K cinema on Cinelog.',
+    siteName: 'Cinelog',
     locale: 'en_US',
     type: 'website',
   },
@@ -56,14 +56,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://image.tmdb.org" />
         <link rel="dns-prefetch" href="https://image.tmdb.org" />
-        <link rel="dns-prefetch" href="https://vidnest.fun" />
-        <link rel="dns-prefetch" href="https://vsembed.ru" />
-        <link rel="dns-prefetch" href="https://play.xpass.top" />
-        <link rel="dns-prefetch" href="https://vidcore.io" />
-        <link rel="dns-prefetch" href="https://moviesapi.to" />
-        <link rel="dns-prefetch" href="https://vaplayer.ru" />
-        <link rel="dns-prefetch" href="https://vidfast.vc" />
-        <link rel="dns-prefetch" href="https://vidsrc.cc" />
+        <link rel="dns-prefetch" href="https://vidlink.pro" />
+        <link rel="dns-prefetch" href="https://vidsrc.me" />
+        <link rel="dns-prefetch" href="https://vidsrc.to" />
+        <link rel="dns-prefetch" href="https://autoembed.co" />
+        <link rel="dns-prefetch" href="https://multiembed.mov" />
+        <link rel="dns-prefetch" href="https://vidsrc.pm" />
+        <link rel="dns-prefetch" href="https://vidjoy.pro" />
         <link rel="dns-prefetch" href="https://player.videasy.net" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>

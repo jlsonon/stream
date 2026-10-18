@@ -18,7 +18,7 @@ async function fetchHttp(url, options = {}) {
 
 async function runTestSuite() {
   console.log('====================================================');
-  console.log('🎬 CINEMIX STREAMING PLATFORM — COMPREHENSIVE TEST');
+  console.log('[CINELOG] GLOBAL STREAMING PLATFORM - COMPREHENSIVE TEST');
   console.log('====================================================\n');
 
   let passed = 0;
@@ -26,30 +26,22 @@ async function runTestSuite() {
 
   function assert(condition, message) {
     if (condition) {
-      console.log(`  ✅ PASS: ${message}`);
+      console.log(`  [PASS] ${message}`);
       passed++;
     } else {
-      console.error(`  ❌ FAIL: ${message}`);
+      console.error(`  [FAIL] ${message}`);
       failed++;
     }
-  }
-
-  // ----------------------------------------------------
-  // TEST 1: CATALOG INTEGRITY & SCHEMA VALIDATION
-  // ----------------------------------------------------
-  console.log('▶ [1/4] Testing Catalog Data Integrity...');
-  try {
-    // Read catalog-data directly
-    const catalogData = require('./src/lib/catalog-data.ts');
-    // Note: since it's typescript, let's test via compiled or transpiled check or dynamic import if needed
-  } catch (e) {
-    // If ts-node not present, we can read the file as text and parse or test via ts script
   }
 
   const PORT = process.env.PORT || 3000;
   const BASE_URL = process.env.TEST_BASE_URL || `http://localhost:${PORT}`;
   console.log(`  Testing Next.js routes and endpoints on ${BASE_URL}...`);
 
+  // ----------------------------------------------------
+  // TEST 1: CORE APPLICATION ROUTES & NAVIGATION
+  // ----------------------------------------------------
+  console.log('\n[RUN] [1/8] Testing Core Web Routes and Discovery Rails...');
   const routesToTest = [
     { path: '/', label: 'Home Page & Discovery Rails' },
     { path: '/browse', label: 'Browse Catalog & Filters' },
@@ -86,7 +78,7 @@ async function runTestSuite() {
   // ----------------------------------------------------
   // TEST 2: LIVE HLS STREAM ACCESSIBILITY
   // ----------------------------------------------------
-  console.log('\n▶ [2/4] Testing Live HLS Master Video Streams & CORS...');
+  console.log('\n[RUN] [2/8] Testing Live HLS Master Video Streams & CORS...');
   const hlsStreams = [
     { url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', name: 'Premiere 4K/1080p Master Stream' },
     { url: 'https://test-streams.mux.dev/test_001/stream.m3u8', name: 'Action Multi-Bitrate HLS Stream' }
@@ -107,7 +99,7 @@ async function runTestSuite() {
   // ----------------------------------------------------
   // TEST 3: SUB-PLAYLIST & VIDEO TS SEGMENT STREAMING
   // ----------------------------------------------------
-  console.log('\n▶ [3/4] Testing Video Resolution Sub-Playlists and Video Chunks...');
+  console.log('\n[RUN] [3/8] Testing Video Resolution Sub-Playlists and Video Chunks...');
   try {
     const subPlaylistUrl = 'https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8';
     const subRes = await fetchHttp(subPlaylistUrl);
@@ -126,12 +118,12 @@ async function runTestSuite() {
   // ----------------------------------------------------
   // TEST 4: PWA MANIFEST & OFFLINE CAPABILITIES
   // ----------------------------------------------------
-  console.log('\n▶ [4/4] Testing PWA & Manifest Configuration...');
+  console.log('\n[RUN] [4/8] Testing PWA & Manifest Configuration...');
   try {
     const manifestRes = await fetchHttp(`${BASE_URL}/manifest.json`);
     assert(manifestRes.status === 200, 'manifest.json returned HTTP 200');
     const manifest = JSON.parse(manifestRes.body);
-    assert(manifest.name === 'Cinemix — Global Streaming Platform', `PWA Manifest name is "${manifest.name}"`);
+    assert(manifest.name === 'Cinelog — Global Streaming Platform', `PWA Manifest name is "${manifest.name}"`);
     assert(manifest.display === 'standalone', `PWA Display mode is "${manifest.display}"`);
     assert(manifest.icons && manifest.icons.length > 0, `PWA Icons defined (${manifest.icons.length} sizes)`);
   } catch (err) {
@@ -141,7 +133,7 @@ async function runTestSuite() {
   // ----------------------------------------------------
   // TEST 5: TMDB LIVE API INTEGRATION & OFFICIAL ASSETS
   // ----------------------------------------------------
-  console.log('\n▶ [5/5] Testing TMDB Live APIs & Official Image CDN...');
+  console.log('\n[RUN] [5/8] Testing TMDB Live APIs & Official Image CDN...');
   try {
     const searchRes = await fetchHttp(`${BASE_URL}/api/tmdb/search?query=Inception`);
     assert(searchRes.status === 200, 'TMDB Live Search API returned HTTP 200');
@@ -156,8 +148,7 @@ async function runTestSuite() {
     assert(detailsData.item.posterUrl.includes('image.tmdb.org'), 'TMDB Details contains high-res official poster');
     assert(detailsData.item.trailerUrl && detailsData.item.trailerUrl.includes('youtube.com'), 'TMDB Details extracted official YouTube 4K trailer');
 
-    // TEST 6: TMDB MEGA-CATALOG SYNC API
-    console.log('\n▶ [6/8] Testing TMDB Mega-Catalog Sync Engine...');
+    // TMDB MEGA-CATALOG SYNC API
     const syncRes = await fetchHttp(`${BASE_URL}/api/tmdb/sync`);
     assert(syncRes.status === 200, 'TMDB Mega Sync API returned HTTP 200');
     const syncData = JSON.parse(syncRes.body);
@@ -166,8 +157,7 @@ async function runTestSuite() {
     assert(syncData.items[0].tmdbId !== undefined, 'Synchronized item contains authentic TMDB ID');
     assert(syncData.items[0].posterUrl.includes('image.tmdb.org'), 'Synchronized item uses official TMDB Image CDN');
 
-    // TEST 7: TMDB LIVE DISCOVER & WORLDWIDE BROWSE
-    console.log('\n▶ [7/8] Testing TMDB Live Worldwide Discover API...');
+    // TMDB LIVE DISCOVER & WORLDWIDE BROWSE
     const discoverRes = await fetchHttp(`${BASE_URL}/api/tmdb/discover?type=movie&genre=Action&page=1`);
     assert(discoverRes.status === 200, 'TMDB Live Discover API returned HTTP 200');
     const discoverData = JSON.parse(discoverRes.body);
@@ -175,18 +165,60 @@ async function runTestSuite() {
     assert(discoverData.items && discoverData.items.length > 0, `TMDB Discover returned ${discoverData.items?.length} live titles`);
     assert(discoverData.items[0].genres.includes('Action'), 'Discovered item has requested genre (Action)');
     assert(discoverData.items[0].score <= 10, `Discovered item score is scaled correctly: ${discoverData.items[0].score}/10`);
-
-    // TEST 8: CINEMIX AI SEMANTIC SEARCH & 6-SERVER RESOLVER
-    console.log('\n▶ [8/8] Testing Cinemix AI Semantic Search Engine...');
-    const aiRes = await fetchHttp(`${BASE_URL}/api/ai/search?prompt=mind-bending+sci-fi+like+inception`);
-    assert(aiRes.status === 200, 'Cinemix AI Semantic Search returned HTTP 200');
-    const aiData = JSON.parse(aiRes.body);
-    assert(aiData.success === true, 'Cinemix AI Search reports success: true');
-    assert(aiData.results && aiData.results.length > 0, `Cinemix AI returned ${aiData.results.length} curated matching titles`);
-    assert(aiData.explanation && aiData.explanation.includes('Cinemix AI'), 'Cinemix AI returned natural language curation explanation');
-    assert(aiData.interpretation?.themeTags?.length > 0, 'Cinemix AI extracted semantic theme tags');
   } catch (err) {
-    assert(false, `TMDB or AI API test failed: ${err.message}`);
+    assert(false, `TMDB API test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 6: CINELOG AI SEMANTIC SEARCH ENGINE
+  // ----------------------------------------------------
+  console.log('\n[RUN] [6/8] Testing Cinelog AI Semantic Search Engine...');
+  try {
+    const aiRes = await fetchHttp(`${BASE_URL}/api/ai/search?prompt=mind-bending+sci-fi+like+inception`);
+    assert(aiRes.status === 200, 'Cinelog AI Semantic Search returned HTTP 200');
+    const aiData = JSON.parse(aiRes.body);
+    assert(aiData.success === true, 'Cinelog AI Search reports success: true');
+    assert(aiData.results && aiData.results.length > 0, `Cinelog AI returned ${aiData.results.length} curated matching titles`);
+    assert(aiData.explanation && aiData.explanation.includes('Cinelog AI'), 'Cinelog AI returned natural language curation explanation');
+    assert(aiData.interpretation?.themeTags?.length > 0, 'Cinelog AI extracted semantic theme tags');
+  } catch (err) {
+    assert(false, `Cinelog AI API test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 7: DAILY RANKINGS & DAILY RELEASES ENGINE
+  // ----------------------------------------------------
+  console.log('\n[RUN] [7/8] Testing Daily Rankings and Daily Releases System...');
+  try {
+    const rankRes = await fetchHttp(`${BASE_URL}/api/rankings/daily`);
+    assert(rankRes.status === 200, 'Daily Rankings endpoint returned HTTP 200');
+    const rankData = JSON.parse(rankRes.body);
+    assert(rankData.success === true, 'Daily Rankings reports success: true');
+    assert(rankData.rankings && rankData.rankings.length === 10, `Daily Rankings returns Top 10 titles (got ${rankData.rankings?.length})`);
+    assert(rankData.rankings[0].rank === 1, 'Top title has rank 1');
+
+    const relRes = await fetchHttp(`${BASE_URL}/api/releases/daily`);
+    assert(relRes.status === 200, 'Daily Releases endpoint returned HTTP 200');
+    const relData = JSON.parse(relRes.body);
+    assert(relData.success === true, 'Daily Releases reports success: true');
+    assert(relData.items && relData.items.length > 0, `Daily Releases returns new releases (got ${relData.items?.length})`);
+  } catch (err) {
+    assert(false, `Daily Rankings/Releases test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 8: STREAM RESOLVER & PRO SHIELD CDN
+  // ----------------------------------------------------
+  console.log('\n[RUN] [8/8] Testing Streaming Resolver and Pro Shield Nodes...');
+  try {
+    const streamRes = await fetchHttp(`${BASE_URL}/api/stream/resolve?id=series-breaking-bad-1396&type=tv&season=1&episode=1`);
+    assert(streamRes.status === 200, 'Stream Resolver endpoint returned HTTP 200');
+    const streamData = JSON.parse(streamRes.body);
+    assert(streamData.success === true, 'Stream Resolver reports success: true');
+    assert(streamData.cleanMirrors && streamData.cleanMirrors.length >= 3, `Stream Resolver returned ${streamData.cleanMirrors?.length} verified clean mirrors`);
+    assert(streamData.proShield?.popupSuppression === true, 'Pro Shield Anti-Redirect & Popup Firewall active');
+  } catch (err) {
+    assert(false, `Stream Resolver test failed: ${err.message}`);
   }
 
   console.log('\n====================================================');

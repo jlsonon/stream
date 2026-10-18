@@ -51,22 +51,22 @@ export default function UpgradePage() {
 
   const paymentChannels = {
     GCash: {
-      accountName: 'Cinemix Media Philippines Inc.',
+      accountName: 'Cinelog Media Philippines Inc.',
       accountNumber: '0917-888-2469',
       instructions: 'Open your GCash App > Send Money > Express Send. Enter the mobile number below, input ₱399, and type your email in the message. Save screenshot of the receipt.',
     },
     Maya: {
-      accountName: 'Cinemix Digital Entertainment',
+      accountName: 'Cinelog Digital Entertainment',
       accountNumber: '0998-555-7389',
       instructions: 'Open your Maya app > Send Money to Maya user. Input ₱399 and take a screenshot of the completed transaction slip.',
     },
     BDO: {
-      accountName: 'Cinemix Interactive Corp.',
+      accountName: 'Cinelog Interactive Corp.',
       accountNumber: '0068-1234-8901',
       instructions: 'Transfer via BDO Online Banking or InstaPay / PESONet to BDO Savings Account. Take a screenshot or upload deposit slip.',
     },
     BPI: {
-      accountName: 'Cinemix Interactive Corp.',
+      accountName: 'Cinelog Interactive Corp.',
       accountNumber: '1940-5678-2234',
       instructions: 'Transfer via BPI app or QR code. Upload transaction confirmation with reference number.',
     }
@@ -142,7 +142,7 @@ export default function UpgradePage() {
           <Sparkles className="w-3.5 h-3.5" /> Premium Entertainment
         </span>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-          Upgrade to Cinemix <span className="text-gradient from-amber-400 to-amber-600">Pro</span>
+          Upgrade to Cinelog <span className="text-gradient from-amber-400 to-amber-600">Pro</span>
         </h1>
         <p className="text-sm sm:text-base text-gray-400">
           Experience uncompressed 4K streaming, zero commercial interruptions, and unlimited family profiles for only <strong className="text-white">₱399/month</strong>.
@@ -155,7 +155,7 @@ export default function UpgradePage() {
         <div className="p-8 rounded-3xl bg-surface-100 border border-white/[0.08] shadow-cinema space-y-6 flex flex-col justify-between">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-extrabold text-white">Cinemix Free</h3>
+              <h3 className="text-xl font-extrabold text-white">Cinelog Free</h3>
               <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-surface-200 text-gray-400 border border-white/5">
                 Current Plan
               </span>
@@ -181,37 +181,37 @@ export default function UpgradePage() {
         </div>
 
         {/* Pro Plan */}
-        <div className="relative p-8 rounded-3xl bg-surface-100 border-2 border-cinemix-primary/70 shadow-cinema space-y-6 flex flex-col justify-between">
-          <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-cinemix-primary text-black shadow-glow-primary">
+        <div className="relative p-8 rounded-3xl bg-surface-100 border-2 border-cinelog-primary/70 shadow-cinema space-y-6 flex flex-col justify-between">
+          <div className="absolute -top-3.5 right-6 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-cinelog-primary text-black shadow-glow-primary">
             Official Premiere Pass
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
-                Cinemix Pro <Sparkles className="w-5 h-5 text-cinemix-primary fill-current" />
+                Cinelog Pro <Sparkles className="w-5 h-5 text-cinelog-primary fill-current" />
               </h3>
             </div>
             <div className="text-4xl font-black text-white font-mono">
-              ₱399 <span className="text-xs text-cinemix-primary font-normal">/ 30 days</span>
+              ₱399 <span className="text-xs text-cinelog-primary font-normal">/ 30 days</span>
             </div>
             <p className="text-xs text-gray-300">The authoritative high-bandwidth home theater experience.</p>
 
             <ul className="space-y-3 pt-4 text-xs sm:text-sm text-white">
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Native 4K Ultra HD & 1080p Crystal Clear
+                <Check className="w-4 h-4 text-cinelog-primary font-bold" /> Native 4K Ultra HD & 1080p Crystal Clear
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> 100% Ad-Free uninterrupted playback
+                <Check className="w-4 h-4 text-cinelog-primary font-bold" /> 100% Ad-Free uninterrupted playback
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Up to 5 Profiles + Kids Protection
+                <Check className="w-4 h-4 text-cinelog-primary font-bold" /> Up to 5 Profiles + Kids Protection
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Unlimited daily watch time on all devices
+                <Check className="w-4 h-4 text-cinelog-primary font-bold" /> Unlimited daily watch time on all devices
               </li>
               <li className="flex items-center gap-2.5">
-                <Check className="w-4 h-4 text-cinemix-primary font-bold" /> Dolby Atmos / 5.1 Surround & Multi-Subtitles
+                <Check className="w-4 h-4 text-cinelog-primary font-bold" /> Dolby Atmos / 5.1 Surround & Multi-Subtitles
               </li>
             </ul>
           </div>
@@ -219,7 +219,7 @@ export default function UpgradePage() {
           <div className="pt-4">
             <a
               href="#payment-section"
-              className="w-full py-3.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-glow-primary hover:scale-102 transition-all active:scale-98"
+              className="w-full py-3.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-glow-primary hover:scale-102 transition-all active:scale-98"
             >
               <Sparkles className="w-4 h-4 fill-current" /> Subscribe Now for ₱399
             </a>
@@ -289,7 +289,7 @@ export default function UpgradePage() {
               <div>
                 <span className="text-xs font-mono text-gray-400 block mb-1">Account / Mobile Number:</span>
                 <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-100 border border-white/[0.06]">
-                  <span className="font-mono font-black text-cinemix-primary text-base">
+                  <span className="font-mono font-black text-cinelog-primary text-base">
                     {paymentChannels[selectedMethod as keyof typeof paymentChannels]?.accountNumber}
                   </span>
                   <button
@@ -366,8 +366,8 @@ export default function UpgradePage() {
               Upload Receipt Screenshot / Photo (Optional but recommended)
             </label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <label className="cursor-pointer px-6 py-4 rounded-2xl bg-surface-200 border border-dashed border-white/20 hover:border-cinemix-primary flex items-center gap-3 transition-colors text-xs text-gray-300">
-                <Upload className="w-5 h-5 text-cinemix-primary" />
+              <label className="cursor-pointer px-6 py-4 rounded-2xl bg-surface-200 border border-dashed border-white/20 hover:border-cinelog-primary flex items-center gap-3 transition-colors text-xs text-gray-300">
+                <Upload className="w-5 h-5 text-cinelog-primary" />
                 <span>{receiptImage ? 'Change Image' : 'Select Screenshot (PNG, JPG)'}</span>
                 <input
                   type="file"
@@ -388,7 +388,7 @@ export default function UpgradePage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {submitting ? 'Submitting Receipt...' : 'Submit Receipt for Verification (₱399)'}
           </button>
@@ -398,7 +398,7 @@ export default function UpgradePage() {
         {existingPayments.length > 0 && (
           <div className="pt-8 border-t border-white/[0.06] space-y-4">
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              <Clock className="w-4 h-4 text-cinemix-primary" /> Your Submitted Receipts
+              <Clock className="w-4 h-4 text-cinelog-primary" /> Your Submitted Receipts
             </h4>
             <div className="space-y-2">
               {existingPayments.map((p) => (

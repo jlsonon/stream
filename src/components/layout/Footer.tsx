@@ -19,27 +19,27 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div className="col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 transition-all">
+              <div className="w-8 h-8 rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinelog-primary/50 transition-all">
                 <div className="relative flex items-center justify-center">
                   <span className="font-mono text-sm font-black tracking-tighter text-white">C</span>
-                  <span className="absolute -top-0.5 -right-1 w-1 h-1 rounded-full bg-cinemix-primary" />
+                  <span className="absolute -top-0.5 -right-1 w-1 h-1 rounded-full bg-cinelog-primary" />
                 </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-black tracking-wider text-white leading-none font-sans uppercase">
-                  CINE<span className="text-cinemix-primary">MIX</span>
+                  CINE<span className="text-cinelog-primary">LOG</span>
                 </span>
                 <span className="text-[7.5px] font-mono tracking-[0.2em] text-gray-500 uppercase leading-none mt-1">
-                  ENTERTAINMENT
+                  CINEMA & SERIES
                 </span>
               </div>
             </Link>
             <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
-              Cinemix is an installable, high-performance global streaming platform delivering movies, television series, anime, Philippine cinema, and documentaries in 4K Ultra HD with adaptive multi-server playback.
+              Cinelog is an installable, high-performance global streaming platform delivering movies, television series, anime, Philippine cinema, and documentaries in 4K Ultra HD with adaptive multi-server playback.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-200 text-gray-300 text-[10px] font-bold border border-white/[0.06]">
-                <Globe className="w-3 h-3 text-cinemix-primary" /> Global CDN
+                <Globe className="w-3 h-3 text-cinelog-primary" /> Global CDN
               </span>
               <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-200 text-gray-300 text-[10px] font-bold border border-white/[0.06]">
                 <Sparkles className="w-3 h-3 text-amber-400" /> 4K Ultra HD
@@ -88,7 +88,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li>
                 <Link href="/upgrade" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-400" /> Cinemix Pro (₱399)
+                  <Sparkles className="w-3 h-3 text-amber-400" /> Cinelog Pro (₱399)
                 </Link>
               </li>
               <li>
@@ -136,7 +136,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/[0.04] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-500">
-          <p>© {new Date().getFullYear()} Cinemix Media Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Cinelog Media Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span>Powered by TMDB API</span>
             <span>Multi-Bitrate HLS</span>

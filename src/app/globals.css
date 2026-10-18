@@ -79,7 +79,7 @@ html {
   }
 
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-cinemix-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-cinelog-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }
 

@@ -175,7 +175,7 @@ export default function SearchPage() {
       } else {
         toast({
           type: 'error',
-          message: 'Cinemix AI was unable to complete semantic interpretation.'
+          message: 'Cinelog AI was unable to complete semantic interpretation.'
         });
       }
     } catch (err: any) {
@@ -244,7 +244,7 @@ export default function SearchPage() {
           }}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'standard'
-              ? 'bg-cinemix-primary text-black shadow-glow-primary'
+              ? 'bg-cinelog-primary text-black shadow-glow-primary'
               : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
@@ -255,12 +255,12 @@ export default function SearchPage() {
           onClick={() => setSearchMode('ai')}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${
             searchMode === 'ai'
-              ? 'bg-surface-200 text-cinemix-primary border border-cinemix-primary/50 shadow-glow-primary'
+              ? 'bg-surface-200 text-cinelog-primary border border-cinelog-primary/50 shadow-glow-primary'
               : 'bg-surface-100 hover:bg-surface-200 text-gray-400 hover:text-white border border-white/5'
           }`}
         >
-          <Bot className="w-4 h-4 text-cinemix-primary flex-shrink-0" />
-          <span>Cinemix AI</span>
+          <Bot className="w-4 h-4 text-cinelog-primary flex-shrink-0" />
+          <span>Cinelog AI</span>
         </button>
       </div>
 
@@ -286,14 +286,14 @@ export default function SearchPage() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={
               searchMode === 'ai'
-                ? "Ask Cinemix AI (e.g. 'mind-bending sci-fi', 'dark thriller')..."
+                ? "Ask Cinelog AI (e.g. 'mind-bending sci-fi', 'dark thriller')..."
                 : "Search any movie, anime, series, or actor worldwide..."
             }
             autoFocus
             className={`w-full pl-11 sm:pl-14 pr-20 sm:pr-28 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-surface-100 border text-white placeholder-gray-500 text-xs sm:text-base focus:outline-none transition-all shadow-xl ${
               searchMode === 'ai'
                 ? 'border-purple-500/40 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20'
-                : 'border-white/10 focus:border-cinemix-primary focus:ring-2 focus:ring-cinemix-primary/20'
+                : 'border-white/10 focus:border-cinelog-primary focus:ring-2 focus:ring-cinelog-primary/20'
             }`}
           />
 
@@ -327,7 +327,7 @@ export default function SearchPage() {
         {/* Suggestion Chips */}
         {searchMode === 'ai' ? (
           <div className="space-y-2 pt-3 sm:pt-4">
-            <span className="text-[11px] sm:text-xs font-semibold text-purple-400">Cinemix AI Prompt Curations:</span>
+            <span className="text-[11px] sm:text-xs font-semibold text-purple-400">Cinelog AI Prompt Curations:</span>
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 hide-scrollbar touch-pan-x overscroll-x-contain">
               {AI_PROMPTS.map((item) => (
                 <button
@@ -344,13 +344,13 @@ export default function SearchPage() {
           <div className="space-y-2 pt-3 sm:pt-4">
             {/* Streaming Platform Discovery Pills */}
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 hide-scrollbar touch-pan-x overscroll-x-contain">
-              <span className="text-[11px] sm:text-xs font-bold text-cinemix-primary whitespace-nowrap">Platforms:</span>
+              <span className="text-[11px] sm:text-xs font-bold text-cinelog-primary whitespace-nowrap">Platforms:</span>
               {PLATFORM_TAGS.map((platform) => (
                 <button
                   key={platform}
                   type="button"
                   onClick={() => setQuery(platform)}
-                  className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-cinemix-primary/10 hover:bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30 whitespace-nowrap transition-all"
+                  className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-cinelog-primary/10 hover:bg-cinelog-primary/20 text-cinelog-primary border border-cinelog-primary/30 whitespace-nowrap transition-all"
                 >
                   {platform}
                 </button>
@@ -381,7 +381,7 @@ export default function SearchPage() {
           {isSearchingAi ? (
             <div className="py-20 text-center space-y-4 bg-purple-950/20 rounded-3xl border border-purple-500/20 p-8 max-w-xl mx-auto backdrop-blur-md">
               <Bot className="w-12 h-12 text-purple-400 animate-bounce mx-auto" />
-              <h3 className="text-lg font-bold text-white">Cinemix AI is Curating Titles...</h3>
+              <h3 className="text-lg font-bold text-white">Cinelog AI is Curating Titles...</h3>
               <p className="text-xs text-purple-200/80 leading-relaxed">
                 Analyzing natural language intent, mapping critical reviews, and selecting top-tier matches from global cinema databases.
               </p>
@@ -392,8 +392,8 @@ export default function SearchPage() {
               <div className="p-6 rounded-2xl bg-surface-100 border border-white/10 shadow-cinema flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-cinemix-primary text-black shadow-glow-primary">
-                      Cinemix AI Curator
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-cinelog-primary text-black shadow-glow-primary">
+                      Cinelog AI Curator
                     </span>
                     <span className="text-xs text-gray-400 font-semibold">{aiResults.length} Curated Titles</span>
                   </div>
@@ -437,7 +437,7 @@ export default function SearchPage() {
               <Bot className="w-12 h-12 text-purple-400 mx-auto" />
               <h3 className="text-lg font-bold text-white">No AI matches found</h3>
               <p className="text-xs text-gray-400 leading-relaxed">
-                Cinemix AI could not find matching titles with high critical consensus for &ldquo;{query}&rdquo;. Try another prompt or click one of our curated prompt chips above.
+                Cinelog AI could not find matching titles with high critical consensus for &ldquo;{query}&rdquo;. Try another prompt or click one of our curated prompt chips above.
               </p>
             </div>
           ) : (
@@ -448,7 +448,7 @@ export default function SearchPage() {
               <div className="space-y-2 max-w-sm mx-auto">
                 <h3 className="text-xl font-bold text-white">Natural Language AI Search</h3>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  Describe what you want to watch in plain English, and Cinemix AI will discover the perfect movies, series, or anime.
+                  Describe what you want to watch in plain English, and Cinelog AI will discover the perfect movies, series, or anime.
                 </p>
               </div>
             </div>
@@ -463,7 +463,7 @@ export default function SearchPage() {
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   Results for &ldquo;{query}&rdquo;
-                  {isSearchingTmdb && <Loader2 className="w-4 h-4 text-cinemix-primary animate-spin" />}
+                  {isSearchingTmdb && <Loader2 className="w-4 h-4 text-cinelog-primary animate-spin" />}
                 </h2>
                 <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">
                   {localResults.length} in featured catalog · {tmdbResults.length} live from TMDB global library
@@ -475,7 +475,7 @@ export default function SearchPage() {
                   onClick={() => setActiveTab('all')}
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                     activeTab === 'all'
-                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
+                      ? 'bg-cinelog-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
@@ -485,7 +485,7 @@ export default function SearchPage() {
                   onClick={() => setActiveTab('local')}
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors ${
                     activeTab === 'local'
-                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
+                      ? 'bg-cinelog-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
@@ -495,7 +495,7 @@ export default function SearchPage() {
                   onClick={() => setActiveTab('global')}
                   className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1 ${
                     activeTab === 'global'
-                      ? 'bg-cinemix-primary text-black font-extrabold shadow-md'
+                      ? 'bg-cinelog-primary text-black font-extrabold shadow-md'
                       : 'bg-surface-200 text-gray-400 hover:text-white'
                   }`}
                 >
@@ -537,7 +537,7 @@ export default function SearchPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-cinemix-primary" />
+                      <Globe className="w-4 h-4 text-cinelog-primary" />
                       <h3 className="text-base font-bold text-white uppercase tracking-wider">
                         Worldwide TMDB Results ({tmdbResults.length})
                       </h3>
@@ -555,7 +555,7 @@ export default function SearchPage() {
                           <div
                             key={item.id}
                             onClick={() => handleTmdbAction(item, 'details')}
-                            className="group relative bg-surface-50 border border-white/[0.06] rounded-xl sm:rounded-2xl overflow-hidden hover:border-cinemix-primary/50 transition-all flex flex-col cursor-pointer select-none"
+                            className="group relative bg-surface-50 border border-white/[0.06] rounded-xl sm:rounded-2xl overflow-hidden hover:border-cinelog-primary/50 transition-all flex flex-col cursor-pointer select-none"
                           >
                             {/* Poster */}
                             <div className="relative aspect-[2/3] w-full bg-surface-100 overflow-hidden">
@@ -572,7 +572,7 @@ export default function SearchPage() {
                                     handleTmdbAction(item, 'play');
                                   }}
                                   disabled={isImporting}
-                                  className="w-full py-1.5 rounded-lg bg-cinemix-primary hover:bg-cinemix-hover text-black font-extrabold text-[11px] sm:text-xs flex items-center justify-center gap-1 shadow-lg transition-transform hover:scale-102 active:scale-95 disabled:opacity-50"
+                                  className="w-full py-1.5 rounded-lg bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-[11px] sm:text-xs flex items-center justify-center gap-1 shadow-lg transition-transform hover:scale-102 active:scale-95 disabled:opacity-50"
                                 >
                                   {isImporting ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -605,7 +605,7 @@ export default function SearchPage() {
 
                             {/* Title & Info */}
                             <div className="p-2 sm:p-3 flex-1 flex flex-col justify-between space-y-0.5 sm:space-y-1">
-                              <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-1 group-hover:text-cinemix-primary transition-colors">
+                              <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-1 group-hover:text-cinelog-primary transition-colors">
                                 {item.title}
                               </h4>
                               <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-400 font-mono">
@@ -619,7 +619,7 @@ export default function SearchPage() {
                     </div>
                   ) : isSearchingTmdb ? (
                     <div className="py-16 text-center space-y-3 bg-surface-50/50 rounded-2xl border border-white/[0.04]">
-                      <Loader2 className="w-8 h-8 text-cinemix-primary animate-spin mx-auto" />
+                      <Loader2 className="w-8 h-8 text-cinelog-primary animate-spin mx-auto" />
                       <p className="text-xs text-gray-400">Searching global TMDB database for matching movies and shows...</p>
                     </div>
                   ) : (
@@ -644,7 +644,7 @@ export default function SearchPage() {
           ) : (
             /* Empty Query Showcase */
             <div className="py-16 text-center space-y-6">
-              <div className="w-16 h-16 rounded-3xl bg-surface-100 border border-white/10 flex items-center justify-center mx-auto text-cinemix-primary shadow-xl">
+              <div className="w-16 h-16 rounded-3xl bg-surface-100 border border-white/10 flex items-center justify-center mx-auto text-cinelog-primary shadow-xl">
                 <SearchIcon className="w-8 h-8" />
               </div>
               <div className="space-y-2 max-w-sm mx-auto">

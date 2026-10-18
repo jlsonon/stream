@@ -30,6 +30,8 @@ const HOME_CATEGORIES = [
 export default function HomePage() {
   const { activeProfile, isKidsMode } = useProfile();
   const [allContent, setAllContent] = useState<ContentItem[]>(() => COMPREHENSIVE_CATALOG);
+  const [dailyRankings, setDailyRankings] = useState<ContentItem[]>([]);
+  const [dailyReleases, setDailyReleases] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ContentItem | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
@@ -44,6 +46,32 @@ export default function HomePage() {
     setLoading(true);
     const items = await catalogService.getAllContent();
     setAllContent(items);
+
+    // Fetch dynamic live daily rankings
+    try {
+      const rankRes = await fetch('/api/rankings/daily');
+      if (rankRes.ok) {
+        const rankData = await rankRes.json();
+        if (rankData.rankings && Array.isArray(rankData.rankings) && rankData.rankings.length > 0) {
+          setDailyRankings(rankData.rankings);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load daily rankings', e);
+    }
+
+    // Fetch daily releases / newly added shows
+    try {
+      const relRes = await fetch('/api/releases/daily');
+      if (relRes.ok) {
+        const relData = await relRes.json();
+        if (relData.items && Array.isArray(relData.items) && relData.items.length > 0) {
+          setDailyReleases(relData.items);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load daily releases', e);
+    }
 
     if (activeProfile) {
       const progressList = catalogService.getAllContinueWatching(activeProfile.id);
@@ -75,8 +103,10 @@ export default function HomePage() {
       setAllContent(items);
     };
 
+    window.addEventListener('cinelog:catalog-refreshed', handleCatalogRefreshed);
     window.addEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
     return () => {
+      window.removeEventListener('cinelog:catalog-refreshed', handleCatalogRefreshed);
       window.removeEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
     };
   }, [activeProfile]);
@@ -180,14 +210,14 @@ export default function HomePage() {
         />
       ) : (
         <div className="h-[60vh] flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-b from-surface-100 to-background">
-          <Film className="w-12 h-12 text-cinemix-primary" />
-          <h2 className="text-2xl font-bold text-white">Welcome to Cinemix</h2>
+          <Film className="w-12 h-12 text-cinelog-primary" />
+          <h2 className="text-2xl font-bold text-white">Welcome to Cinelog</h2>
           <p className="text-gray-400 max-w-md text-sm">
             The catalog is currently empty. Click below to load initial legal Creative Commons 4K/1080p HLS streaming titles.
           </p>
           <button
             onClick={handleSeed}
-            className="px-6 py-2.5 rounded-xl bg-cinemix-primary text-white font-bold text-sm flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"
+            className="px-6 py-2.5 rounded-xl bg-cinelog-primary text-black font-extrabold text-sm flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all"
           >
             <RefreshCw className="w-4 h-4" /> Seed Starter Catalog
           </button>
@@ -201,7 +231,7 @@ export default function HomePage() {
             <Link
               key={cat.label}
               href={cat.href}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-surface-100/90 hover:bg-surface-200 text-gray-200 hover:text-white border border-white/10 hover:border-cinemix-primary/50 backdrop-blur-md whitespace-nowrap transition-all shadow-md hover:scale-105 active:scale-95"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold bg-surface-100/90 hover:bg-surface-200 text-gray-200 hover:text-white border border-white/10 hover:border-cinelog-primary/50 backdrop-blur-md whitespace-nowrap transition-all shadow-md hover:scale-105 active:scale-95"
             >
               {cat.label}
             </Link>
@@ -222,6 +252,31 @@ export default function HomePage() {
           />
         )}
 
+        {/* Dynamic Top 10 Daily Rankings Rail */}
+        {(dailyRankings.length > 0 || trendingItems.length > 0) && (
+          <ContentRow
+            title="Top 10 Today in Philippines & Worldwide"
+            badge="Updated Daily"
+            items={dailyRankings.length > 0 ? dailyRankings.slice(0, 10) : trendingItems.slice(0, 10)}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?filter=trending"
+            progressMap={progressMap}
+            isTop10={true}
+          />
+        )}
+
+        {/* Dynamic Daily Releases & Newly Added Shows */}
+        {dailyReleases.length > 0 && (
+          <ContentRow
+            title="Released Today & New Additions"
+            badge="New on Cinelog"
+            items={dailyReleases}
+            onOpenDetails={(item) => setSelectedItem(item)}
+            seeAllHref="/browse?filter=new"
+            progressMap={progressMap}
+          />
+        )}
+
         {/* Highlighted Philippine Cinema Rail */}
         {phItems.length > 0 && (
           <ContentRow
@@ -230,19 +285,6 @@ export default function HomePage() {
             onOpenDetails={(item) => setSelectedItem(item)}
             seeAllHref="/browse?type=ph_content"
             progressMap={progressMap}
-          />
-        )}
-
-        {/* Trending Now Ranked Leaderboard Rail */}
-        {trendingItems.length > 0 && (
-          <ContentRow
-            title="Trending Now Worldwide"
-            badge="Top 10"
-            items={trendingItems.slice(0, 10)}
-            onOpenDetails={(item) => setSelectedItem(item)}
-            seeAllHref="/browse?filter=trending"
-            progressMap={progressMap}
-            isTop10={true}
           />
         )}
 
@@ -266,7 +308,7 @@ export default function HomePage() {
                   {/* Spotlight Content Overlay */}
                   <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 max-w-2xl space-y-3 sm:space-y-4">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-cinemix-primary text-black flex items-center gap-1 shadow-glow-primary">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-cinelog-primary text-black flex items-center gap-1 shadow-glow-primary">
                         <Sparkles className="w-3 h-3 fill-current" /> Editorial Spotlight
                       </span>
                       <span className="text-[11px] font-mono text-gray-300 font-bold px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10">
@@ -433,10 +475,10 @@ export default function HomePage() {
       {/* Executive Cinema Ticket Pro Subscription Callout */}
       <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-12 sm:mt-20">
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-surface-100 border border-white/10 p-6 sm:p-12 shadow-cinema flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
-          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cinemix-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cinelog-primary/10 blur-3xl pointer-events-none" />
 
           <div className="space-y-3.5 max-w-xl text-center md:text-left relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-surface-200 text-cinemix-primary border border-cinemix-primary/30">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-surface-200 text-cinelog-primary border border-cinelog-primary/30">
               <Sparkles className="w-3.5 h-3.5 fill-current" /> Executive Cinema Membership
             </span>
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
@@ -450,9 +492,9 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center gap-4 relative z-10 flex-shrink-0">
             <Link
               href="/upgrade"
-              className="py-3.5 px-8 rounded-2xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm sm:text-base shadow-glow-primary transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+              className="py-3.5 px-8 rounded-2xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-sm sm:text-base shadow-glow-primary transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
             >
-              <span>Join Cinemix Pro</span>
+              <span>Join Cinelog Pro</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

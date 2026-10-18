@@ -36,7 +36,7 @@ export default function LoginPage() {
         }
         toast({
           type: 'success',
-          message: mode === 'login' ? 'Welcome back to Cinemix!' : 'Account created successfully!',
+          message: mode === 'login' ? 'Welcome back to Cinelog!' : 'Account created successfully!',
           duration: 3000
         });
         router.push('/');
@@ -74,15 +74,15 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinelog-primary/50 transition-all">
               <div className="relative flex items-center justify-center">
                 <span className="font-mono text-lg font-black tracking-tighter text-white">C</span>
-                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
+                <span className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-cinelog-primary" />
               </div>
             </div>
             <div className="flex flex-col text-left">
               <span className="text-2xl font-black tracking-wider text-white leading-none font-sans uppercase">
-                CINE<span className="text-cinemix-primary">MIX</span>
+                CINE<span className="text-cinelog-primary">LOG</span>
               </span>
               <span className="text-[9px] font-mono tracking-[0.22em] text-gray-500 uppercase leading-none mt-1">
                 ENTERTAINMENT
@@ -90,7 +90,7 @@ export default function LoginPage() {
             </div>
           </Link>
           <p className="text-xs sm:text-sm text-gray-400 mt-2">
-            {mode === 'login' ? 'Sign in to access your watchlists and stream' : 'Create your Cinemix account in seconds'}
+            {mode === 'login' ? 'Sign in to access your watchlists and stream' : 'Create your Cinelog account in seconds'}
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-102 disabled:opacity-50"
+              className="w-full py-3.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-sm shadow-glow-primary transition-all hover:scale-102 disabled:opacity-50"
             >
               {loading ? 'Please wait...' : (mode === 'login' ? 'Sign In' : 'Create Free Account')}
             </button>
@@ -166,7 +166,7 @@ export default function LoginPage() {
                 setMode(mode === 'login' ? 'register' : 'login');
                 setError(null);
               }}
-              className="text-xs text-gray-400 hover:text-cinemix-primary transition-colors"
+              className="text-xs text-gray-400 hover:text-cinelog-primary transition-colors"
             >
               {mode === 'login'
                 ? "Don't have an account? Sign up"
@@ -193,7 +193,7 @@ export default function LoginPage() {
                 onClick={() => handleQuickDemo('free')}
                 className="p-2.5 rounded-xl bg-surface-200 hover:bg-surface-300 border border-white/[0.04] text-[11px] font-semibold text-gray-300 flex flex-col items-center justify-center gap-1 transition-colors"
               >
-                <UserCheck className="w-4 h-4 text-gray-400" />
+                <UserCheck className="w-4 h-4 text-gray-300" />
                 <span>Demo Free</span>
               </button>
               <button
@@ -214,7 +214,7 @@ export default function LoginPage() {
             href="/"
             className="text-xs text-gray-400 hover:text-white transition-colors"
           >
-            ← Return to Cinemix Browse
+            Back to Cinelog Browse
           </Link>
         </div>
       </div>

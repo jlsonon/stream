@@ -38,10 +38,10 @@ if (isFirebaseConfigured()) {
     console.error('Error initializing Firebase:', error);
   }
 } else {
-  // Graceful offline fallback: Cinemix functions 100% in local-first demo mode
+  // Graceful offline fallback: Cinelog functions 100% in local-first demo mode
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && !(window as any).__firebase_warned) {
     (window as any).__firebase_warned = true;
-    console.info('Cinemix running in local-first demo mode (Firebase offline).');
+    console.info('Cinelog running in local-first demo mode (Firebase offline).');
   }
 }
 

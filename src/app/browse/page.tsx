@@ -110,8 +110,10 @@ function BrowseContent() {
       setAllContent(items);
     };
 
+    window.addEventListener('cinelog:catalog-refreshed', handleCatalogRefreshed);
     window.addEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
     return () => {
+      window.removeEventListener('cinelog:catalog-refreshed', handleCatalogRefreshed);
       window.removeEventListener('cinemix:catalog-refreshed', handleCatalogRefreshed);
     };
   }, []);
@@ -293,7 +295,7 @@ function BrowseContent() {
             onClick={() => setSelectedType(t.value)}
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
               selectedType === t.value
-                ? 'bg-cinemix-primary text-black shadow-glow-primary'
+                ? 'bg-cinelog-primary text-black shadow-glow-primary'
                 : 'bg-surface-100/70 hover:bg-surface-200 text-gray-300 border border-white/[0.04]'
             }`}
           >
@@ -345,16 +347,16 @@ function BrowseContent() {
             <button
               onClick={handleLoadMoreWorldwide}
               disabled={isLoadingMore}
-              className="px-6 py-3 rounded-2xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-cinemix-primary/50 flex items-center gap-2.5 transition-all shadow-xl disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+              className="px-6 py-3 rounded-2xl bg-surface-200/90 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-cinelog-primary/50 flex items-center gap-2.5 transition-all shadow-xl disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
             >
               {isLoadingMore ? (
                 <>
-                  <div className="w-4 h-4 rounded-full border-2 border-cinemix-primary border-t-transparent animate-spin" />
+                  <div className="w-4 h-4 rounded-full border-2 border-cinelog-primary border-t-transparent animate-spin" />
                   <span>Loading Worldwide Titles from TMDB...</span>
                 </>
               ) : (
                 <>
-                  <Globe className="w-4 h-4 text-cinemix-primary" />
+                  <Globe className="w-4 h-4 text-cinelog-primary" />
                   <span>Load More Worldwide Titles ({selectedGenre !== 'All' ? selectedGenre : 'All Global'})</span>
                 </>
               )}
@@ -397,7 +399,7 @@ export default function BrowsePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-4 border-cinemix-primary border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-full border-4 border-cinelog-primary border-t-transparent animate-spin" />
       </div>
     }>
       <BrowseContent />

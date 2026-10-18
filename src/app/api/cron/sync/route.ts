@@ -4,7 +4,7 @@ import { GET as tmdbSyncHandler } from '@/app/api/tmdb/sync/route';
 export const dynamic = 'force-dynamic';
 
 /**
- * Scheduled Cron Sync Endpoint for Cinemix
+ * Scheduled Cron Sync Endpoint for Cinelog
  * Configured in vercel.json or triggered by external schedulers (GitHub Actions / cron-job.org)
  * Validates CRON_SECRET if configured in environment variables.
  */
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      job: 'cinemix_automated_catalog_sync',
+      job: 'cinelog_automated_catalog_sync',
       syncedAt: new Date().toISOString(),
       itemCount: syncData.count || syncData.items?.length || 0,
       status: 'HEALTHY'

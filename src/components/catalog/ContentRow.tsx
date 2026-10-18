@@ -52,11 +52,11 @@ export const ContentRow: React.FC<ContentRowProps> = ({
       {/* Row Header */}
       <div className="flex items-center justify-between px-3 sm:px-6 lg:px-8 mb-2 sm:mb-3">
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <h2 className="text-base sm:text-xl font-extrabold tracking-tight text-white group-hover/row:text-cinemix-primary transition-colors">
+          <h2 className="text-base sm:text-xl font-extrabold tracking-tight text-white group-hover/row:text-cinelog-primary transition-colors">
             {title}
           </h2>
           {badge && (
-            <span className="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-white/10">
+            <span className="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase bg-surface-200 text-cinelog-primary border border-white/10">
               {badge}
             </span>
           )}

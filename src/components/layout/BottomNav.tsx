@@ -33,13 +33,13 @@ export const BottomNav: React.FC = () => {
               key={link.name}
               href={link.href}
               className={`relative flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-                isActive ? 'text-cinemix-primary font-bold' : 'text-gray-400 hover:text-white'
+                isActive ? 'text-cinelog-primary font-bold' : 'text-gray-400 hover:text-white'
               }`}
             >
               <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
               <span className="text-[10px] font-mono tracking-tight">{link.name}</span>
               {isActive && (
-                <span className="w-1 h-1 rounded-full bg-cinemix-primary shadow-glow-primary mt-0.5" />
+                <span className="w-1 h-1 rounded-full bg-cinelog-primary shadow-glow-primary mt-0.5" />
               )}
             </Link>
           );

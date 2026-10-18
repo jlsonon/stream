@@ -287,7 +287,7 @@ export default function SuperadminPage() {
         toast({
           type: 'success',
           title: 'Worldwide Sync Complete!',
-          message: `Synchronized ${data.items.length} titles from TMDB into Cinemix library!`,
+          message: `Synchronized ${data.items.length} titles from TMDB into Cinelog library!`,
           duration: 6000
         });
       } else {
@@ -331,7 +331,7 @@ export default function SuperadminPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab('importer')}
-            className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-cinemix-primary border border-cinemix-primary/30 text-xs font-extrabold flex items-center gap-2 shadow-sm transition-all hover:scale-105"
+            className="px-4 py-2 rounded-xl bg-surface-200 hover:bg-surface-300 text-cinelog-primary border border-cinelog-primary/30 text-xs font-extrabold flex items-center gap-2 shadow-sm transition-all hover:scale-105"
           >
             <Sparkles className="w-3.5 h-3.5 fill-current" /> TMDB Importer
           </button>
@@ -340,11 +340,11 @@ export default function SuperadminPage() {
             className="px-4 py-2 rounded-xl bg-surface-100 hover:bg-surface-200 text-gray-200 border border-white/10 text-xs font-semibold flex items-center gap-2 transition-colors shadow-sm"
             title="Seed 4K & 1080p HLS titles"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-cinemix-primary" /> Seed HLS Catalog
+            <RefreshCw className="w-3.5 h-3.5 text-cinelog-primary" /> Seed HLS Catalog
           </button>
           <button
             onClick={() => setIsContentModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black text-xs font-extrabold flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105"
+            className="px-4 py-2 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black text-xs font-extrabold flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105"
           >
             <Plus className="w-4 h-4" /> Add Title
           </button>
@@ -371,7 +371,7 @@ export default function SuperadminPage() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-cinemix-primary text-black shadow-glow-primary'
+                  ? 'bg-cinelog-primary text-black shadow-glow-primary'
                   : 'bg-surface-100/60 hover:bg-surface-200 text-gray-300 border border-white/[0.04]'
               }`}
             >
@@ -444,7 +444,7 @@ export default function SuperadminPage() {
         <div className="space-y-6">
           {/* Header Banner */}
           <div className="p-6 sm:p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-3 shadow-cinema">
-            <div className="flex items-center gap-2 text-cinemix-primary text-xs font-mono font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-cinelog-primary text-xs font-mono font-bold uppercase tracking-wider">
               <Sparkles className="w-4 h-4 fill-current" /> Global TMDB Catalog & Stream Importer
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white">
@@ -457,7 +457,7 @@ export default function SuperadminPage() {
               <button
                 onClick={handleTmdbMegaSync}
                 disabled={isSyncingMega}
-                className="px-5 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
               >
                 {isSyncingMega ? (
                   <>
@@ -482,7 +482,7 @@ export default function SuperadminPage() {
                 value={tmdbSearchQuery}
                 onChange={(e) => setTmdbSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleTmdbSearch()}
-                className="w-full pl-11 pr-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cinemix-primary transition-colors"
+                className="w-full pl-11 pr-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cinelog-primary transition-colors"
               />
             </div>
 
@@ -490,7 +490,7 @@ export default function SuperadminPage() {
               <select
                 value={tmdbSearchType}
                 onChange={(e) => setTmdbSearchType(e.target.value as any)}
-                className="px-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cinemix-primary cursor-pointer"
+                className="px-4 py-3 bg-surface-100 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-cinelog-primary cursor-pointer"
               >
                 <option value="all">All Categories</option>
                 <option value="movie">Movies</option>
@@ -500,7 +500,7 @@ export default function SuperadminPage() {
               <button
                 onClick={handleTmdbSearch}
                 disabled={tmdbSearching || !tmdbSearchQuery.trim()}
-                className="px-6 py-3 bg-cinemix-primary hover:bg-cinemix-primary-hover disabled:opacity-50 text-black font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-glow-primary transition-all"
+                className="px-6 py-3 bg-cinelog-primary hover:bg-cinelog-primary-hover disabled:opacity-50 text-black font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-glow-primary transition-all"
               >
                 {tmdbSearching ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -569,7 +569,7 @@ export default function SuperadminPage() {
                           <button
                             onClick={() => handleImportTitle(item)}
                             disabled={isCurrentlyImporting}
-                            className="w-full py-2.5 px-3 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-glow-primary transition-all disabled:opacity-50"
+                            className="w-full py-2.5 px-3 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-glow-primary transition-all disabled:opacity-50"
                           >
                             {isCurrentlyImporting ? (
                               <>
@@ -598,7 +598,7 @@ export default function SuperadminPage() {
               <Sparkles className="w-10 h-10 text-purple-400/50 mx-auto" />
               <h3 className="font-bold text-white text-base">Search Any Movie or TV Series to Import</h3>
               <p className="text-xs text-gray-400 max-w-sm mx-auto">
-                Type any title above (e.g. “Arcane”, “Spider-Man”, “Naruto”, “Dune”, “Succession”) to import official 4K posters and full-length streams into Cinemix in 1 click.
+                Type any title above (e.g. “Arcane”, “Spider-Man”, “Naruto”, “Dune”, “Succession”) to import official 4K posters and full-length streams into Cinelog in 1 click.
               </p>
             </div>
           )}
@@ -846,7 +846,7 @@ export default function SuperadminPage() {
                   duration: 3000
                 });
               }}
-              className="py-3 px-6 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-xs shadow-lg"
+              className="py-3 px-6 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary/90 text-white font-bold text-xs shadow-lg"
             >
               Save Settings
             </button>
@@ -914,7 +914,7 @@ export default function SuperadminPage() {
                       <td className="p-4 font-mono text-gray-400">
                         {formatDate(log.timestamp)}
                       </td>
-                      <td className="p-4 font-bold text-cinemix-primary">
+                      <td className="p-4 font-bold text-cinelog-primary">
                         {log.action}
                       </td>
                       <td className="p-4 font-semibold text-white">
@@ -1080,14 +1080,14 @@ export default function SuperadminPage() {
 
               <div className="p-3 rounded-xl bg-surface-200 border border-white/[0.04] flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-white block">Cinemix Pro Exclusive</span>
+                  <span className="font-bold text-white block">Cinelog Pro Exclusive</span>
                   <span className="text-[11px] text-gray-400">Lock this title behind a paid Pro subscription</span>
                 </div>
                 <input
                   type="checkbox"
                   checked={formIsProOnly}
                   onChange={(e) => setFormIsProOnly(e.target.checked)}
-                  className="w-5 h-5 accent-cinemix-primary rounded cursor-pointer"
+                  className="w-5 h-5 accent-cinelog-primary rounded cursor-pointer"
                 />
               </div>
 
@@ -1101,7 +1101,7 @@ export default function SuperadminPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-sm shadow-lg"
+                  className="px-6 py-2.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary/90 text-white font-bold text-sm shadow-lg"
                 >
                   Publish Title
                 </button>

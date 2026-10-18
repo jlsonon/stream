@@ -92,7 +92,7 @@ function WatchContent() {
   if (loading) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 rounded-full border-4 border-cinemix-primary border-t-transparent animate-spin" />
+        <div className="w-12 h-12 rounded-full border-4 border-cinelog-primary border-t-transparent animate-spin" />
         <p className="text-sm font-medium text-gray-400">Loading cinema stream...</p>
       </div>
     );
@@ -108,7 +108,7 @@ function WatchContent() {
         </p>
         <Link
           href="/"
-          className="px-6 py-2.5 rounded-xl bg-cinemix-primary text-white font-medium hover:bg-cinemix-primary/90 transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 rounded-xl bg-cinelog-primary text-white font-medium hover:bg-cinelog-primary/90 transition-colors flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" /> Return to Home
         </Link>
@@ -189,7 +189,7 @@ export default function WatchPage() {
   return (
     <Suspense fallback={
       <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 rounded-full border-4 border-cinemix-primary border-t-transparent animate-spin" />
+        <div className="w-12 h-12 rounded-full border-4 border-cinelog-primary border-t-transparent animate-spin" />
         <p className="text-sm font-medium text-gray-400">Preparing cinema stream...</p>
       </div>
     }>

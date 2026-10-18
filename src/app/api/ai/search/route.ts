@@ -126,7 +126,7 @@ function parseNaturalLanguageQuery(query: string): SemanticQueryInterpretation {
   }
 
   const genreNames = themeTags.length > 0 ? themeTags.join(', ') : 'Popular Highlights';
-  const explanation = `Cinemix AI identified semantic themes: [${genreNames}] with high critical ratings (minimum ${minRating}/10).`;
+  const explanation = `Cinelog AI identified semantic themes: [${genreNames}] with high critical ratings (minimum ${minRating}/10).`;
 
   return {
     genres: Array.from(new Set(detectedGenres)),
@@ -206,14 +206,14 @@ export async function GET(request: NextRequest) {
           originalTitle: isTv ? raw.original_name : raw.original_title,
           type: contentType,
           status: 'PUBLISHED',
-          synopsis: raw.overview || `Cinemix AI recommendation for: "${prompt}".`,
+          synopsis: raw.overview || `Cinelog AI recommendation for: "${prompt}".`,
           longSynopsis: raw.overview || '',
           releaseYear,
           duration: isTv ? undefined : 120,
           maturityRating: 'PG-13',
           score,
           genres: interpretation.themeTags.length > 0 ? interpretation.themeTags : ['Trending', 'Featured'],
-          tags: ['AI Recommendation', 'Cinemix Exclusive', ...(interpretation.themeTags || [])],
+          tags: ['AI Recommendation', 'Cinelog Exclusive', ...(interpretation.themeTags || [])],
           posterUrl: `https://image.tmdb.org/t/p/w500${raw.poster_path}`,
           backdropUrl: raw.backdrop_path 
             ? `https://image.tmdb.org/t/p/w1280${raw.backdrop_path}` 
@@ -229,7 +229,7 @@ export async function GET(request: NextRequest) {
           cast: [],
           directors: [],
           producers: [],
-          studio: 'Cinemix Studios',
+          studio: 'Cinelog Studios',
           regionAvailability: ['GLOBAL'],
           featured: false,
           trending: true,
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest) {
           ],
           createdAt: new Date(),
           updatedAt: new Date(),
-          createdBy: 'cinemix-ai-curator'
+          createdBy: 'cinelog-ai-curator'
         };
 
         items.push(item);

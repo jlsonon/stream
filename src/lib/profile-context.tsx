@@ -51,12 +51,12 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const cached = localStorage.getItem('cinemix_user_profiles');
+        const cached = localStorage.getItem('cinelog_user_profiles') || localStorage.getItem('cinemix_user_profiles');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setProfiles(parsed);
-            const cachedId = localStorage.getItem('cinemix_active_profile_id');
+            const cachedId = localStorage.getItem('cinelog_active_profile_id') || localStorage.getItem('cinemix_active_profile_id');
             const found = parsed.find((p: Profile) => p.id === cachedId);
             setActiveProfile(found || parsed[0]);
           }
@@ -70,12 +70,14 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     if (isLoadedRef.current && typeof window !== 'undefined') {
+      localStorage.setItem('cinelog_user_profiles', JSON.stringify(profiles));
       localStorage.setItem('cinemix_user_profiles', JSON.stringify(profiles));
     }
   }, [profiles]);
 
   useEffect(() => {
     if (isLoadedRef.current && activeProfile && typeof window !== 'undefined') {
+      localStorage.setItem('cinelog_active_profile_id', activeProfile.id);
       localStorage.setItem('cinemix_active_profile_id', activeProfile.id);
     }
   }, [activeProfile]);

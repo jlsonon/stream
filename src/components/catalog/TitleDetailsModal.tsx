@@ -194,7 +194,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm transition-all border border-white/10 hover:border-cinemix-primary/50"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-200 hover:bg-surface-300 text-white font-bold text-xs sm:text-sm transition-all border border-white/10 hover:border-cinelog-primary/50"
             title="Back to Catalog (Esc)"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -202,7 +202,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
           </button>
           
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cinemix-primary px-2.5 py-0.5 rounded-full bg-cinemix-primary/10 border border-cinemix-primary/25 flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cinelog-primary px-2.5 py-0.5 rounded-full bg-cinelog-primary/10 border border-cinelog-primary/25 flex items-center gap-1.5 flex-shrink-0">
               {isSeries ? <Tv className="w-3 h-3" /> : <Film className="w-3 h-3" />}
               {isSeries ? 'Series & Episodes' : 'Feature Presentation'}
             </span>
@@ -257,7 +257,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
             <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
               {activeItem.isProOnly && (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-black flex items-center gap-1 shadow-md">
-                  <Sparkles className="w-3 h-3" /> Cinemix Pro
+                  <Sparkles className="w-3 h-3" /> Cinelog Pro
                 </span>
               )}
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-black/70 backdrop-blur-md text-white border border-white/10 uppercase">
@@ -316,7 +316,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
               {totalEpisodesCount > 0 && (
                 <>
                   <span>•</span>
-                  <span className="text-cinemix-primary font-semibold">{totalEpisodesCount} Episodes</span>
+                  <span className="text-cinelog-primary font-semibold">{totalEpisodesCount} Episodes</span>
                 </>
               )}
             </div>
@@ -374,7 +374,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                     <select
                       value={selectedSeason}
                       onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                      className="bg-surface-200/90 hover:bg-surface-200 border border-white/15 text-white font-extrabold text-sm sm:text-base py-2.5 pl-4 pr-10 rounded-2xl appearance-none cursor-pointer focus:outline-none focus:border-cinemix-primary transition-all shadow-lg"
+                      className="bg-surface-200/90 hover:bg-surface-200 border border-white/15 text-white font-extrabold text-sm sm:text-base py-2.5 pl-4 pr-10 rounded-2xl appearance-none cursor-pointer focus:outline-none focus:border-cinelog-primary transition-all shadow-lg"
                     >
                       {activeItem.seasons?.map((s) => (
                         <option key={s.seasonNumber} value={s.seasonNumber} className="bg-surface-100 text-white font-bold">
@@ -388,7 +388,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
 
                 {/* Right Meta Indicator */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-cinemix-primary/15 text-cinemix-primary border border-cinemix-primary/30">
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-cinelog-primary/15 text-cinelog-primary border border-cinelog-primary/30">
                     {currentSeason?.episodes?.length || 0} Episodes
                   </span>
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hidden sm:inline-flex items-center gap-1">
@@ -423,8 +423,8 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                         href={`/watch/${activeItem.id}?season=${ep.seasonNumber}&episode=${ep.episodeNumber}`}
                         className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-4 p-3 sm:p-3.5 rounded-2xl transition-all duration-200 shadow-sm hover:shadow-xl ${
                           isCurrent
-                            ? 'bg-surface-200/90 border-2 border-cinemix-primary shadow-cinemix-primary/10'
-                            : 'bg-surface-100/90 hover:bg-surface-200 border border-white/[0.05] hover:border-cinemix-primary/50'
+                            ? 'bg-surface-200/90 border-2 border-cinelog-primary shadow-cinelog-primary/10'
+                            : 'bg-surface-100/90 hover:bg-surface-200 border border-white/[0.05] hover:border-cinelog-primary/50'
                         }`}
                       >
                         {/* Episode Thumbnail */}
@@ -450,7 +450,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                         {/* Episode Meta & Synopsis */}
                         <div className="flex-1 min-w-0 py-0.5">
                           <div className="flex items-center justify-between gap-2 mb-1.5">
-                            <h4 className="font-extrabold text-white text-sm group-hover:text-cinemix-primary transition-colors line-clamp-1">
+                            <h4 className="font-extrabold text-white text-sm group-hover:text-cinelog-primary transition-colors line-clamp-1">
                               <span className="text-gray-400 font-semibold mr-1.5">{ep.episodeNumber}.</span>
                               {ep.title}
                             </h4>
@@ -486,7 +486,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                   </span>
                 </h3>
                 <p className="text-xs text-gray-400">
-                  Direct access via Cinemix Aurora CDN & High-Bandwidth Cloud Mirrors
+                  Direct access via Cinelog Aurora CDN & High-Bandwidth Cloud Mirrors
                 </p>
               </div>
 
@@ -499,7 +499,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6 sm:p-8">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cinemix-primary text-black">
+                      <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-cinelog-primary text-white">
                         4K Ultra HD Master
                       </span>
                       <span className="text-xs text-gray-300 font-medium">Dolby Atmos Audio</span>
@@ -518,7 +518,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
               <div className="p-4 rounded-2xl bg-surface-100 border border-white/[0.06] space-y-2 text-xs text-gray-300">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-400 font-semibold">Streaming Pipeline:</span>
-                  <span className="text-emerald-400 font-bold">Cinemix Aurora CDN 1080p / 4K</span>
+                  <span className="text-emerald-400 font-bold">Cinelog Aurora CDN 1080p / 4K</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-400 font-semibold">Runtime:</span>
@@ -526,7 +526,7 @@ export const TitleDetailsModal: React.FC<TitleDetailsModalProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-400 font-semibold">Zero Ads:</span>
-                  <span className="text-amber-400 font-bold">Guaranteed on Cinemix Pro</span>
+                  <span className="text-amber-400 font-bold">Guaranteed on Cinelog Pro</span>
                 </div>
               </div>
             </div>

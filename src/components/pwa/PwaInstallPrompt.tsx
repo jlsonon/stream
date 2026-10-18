@@ -36,11 +36,11 @@ export const PwaInstallPrompt: React.FC = () => {
   return (
     <div className="fixed bottom-20 sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 p-4 rounded-2xl bg-surface-100 border border-white/10 shadow-2xl backdrop-blur-md flex items-center justify-between gap-4 animate-scale-in">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-cinemix-primary flex items-center justify-center text-white font-bold text-lg shadow-lg">
+        <div className="w-10 h-10 rounded-xl bg-cinelog-primary flex items-center justify-center text-white font-bold text-lg shadow-lg">
           C
         </div>
         <div>
-          <h4 className="text-sm font-bold text-white">Install Cinemix App</h4>
+          <h4 className="text-sm font-bold text-white">Install Cinelog App</h4>
           <p className="text-xs text-gray-400">Stream faster with native offline support</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export const PwaInstallPrompt: React.FC = () => {
       <div className="flex items-center gap-2">
         <button
           onClick={handleInstall}
-          className="px-3.5 py-1.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-semibold text-xs transition-colors shadow-md flex items-center gap-1.5"
+          className="px-3.5 py-1.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary/90 text-white font-semibold text-xs transition-colors shadow-md flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5" /> Install
         </button>

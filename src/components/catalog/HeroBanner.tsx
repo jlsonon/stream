@@ -169,11 +169,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
         <div className="max-w-2xl space-y-2.5 sm:space-y-4">
           {/* Brand & Category Tag */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-black tracking-wider uppercase bg-cinemix-primary text-black shadow-glow-primary">
-              Cinemix Premiere
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase bg-cinelog-primary text-white shadow-glow-primary">
+              Cinelog Premiere
             </span>
             {currentItem.isProOnly && (
-              <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-surface-200 text-cinemix-primary border border-cinemix-primary/30 flex items-center gap-1 shadow-sm">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase bg-surface-200 text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-sm">
                 <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" /> Pro
               </span>
             )}
@@ -236,7 +236,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               onClick={() => onOpenDetails(currentItem)}
               className="flex-1 sm:flex-none justify-center py-2.5 sm:py-3 px-3.5 sm:px-6 rounded-xl bg-surface-100/90 hover:bg-surface-200 text-white font-bold text-xs sm:text-sm md:text-base border border-white/10 backdrop-blur-md flex items-center gap-1.5 sm:gap-2 transition-all active:scale-95 shadow-md"
             >
-              <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cinemix-primary" />
+              <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cinelog-primary" />
               <span>Details</span>
             </button>
 
@@ -259,7 +259,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   aria-label={`Slide ${idx + 1}`}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
                     idx === currentIndex 
-                      ? 'w-6 bg-cinemix-primary shadow-glow-primary' 
+                      ? 'w-6 bg-cinelog-primary shadow-glow-primary' 
                       : 'w-1.5 bg-white/30 hover:bg-white/60'
                   }`}
                 />

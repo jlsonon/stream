@@ -14,7 +14,7 @@ import type { User, AuthState } from '@/types';
 
 export const DEMO_PRO_USER: User = {
   uid: 'demo-pro-vip',
-  email: 'pro@cinemix.ph',
+  email: 'pro@cinelog.ph',
   displayName: 'VIP Pro Member',
   photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
   role: 'user',
@@ -25,7 +25,7 @@ export const DEMO_PRO_USER: User = {
 
 export const DEMO_FREE_USER: User = {
   uid: 'demo-free-viewer',
-  email: 'free@cinemix.ph',
+  email: 'free@cinelog.ph',
   displayName: 'Free Viewer',
   photoURL: '',
   role: 'user',
@@ -36,7 +36,7 @@ export const DEMO_FREE_USER: User = {
 
 export const DEMO_ADMIN_USER: User = {
   uid: 'demo-admin-lead',
-  email: 'admin@cinemix.ph',
+  email: 'admin@cinelog.ph',
   displayName: 'Superadmin Lead',
   photoURL: '',
   role: 'superadmin',
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check local demo session first
     if (typeof window !== 'undefined') {
-      const savedDemo = localStorage.getItem('cinemix_active_user');
+      const savedDemo = localStorage.getItem('cinelog_active_user') || localStorage.getItem('cinemix_active_user');
       if (savedDemo) {
         try {
           const parsed = JSON.parse(savedDemo);
@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false);
           return;
         } catch {
+          localStorage.removeItem('cinelog_active_user');
           localStorage.removeItem('cinemix_active_user');
         }
       }
@@ -124,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         // If no firebase user and no demo user
-        const savedDemo = typeof window !== 'undefined' ? localStorage.getItem('cinemix_active_user') : null;
+        const savedDemo = typeof window !== 'undefined' ? (localStorage.getItem('cinelog_active_user') || localStorage.getItem('cinemix_active_user')) : null;
         if (!savedDemo) {
           setUser(null);
           setAuthState('unauthenticated');
@@ -139,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loginAsDemo = useCallback((type: 'pro' | 'free' | 'admin') => {
     const selected = type === 'pro' ? DEMO_PRO_USER : type === 'admin' ? DEMO_ADMIN_USER : DEMO_FREE_USER;
     if (typeof window !== 'undefined') {
+      localStorage.setItem('cinelog_active_user', JSON.stringify(selected));
       localStorage.setItem('cinemix_active_user', JSON.stringify(selected));
     }
     setUser(selected);
@@ -182,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     if (typeof window !== 'undefined') {
+      localStorage.removeItem('cinelog_active_user');
       localStorage.removeItem('cinemix_active_user');
     }
     if (auth && isFirebaseConfigured()) {

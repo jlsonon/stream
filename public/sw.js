@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cinemix-shell-v1';
+const CACHE_NAME = 'cinelog-shell-v1';
 const PRECACHE_URLS = [
   '/',
   '/offline'

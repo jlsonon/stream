@@ -71,7 +71,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
       <div className="relative aspect-[2/3] w-full rounded-xl sm:rounded-2xl overflow-hidden bg-surface-200 border border-white/[0.07] group-hover:border-white/20 group-hover:shadow-cinema transition-all duration-300">
         {!imgLoaded && (
           <div className="absolute inset-0 bg-surface-200 animate-pulse flex items-center justify-center">
-            <div className="w-7 h-7 rounded-full border-2 border-white/10 border-t-cinemix-primary animate-spin" />
+            <div className="w-7 h-7 rounded-full border-2 border-white/10 border-t-cinelog-primary animate-spin" />
           </div>
         )}
         <img
@@ -87,7 +87,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
         {/* Minimalist Top Indicator: Single Micro Badge If Pro Only */}
         {item.isProOnly && (
           <div className="absolute top-2 right-2 pointer-events-none z-10">
-            <span className="px-1.5 py-0.5 rounded text-[8.5px] font-black tracking-wider uppercase bg-cinemix-primary text-black shadow-md flex items-center gap-0.5">
+            <span className="px-1.5 py-0.5 rounded text-[8.5px] font-black tracking-wider uppercase bg-cinelog-primary text-black shadow-md flex items-center gap-0.5">
               <Sparkles className="w-2.5 h-2.5 fill-current" /> PRO
             </span>
           </div>
@@ -97,7 +97,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
         {progressPercent !== undefined && progressPercent > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/60 z-10">
             <div 
-              className="h-full bg-cinemix-primary transition-all duration-300 shadow-glow-primary"
+              className="h-full bg-cinelog-primary transition-all duration-300 shadow-glow-primary"
               style={{ width: `${Math.min(100, Math.max(3, progressPercent))}%` }}
             />
           </div>
@@ -146,7 +146,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
               title="Overview & Episodes"
               className="p-2 rounded-xl bg-surface-100/90 hover:bg-surface-200 border border-white/15 text-white transition-all hover:scale-105"
             >
-              <Info className="w-3.5 h-3.5 text-cinemix-primary" />
+              <Info className="w-3.5 h-3.5 text-cinelog-primary" />
             </button>
           </div>
         </div>
@@ -154,7 +154,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
 
       {/* Cineby-Grade Metadata Block Below Poster */}
       <div className="pt-2 px-0.5 space-y-0.5">
-        <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 tracking-tight group-hover:text-cinemix-primary transition-colors">
+        <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 tracking-tight group-hover:text-cinelog-primary transition-colors">
           {item.title}
         </h4>
         <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-mono">

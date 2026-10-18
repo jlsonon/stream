@@ -78,7 +78,7 @@ export default function ProfilesPage() {
                 onClick={() => handleSelect(p)}
                 className="group flex flex-col items-center gap-3 cursor-pointer select-none"
               >
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden ring-4 transition-all duration-300 group-hover:scale-105 group-hover:ring-cinemix-primary group-hover:shadow-cinema ring-white/10">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden ring-4 transition-all duration-300 group-hover:scale-105 group-hover:ring-cinelog-primary group-hover:shadow-cinema ring-white/10">
                   <img
                     src={p.avatarUrl}
                     alt={p.name}
@@ -90,7 +90,7 @@ export default function ProfilesPage() {
                     </div>
                   )}
                   {isCurrent && (
-                    <div className="absolute bottom-2 right-2 p-1 rounded-full bg-cinemix-primary text-black font-bold shadow-glow-primary">
+                    <div className="absolute bottom-2 right-2 p-1 rounded-full bg-cinelog-primary text-black font-bold shadow-glow-primary">
                       <Check className="w-3.5 h-3.5" />
                     </div>
                   )}
@@ -134,8 +134,8 @@ export default function ProfilesPage() {
               onClick={() => setIsModalOpen(true)}
               className="group flex flex-col items-center gap-3 cursor-pointer select-none"
             >
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-2 border-dashed border-white/20 hover:border-cinemix-primary flex items-center justify-center transition-all group-hover:scale-105 bg-surface-100/50">
-                <Plus className="w-8 h-8 text-gray-400 group-hover:text-cinemix-primary transition-colors" />
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-2 border-dashed border-white/20 hover:border-cinelog-primary flex items-center justify-center transition-all group-hover:scale-105 bg-surface-100/50">
+                <Plus className="w-8 h-8 text-gray-400 group-hover:text-cinelog-primary transition-colors" />
               </div>
               <span className="font-semibold text-sm sm:text-base text-gray-400 group-hover:text-white transition-colors">
                 Add Profile
@@ -190,7 +190,7 @@ export default function ProfilesPage() {
                       alt="avatar option"
                       onClick={() => setNewProfileAvatar(av)}
                       className={`w-12 h-12 rounded-xl object-cover cursor-pointer ring-2 transition-all ${
-                        newProfileAvatar === av ? 'ring-cinemix-primary scale-110' : 'ring-transparent opacity-60'
+                        newProfileAvatar === av ? 'ring-cinelog-primary scale-110' : 'ring-transparent opacity-60'
                       }`}
                     />
                   ))}
@@ -211,7 +211,7 @@ export default function ProfilesPage() {
                   type="checkbox"
                   checked={isKids}
                   onChange={(e) => setIsKids(e.target.checked)}
-                  className="w-5 h-5 accent-cinemix-primary rounded cursor-pointer"
+                  className="w-5 h-5 accent-cinelog-primary rounded cursor-pointer"
                 />
               </div>
 
@@ -225,7 +225,7 @@ export default function ProfilesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary/90 text-white font-bold text-xs shadow-lg"
+                  className="px-6 py-2.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary/90 text-white font-bold text-xs shadow-lg"
                 >
                   Save Profile
                 </button>

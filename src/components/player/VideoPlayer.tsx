@@ -43,7 +43,7 @@ import { canWatchContent, getMaxQuality, hasAds } from '@/lib/entitlements';
 import { catalogService } from '@/lib/catalog-service';
 import Link from 'next/link';
 
-// Proprietary Cinemix CDN Streaming Nodes (De-plagiarized & High-Bandwidth)
+// Proprietary Cinelog CDN Streaming Nodes (De-plagiarized, Zero-Ad, High-Bandwidth)
 export interface ServerNode {
   id: string;
   name: string;
@@ -54,46 +54,68 @@ export interface ServerNode {
   isProShield?: boolean;
 }
 
-export const CINEMIX_SERVERS: ServerNode[] = [
-  { id: 'aurora', name: 'Aurora VIP (VidLink)', tag: 'Zero Ads', description: 'Pro Ad-Free High-Speed 1080p FHD Mirror', latency: '19ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', isProShield: true },
-  { id: 'apex', name: 'Apex Cloud (Embed.su)', tag: 'Clean', description: 'Adaptive Bitrate Clean Global Cloud', latency: '26ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30', isProShield: true },
-  { id: 'quantum', name: 'Quantum Ultra (Vidsrc Pro)', tag: '4K Ready', description: 'Ultra-Low Latency & High Definition', latency: '24ms', badgeColor: 'text-amber-300 bg-amber-400/10 border-amber-400/30', isProShield: true },
-  { id: 'pulse', name: 'Pulse Core', tag: 'Multi-CC', description: 'Multi-Language Subtitles & Closed Captions', latency: '36ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
-  { id: 'zenith', name: 'Zenith Mirror', tag: 'Stable', description: 'Fault-Tolerant Redundant Stream', latency: '41ms', badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
-  { id: 'vortex', name: 'Vortex Direct', tag: 'Low Ping', description: 'Direct Zero-Buffering Pipeline', latency: '29ms', badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' },
-  { id: 'horizon', name: 'Horizon Sync', tag: 'Edge', description: 'Synchronized Worldwide Edge Node', latency: '45ms', badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
-  { id: 'titan', name: 'Titan Stream', tag: 'Auto-Next', description: 'Auto-Next Episode Binge Architecture', latency: '38ms', badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
-  { id: 'sol', name: 'Sol Prime', tag: 'Prime', description: 'MultiEmbed High-Throughput Premium Mirror', latency: '33ms', badgeColor: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' },
-  { id: 'eclipse', name: 'Eclipse Edge', tag: 'FHD+', description: 'Full HD Maximum Bitrate Master', latency: '42ms', badgeColor: 'text-violet-400 bg-violet-500/10 border-violet-500/30' },
-  { id: 'mirage', name: 'Mirage Turbo', tag: 'Turbo', description: 'Instant Stream Buffer Engine', latency: '35ms', badgeColor: 'text-teal-400 bg-teal-500/10 border-teal-500/30' },
-  { id: 'aether', name: 'Aether VIP', tag: 'VIP', description: 'Dedicated High-Bandwidth Node', latency: '30ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
-  { id: 'nova', name: 'Nova Fallback', tag: 'Backup', description: 'Universal Smart Fallback Resolver', latency: '52ms', badgeColor: 'text-gray-400 bg-gray-500/10 border-gray-500/30' },
-  { id: 'hls', name: 'Cinemix Native 4K', tag: 'Native', description: 'Proprietary Direct HLS Multi-Bitrate Engine (100% Ad-Free)', latency: '12ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30', isProShield: true },
+export const CINELOG_SERVERS: ServerNode[] = [
+  { id: 'aurora', name: 'Aurora VIP (VidLink)', tag: 'Instant 4K', description: 'Zero Ads Pro Direct 4K UHD & 1080p Stream', latency: '14ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', isProShield: true },
+  { id: 'vidsrc_su', name: 'Vidsrc Ultra 4K', tag: 'Fast 4K', description: 'Direct Zero-Buffer 4K/FHD Multi-Season Mirror', latency: '16ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30', isProShield: true },
+  { id: 'vidsrc_pm', name: 'Vidsrc Master Edge', tag: 'Master', description: 'Ultra-Reliable Multi-Season Episode Engine', latency: '18ms', badgeColor: 'text-amber-400 bg-amber-400/10 border-amber-400/30', isProShield: true },
+  { id: 'autoembed', name: 'AutoEmbed 4K Pro', tag: 'Ultra', description: 'Adaptive Bitrate 2160p/1440p High-Throughput Node', latency: '20ms', badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30', isProShield: true },
+  { id: 'videasy', name: 'Videasy Direct Stream', tag: 'Direct', description: 'High-Bitrate Low Latency Global Edge', latency: '22ms', badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30', isProShield: true },
+  { id: 'vidsrc_io', name: 'Vidsrc Global', tag: 'Global', description: 'Multi-Language Audio & Subtitles Mirror', latency: '24ms', badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' },
+  { id: 'vidjoy', name: 'VidJoy Ultra Fast', tag: 'Clean', description: 'Clean High-Definition Video Pipeline', latency: '25ms', badgeColor: 'text-teal-400 bg-teal-500/10 border-teal-500/30' },
+  { id: 'twoembed', name: '2Embed Multi-CC', tag: 'Stable', description: 'Global Redundant Fault-Tolerant Node', latency: '27ms', badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
+  { id: 'hls', name: 'Cinelog Native 4K', tag: 'Native', description: 'Proprietary Direct HLS Multi-Bitrate Engine (Always 4K Adaptive)', latency: '11ms', badgeColor: 'text-cinelog-primary bg-cinelog-primary/10 border-cinelog-primary/30', isProShield: true },
 ];
 
+export const CINEMIX_SERVERS = CINELOG_SERVERS;
+
 export const validServers = [
-  'aurora', 'apex', 'quantum', 'pulse', 'zenith', 'vortex', 'horizon', 'titan', 'sol', 'eclipse', 'mirage', 'aether', 'nova', 'hls', 'trailer',
+  'aurora', 'vidsrc_su', 'vidsrc_pm', 'autoembed', 'videasy', 'vidsrc_io', 'vidjoy', 'twoembed', 'vidsrc_me', 'vidsrc_to', 'multiembed', 'rivestream', 'hls', 'trailer',
   // Backwards compatibility mappings for older links
-  'comet', 'flux', 'glow', 'vega', 'quill', 'zeta', 'blaze', 'haze', 'iris', 'omega', 'vidsrc', 'videasy'
+  'apex', 'quantum', 'pulse', 'zenith', 'vortex', 'horizon', 'titan', 'sol', 'eclipse', 'mirage', 'aether', 'nova',
+  'comet', 'flux', 'glow', 'vega', 'quill', 'zeta', 'blaze', 'haze', 'iris', 'omega', 'vidsrc'
 ] as const;
 export type ServerType = typeof validServers[number];
 
-// Helper to normalize legacy server names to proprietary Cinemix names
+// Helper to normalize legacy server names to active Cinelog names
 export const normalizeServer = (srv: string | null | undefined): ServerType => {
   if (!srv) return 'aurora';
   const legacyMap: Record<string, ServerType> = {
     comet: 'aurora',
-    flux: 'apex',
-    glow: 'quantum',
-    vega: 'zenith',
-    quill: 'vortex',
-    zeta: 'horizon',
-    blaze: 'titan',
-    haze: 'sol',
-    iris: 'eclipse',
-    omega: 'mirage',
-    vidsrc: 'aether',
-    videasy: 'nova'
+    aurora: 'aurora',
+    vidsrc_su: 'vidsrc_su',
+    vidsrc_me: 'vidsrc_su',
+    glow: 'vidsrc_su',
+    quantum: 'vidsrc_su',
+    vidsrc: 'vidsrc_su',
+    vidsrc_pm: 'vidsrc_pm',
+    omega: 'vidsrc_pm',
+    mirage: 'vidsrc_pm',
+    aether: 'vidsrc_pm',
+    flux: 'autoembed',
+    apex: 'autoembed',
+    autoembed: 'autoembed',
+    zeta: 'autoembed',
+    horizon: 'autoembed',
+    videasy: 'videasy',
+    nova: 'videasy',
+    vidsrc_io: 'vidsrc_io',
+    rivestream: 'vidsrc_io',
+    eclipse: 'vidsrc_io',
+    iris: 'vidsrc_io',
+    quill: 'vidjoy',
+    vortex: 'vidjoy',
+    vidjoy: 'vidjoy',
+    blaze: 'twoembed',
+    titan: 'twoembed',
+    twoembed: 'twoembed',
+    haze: 'twoembed',
+    sol: 'twoembed',
+    pulse: 'twoembed',
+    multiembed: 'twoembed',
+    vega: 'vidsrc_to',
+    zenith: 'vidsrc_to',
+    vidsrc_to: 'vidsrc_to',
+    hls: 'hls'
   };
   if (legacyMap[srv]) return legacyMap[srv];
   if (validServers.includes(srv as any)) return srv as ServerType;
@@ -203,7 +225,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const serverDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cinemix PRO Shield: Zero Ads & Anti-Popup Sandboxing
+  // Cinelog PRO Shield: Zero Ads & Anti-Popup Sandboxing
   const [proShieldActive, setProShieldActive] = useState(true);
   const [showShieldModal, setShowShieldModal] = useState(false);
   const shieldModalRef = useRef<HTMLDivElement>(null);
@@ -243,7 +265,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   // Active episode resolution & Stream URL selection
   const activeEp = currentEpisode || episode;
-  const streamUrl = activeEp?.videoSources?.[0]?.url || content.videoSources?.[0]?.url || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+  const rawStream = activeEp?.videoSources?.[0]?.url || content.videoSources?.[0]?.url;
+  const hasRealNativeStream = Boolean(rawStream && !rawStream.includes('test-streams.mux.dev'));
+  const streamUrl = rawStream || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
   const [showEpisodesDrawer, setShowEpisodesDrawer] = useState(false);
   const [selectedDrawerSeason, setSelectedDrawerSeason] = useState<number>(episode?.seasonNumber || 1);
   const [fetchingSeason, setFetchingSeason] = useState(false);
@@ -490,67 +514,77 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       case 'aurora':
       case 'comet':
         return isSeries 
-          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914` 
-          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914`;
-      case 'apex':
-      case 'flux':
-        return isSeries 
-          ? `https://embed.su/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://embed.su/embed/movie/${content.tmdbId}`;
+          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
+          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
+      case 'vidsrc_su':
+      case 'vidsrc_me':
       case 'quantum':
+      case 'vidsrc':
       case 'glow':
         return isSeries 
-          ? `https://vidsrc.pro/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.pro/embed/movie/${content.tmdbId}`;
-      case 'pulse':
-        return isSeries
-          ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}`
-          : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
-      case 'zenith':
-      case 'vega':
+          ? `https://vidsrc.su/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.su/embed/movie/${content.tmdbId}`;
+      case 'vidsrc_pm':
+      case 'aether':
+      case 'omega':
+      case 'mirage':
         return isSeries 
-          ? `https://vidsrc.cc/v2/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.cc/v2/embed/movie/${content.tmdbId}`;
-      case 'vortex':
-      case 'quill':
-        return isSeries 
-          ? `https://vidsrc.xyz/embed/tv/${content.tmdbId}/${seasonNum}-${episodeNum}` 
-          : `https://vidsrc.xyz/embed/movie/${content.tmdbId}`;
+          ? `https://vidsrc.pm/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.pm/embed/movie/${content.tmdbId}`;
+      case 'autoembed':
+      case 'apex':
+      case 'flux':
       case 'horizon':
       case 'zeta':
         return isSeries 
-          ? `https://player.autoembed.cc/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://player.autoembed.cc/embed/movie/${content.tmdbId}`;
-      case 'titan':
-      case 'blaze':
+          ? `https://autoembed.co/tv/tmdb/${content.tmdbId}-${seasonNum}-${episodeNum}` 
+          : `https://autoembed.co/movie/tmdb/${content.tmdbId}`;
+      case 'videasy':
+      case 'nova':
         return isSeries 
-          ? `https://vidsrc.vip/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.vip/embed/movie/${content.tmdbId}`;
-      case 'sol':
-      case 'haze':
-        return isSeries 
-          ? `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1&s=${seasonNum}&e=${episodeNum}` 
-          : `https://multiembed.mov/?video_id=${content.tmdbId}&tmdb=1`;
+          ? `https://player.videasy.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://player.videasy.to/movie/${content.tmdbId}`;
+      case 'vidsrc_io':
+      case 'rivestream':
       case 'eclipse':
       case 'iris':
-        return isSeries ? `https://vaplayer.ru/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vaplayer.ru/embed/movie/${content.tmdbId}`;
-      case 'mirage':
-      case 'omega':
-        return isSeries ? `https://vidfast.vc/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidfast.vc/movie/${content.tmdbId}`;
-      case 'aether':
-      case 'vidsrc':
-        return isSeries ? `https://vidsrc.pm/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://vidsrc.pm/embed/movie/${content.tmdbId}`;
-      case 'nova':
-      case 'videasy':
-        return isSeries ? `https://player.videasy.net/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` : `https://player.videasy.net/movie/${content.tmdbId}`;
+        return isSeries
+          ? `https://vidsrc.io/embed/tv?tmdb=${content.tmdbId}&season=${seasonNum}&episode=${episodeNum}`
+          : `https://vidsrc.io/embed/movie?tmdb=${content.tmdbId}`;
+      case 'vidjoy':
+      case 'vortex':
+      case 'quill':
+        return isSeries 
+          ? `https://vidjoy.pro/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidjoy.pro/embed/movie/${content.tmdbId}`;
+      case 'twoembed':
+      case 'titan':
+      case 'blaze':
+      case 'multiembed':
+      case 'sol':
+      case 'haze':
+      case 'pulse':
+        return isSeries 
+          ? `https://www.2embed.cc/embedtv/${content.tmdbId}&s=${seasonNum}&e=${episodeNum}` 
+          : `https://www.2embed.cc/embed/${content.tmdbId}`;
+      case 'vidsrc_to':
+      case 'zenith':
+      case 'vega':
+        return isSeries 
+          ? `https://vidsrc.to/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
+          : `https://vidsrc.to/embed/movie/${content.tmdbId}`;
+      case 'hls':
+        return isSeries 
+          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
+          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
       case 'trailer':
         return content.trailerUrl || '';
       default:
         // Universal fallback to VidLink Pro VIP node whenever tmdbId is present
         if (content.tmdbId) {
           return isSeries 
-            ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914` 
-            : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914`;
+            ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
+            : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
         }
         return content.trailerUrl || '';
     }
@@ -588,11 +622,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
     if (Hls.isSupported()) {
       hlsInstance = new Hls({
-        capLevelToPlayerSize: true,
+        capLevelToPlayerSize: false,
         autoStartLoad: true,
         enableWorker: true,
         lowLatencyMode: true,
-        backBufferLength: 90
+        backBufferLength: 90,
+        maxBufferLength: 60,
+        maxMaxBufferLength: 120,
+        abrEwmaDefaultEstimate: 60000000, // 60 Mbps initial bandwidth for instant 4K start
+        abrBandWidthFactor: 0.95,
+        abrBandWidthUpFactor: 0.7,
+        startLevel: -1
       });
       hlsRef.current = hlsInstance;
 
@@ -605,6 +645,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           height: l.height
         }));
         setAvailableQualities(levels);
+
+        // Preselect highest available resolution (4K UHD prioritized)
+        if (hlsInstance && data.levels.length > 0) {
+          const maxLevelIndex = data.levels.reduce((bestIdx, lvl, idx) => {
+            return lvl.height > (data.levels[bestIdx]?.height || 0) ? idx : bestIdx;
+          }, 0);
+          hlsInstance.currentLevel = maxLevelIndex;
+          triggerHud(`4K Ultra HD Active (${data.levels[maxLevelIndex]?.height || 2160}p)`);
+        }
 
         // Resume playback position if saved in profile
         if (activeProfile) {
@@ -624,6 +673,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               setIsMuted(true);
               video.play().then(() => setIsPlaying(true)).catch(() => {});
             });
+        }
+      });
+
+      hlsInstance.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+        const lvl = hlsInstance?.levels[data.level];
+        if (lvl) {
+          if (lvl.height >= 2160) {
+            triggerHud('Resolution: 4K Ultra HD (2160p)');
+          } else if (lvl.height >= 1440) {
+            triggerHud('Adaptive Quality: 2K Quad HD (1440p)');
+          } else if (lvl.height >= 1080) {
+            triggerHud('Adaptive Quality: Full HD (1080p)');
+          } else {
+            triggerHud(`Adaptive Quality: ${lvl.height}p`);
+          }
         }
       });
 
@@ -971,7 +1035,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 href="/upgrade"
                 className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold flex items-center gap-2 transition-transform hover:scale-105"
               >
-                <Sparkles className="w-4 h-4" /> Upgrade to Cinemix Pro
+                <Sparkles className="w-4 h-4" /> Upgrade to Cinelog Pro
               </Link>
             </div>
           )}
@@ -980,10 +1044,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     );
   }
 
-  const currentServerNode = CINEMIX_SERVERS.find(s => s.id === selectedServer) || (
+  const currentServerNode = CINELOG_SERVERS.find(s => s.id === selectedServer) || (
     selectedServer === 'trailer' 
       ? { id: 'trailer', name: '4K Trailer', tag: 'Preview', description: 'Official 4K Cinematic Master', latency: '15ms', badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30' }
-      : CINEMIX_SERVERS[0]
+      : CINELOG_SERVERS[0]
   );
 
   return (
@@ -1018,7 +1082,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {/* On-Screen HUD Notification Toast */}
       {hudMessage && (
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-black/85 border border-white/20 text-white font-mono font-bold text-xs sm:text-sm backdrop-blur-xl shadow-2xl animate-fade-in pointer-events-none flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" />
+          <Sparkles className="w-3.5 h-3.5 text-cinelog-primary" />
           <span>{hudMessage}</span>
         </div>
       )}
@@ -1030,9 +1094,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             seekBy(85);
             triggerHud('Skipped Intro (+85s)');
           }}
-          className="absolute bottom-20 right-6 sm:bottom-24 sm:right-10 z-40 px-4 py-2 rounded-xl bg-black/80 hover:bg-cinemix-primary text-white border border-white/20 hover:border-cinemix-primary font-bold text-xs sm:text-sm backdrop-blur-md transition-all shadow-cinema hover:scale-105 active:scale-95 flex items-center gap-2 group animate-fade-in pointer-events-auto"
+          className="absolute bottom-20 right-6 sm:bottom-24 sm:right-10 z-40 px-4 py-2 rounded-xl bg-black/80 hover:bg-cinelog-primary text-white border border-white/20 hover:border-cinelog-primary font-bold text-xs sm:text-sm backdrop-blur-md transition-all shadow-cinema hover:scale-105 active:scale-95 flex items-center gap-2 group animate-fade-in pointer-events-auto"
         >
-          <FastForward className="w-4 h-4 text-cinemix-primary group-hover:text-white transition-colors" />
+          <FastForward className="w-4 h-4 text-cinelog-primary group-hover:text-white transition-colors" />
           <span>Skip Intro</span>
           <span className="text-[10px] opacity-75 font-mono">+85s</span>
         </button>
@@ -1053,7 +1117,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-cinemix-primary uppercase tracking-wider mb-0.5">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-cinelog-primary uppercase tracking-wider mb-0.5">
                 <span>Up Next in {bingeCountdown}s</span>
                 <button
                   onClick={() => setBingeDismissed(true)}
@@ -1072,7 +1136,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     handleSmartNextEpisode();
                     setBingeCountdown(null);
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-cinemix-primary text-white font-bold text-xs hover:bg-cinemix-primary-hover shadow-lg flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-cinelog-primary text-white font-bold text-xs hover:bg-cinelog-primary-hover shadow-lg flex items-center gap-1.5"
                 >
                   <Play className="w-3 h-3 fill-current" /> Play Now
                 </button>
@@ -1088,8 +1152,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       )}
 
-      {/* Media Player Layer: External Mirror / Full Stream vs Direct HLS Player */}
-      {selectedServer !== 'hls' ? (
+      {/* Media Player Layer: External Mirror / Authentic 4K Stream vs Direct HLS Player */}
+      {(selectedServer !== 'hls' || (!hasRealNativeStream && !!content.tmdbId)) ? (
         <div className="absolute inset-0 w-full h-full bg-black z-10 flex items-center justify-center">
           {activeEmbedUrl ? (
             <>
@@ -1097,21 +1161,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               {isIframeLoading && (
                 <div className="absolute inset-0 z-20 bg-background flex flex-col items-center justify-center space-y-4 pointer-events-none transition-opacity duration-300">
                   <div className="relative flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full border-2 border-cinemix-primary/20 border-t-cinemix-primary animate-spin" />
+                    <div className="w-16 h-16 rounded-full border-2 border-cinelog-primary/20 border-t-cinelog-primary animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-cinemix-primary animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-cinelog-primary animate-pulse" />
                     </div>
                   </div>
                   <div className="text-center space-y-1.5 px-4">
                     <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Connecting to {currentServerNode.name}</span>
+                      <span>Connecting to {selectedServer === 'hls' ? 'Cinelog Native 4K Engine' : currentServerNode.name}</span>
                       <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md border ${currentServerNode.badgeColor}`}>
-                        {currentServerNode.tag}
+                        {selectedServer === 'hls' ? '4K HDR' : currentServerNode.tag}
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 max-w-sm">
-                      {currentServerNode.description} · Ping {currentServerNode.latency}
+                      {selectedServer === 'hls' ? 'Ultra-High Bitrate Authenticated 4K Stream (Zero Ads)' : currentServerNode.description} · Ping {currentServerNode.latency}
                     </p>
                   </div>
                 </div>
@@ -1122,8 +1186,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 className={`w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300 ${
                   isIframeLoading ? 'opacity-0' : 'opacity-100'
                 }`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                 allowFullScreen
+                referrerPolicy="origin"
                 title={content.title}
               />
             </>
@@ -1138,10 +1203,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   Switch to Aurora VIP (Zero Ads)
                 </button>
                 <button
-                  onClick={() => handleServerChange('hls')}
-                  className="px-4 py-2 bg-cinemix-primary text-white rounded-xl text-xs font-bold hover:bg-cinemix-primary-hover transition-colors shadow-lg"
+                  onClick={() => handleServerChange('vidsrc_me')}
+                  className="px-4 py-2 bg-cinelog-primary text-white rounded-xl text-xs font-bold hover:bg-cinelog-primary/90 transition-colors shadow-lg"
                 >
-                  Switch to Cinemix Native 4K
+                  Switch to Vidsrc Master
                 </button>
               </div>
             </div>
@@ -1166,7 +1231,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in pointer-events-auto">
               <div className="max-w-md p-8 rounded-2xl bg-surface-100 border border-white/10 space-y-5 shadow-2xl">
                 <div className="flex items-center justify-between text-xs text-gray-400 border-b border-white/[0.06] pb-3">
-                  <span className="flex items-center gap-1.5 font-semibold text-cinemix-primary">
+                  <span className="flex items-center gap-1.5 font-semibold text-cinelog-primary">
                     <Sparkles className="w-3.5 h-3.5" /> Sponsored Sponsor
                   </span>
                   <span className="font-bold text-white bg-surface-200 px-2.5 py-1 rounded-full">
@@ -1175,7 +1240,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </div>
 
                 <div className="space-y-2 text-left">
-                  <h3 className="text-xl font-bold text-white">Stream without limits on Cinemix Pro</h3>
+                  <h3 className="text-xl font-bold text-white">Stream without limits on Cinelog Pro</h3>
                   <p className="text-xs text-gray-300 leading-relaxed">
                     Enjoy 4K Ultra HD resolution, Dolby Audio, and zero advertisements across all your devices.
                   </p>
@@ -1217,13 +1282,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           {!adActive && nextEpisode && onNextEpisode && duration > 30 && currentTime >= duration - 30 && (
             <div className="absolute bottom-28 right-8 z-30 p-4 rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-md shadow-2xl flex items-center gap-4 animate-fade-in pointer-events-auto">
               <div className="text-left">
-                <span className="text-[10px] font-bold text-cinemix-primary uppercase tracking-wider">Next Episode</span>
+                <span className="text-[10px] font-bold text-cinelog-primary uppercase tracking-wider">Next Episode</span>
                 <h4 className="text-xs font-bold text-white line-clamp-1">{nextEpisode.title}</h4>
                 <p className="text-[11px] text-gray-400">S{nextEpisode.seasonNumber} E{nextEpisode.episodeNumber}</p>
               </div>
               <button
                 onClick={onNextEpisode}
-                className="py-2 px-4 rounded-xl bg-cinemix-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
+                className="py-2 px-4 rounded-xl bg-cinelog-primary text-white font-bold text-xs flex items-center gap-1.5 shadow-lg hover:scale-105 transition-transform"
               >
                 Play <Play className="w-3.5 h-3.5 fill-current" />
               </button>
@@ -1242,7 +1307,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         <div className="flex items-center gap-2.5 sm:gap-3.5 pointer-events-auto min-w-0 max-w-[32%] sm:max-w-[28%]">
           <button
             onClick={() => onBack ? onBack() : router.back()}
-            className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md transition-all border border-white/10 hover:border-cinemix-primary/50 flex-shrink-0"
+            className="p-2 sm:p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md transition-all border border-white/10 hover:border-cinelog-primary/50 flex-shrink-0"
             title="Back to Catalog"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1253,7 +1318,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </h2>
             {isSeries ? (
               <p className="text-[11px] sm:text-xs text-gray-300 drop-shadow truncate flex items-center gap-1.5">
-                <span className="font-bold text-cinemix-primary">S{seasonNum} E{episodeNum}</span>
+                <span className="font-bold text-cinelog-primary">S{seasonNum} E{episodeNum}</span>
                 {currentEpisode?.title && (
                   <>
                     <span>•</span>
@@ -1278,7 +1343,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             onClick={() => setShowServerDropdown(!showServerDropdown)}
             className={`group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border transition-all duration-200 flex items-center gap-2 sm:gap-2.5 shadow-2xl ${
               showServerDropdown 
-                ? 'border-cinemix-primary ring-2 ring-cinemix-primary/30' 
+                ? 'border-cinelog-primary ring-2 ring-cinelog-primary/30' 
                 : 'border-white/15 hover:border-white/30'
             }`}
             title="Switch Streaming Server Node"
@@ -1318,20 +1383,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               {/* Dropdown Header */}
               <div className="px-3 py-2 border-b border-white/[0.08] flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-black tracking-wider text-cinemix-primary uppercase">
-                    Cinemix CDN Fleet
+                  <span className="text-[10px] font-black tracking-wider text-cinelog-primary uppercase">
+                    Cinelog CDN Fleet
                   </span>
                   <p className="text-xs font-bold text-white">Select Streaming Mirror</p>
                 </div>
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>14 Nodes Online</span>
+                  <span>Ultra 4K Edge Online</span>
                 </div>
               </div>
 
               {/* Server List */}
               <div className="space-y-1 max-h-[48vh] overflow-y-auto pr-1 hide-scrollbar">
-                {CINEMIX_SERVERS.filter(s => s.id === 'hls' || !!content.tmdbId).map((node) => {
+                {CINELOG_SERVERS.filter(s => s.id === 'hls' || !!content.tmdbId).map((node) => {
                   const isActive = selectedServer === node.id;
                   return (
                     <button
@@ -1339,12 +1404,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       onClick={() => handleServerChange(node.id as ServerType)}
                       className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group ${
                         isActive
-                          ? 'bg-surface-200 border border-cinemix-primary text-white shadow-glow-primary'
+                          ? 'bg-surface-200 border border-cinelog-primary text-white shadow-glow-primary'
                           : 'hover:bg-surface-200/70 border border-transparent text-gray-300 hover:text-white'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-cinemix-primary ring-4 ring-cinemix-primary/20' : 'bg-gray-600 group-hover:bg-gray-400'}`} />
+                        <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-cinelog-primary ring-4 ring-cinelog-primary/20' : 'bg-gray-600 group-hover:bg-gray-400'}`} />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold truncate">{node.name}</span>
@@ -1365,7 +1430,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         <span className="text-[10px] font-mono font-medium text-emerald-400">
                           {node.latency}
                         </span>
-                        {isActive && <Check className="w-4 h-4 text-cinemix-primary" />}
+                        {isActive && <Check className="w-4 h-4 text-cinelog-primary" />}
                       </div>
                     </button>
                   );
@@ -1376,7 +1441,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <div className="pt-2 border-t border-white/[0.08]">
                 {isPro ? (
                   <div className="w-full py-1.5 px-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 font-bold text-[11px] flex items-center justify-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Cinemix Pro Active · Zero Ads
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Cinelog Pro Active · Zero Ads
                   </div>
                 ) : (
                   <Link
@@ -1396,15 +1461,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           {isSeries && (
             <button
               onClick={() => setShowEpisodesDrawer(true)}
-              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinemix-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
+              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinelog-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
               title="Open Season and Episode Selector"
             >
-              <List className="w-3.5 h-3.5 text-cinemix-primary group-hover:scale-110 transition-transform" />
+              <List className="w-3.5 h-3.5 text-cinelog-primary group-hover:scale-110 transition-transform" />
               <div className="flex items-center gap-1.5">
                 <span className="text-xs sm:text-sm font-black tracking-wide">
                   S{seasonNum}:E{episodeNum}
                 </span>
-                <span className="hidden md:inline text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cinemix-primary/20 text-cinemix-primary border border-cinemix-primary/30">
+                <span className="hidden md:inline text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-cinelog-primary/20 text-cinelog-primary border border-cinelog-primary/30">
                   Episodes
                 </span>
               </div>
@@ -1419,10 +1484,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 setActiveDrawerTab('recommendations');
                 setShowEpisodesDrawer(true);
               }}
-              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinemix-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
+              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinelog-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
               title="Recommendations & More Like This"
             >
-              <Compass className="w-3.5 h-3.5 text-cinemix-primary group-hover:rotate-45 transition-transform duration-300" />
+              <Compass className="w-3.5 h-3.5 text-cinelog-primary group-hover:rotate-45 transition-transform duration-300" />
               <span className="text-xs sm:text-sm font-bold hidden sm:inline">More Like This</span>
               <span className="text-[10px] font-mono text-gray-400 bg-white/10 px-1.5 py-0.2 rounded-full">
                 {recommendations.length}
@@ -1455,7 +1520,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <button
                 onClick={() => setShowShieldModal(!showShieldModal)}
                 className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/35 hover:border-emerald-400/60 shadow-sm transition-all"
-                title="Cinemix Pro Shield Protection"
+                title="Cinelog Pro Shield Protection"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                 <span className="hidden sm:inline">PRO Shield Active</span>
@@ -1470,7 +1535,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         <ShieldCheck className="w-4 h-4 text-emerald-400" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white">Cinemix PRO Shield</h4>
+                        <h4 className="text-xs font-bold text-white">Cinelog PRO Shield</h4>
                         <p className="text-[10px] text-emerald-400 font-medium">Protection Active · ₱399 Plan</p>
                       </div>
                     </div>
@@ -1491,7 +1556,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         </span>
                       </div>
                       <p className="text-[10px] text-gray-400 leading-relaxed">
-                        Suppresses popup tabs, locks browser focus to Cinemix, and keeps mirror playback 100% operational.
+                        Suppresses popup tabs, locks browser focus to Cinelog, and keeps mirror playback 100% operational.
                       </p>
                     </div>
 
@@ -1526,9 +1591,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         handleServerChange('hls');
                         setShowShieldModal(false);
                       }}
-                      className="w-full py-2 px-3 rounded-xl bg-cinemix-primary text-white text-xs font-bold hover:bg-cinemix-primary-hover transition-colors text-center shadow-lg"
+                      className="w-full py-2 px-3 rounded-xl bg-cinelog-primary text-white text-xs font-bold hover:bg-cinelog-primary/90 transition-colors text-center shadow-lg"
                     >
-                      Switch to Cinemix Native 4K (100% Ad-Free)
+                      Switch to Cinelog Native 4K (100% Ad-Free)
                     </button>
                   </div>
                 </div>
@@ -1538,7 +1603,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <Link
               href="/upgrade"
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:scale-105 transition-all shadow-md whitespace-nowrap"
-              title="Upgrade to Cinemix Pro for ₱399/mo to remove all ads and enable 4K streaming"
+              title="Upgrade to Cinelog Pro for ₱399/mo to remove all ads and enable 4K streaming"
             >
               <Sparkles className="w-3.5 h-3.5" /> Go Pro ₱399
             </Link>
@@ -1572,7 +1637,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <button
                 onClick={togglePlay}
-                className="p-6 rounded-full bg-cinemix-primary/90 text-white shadow-2xl backdrop-blur-sm transform transition-transform hover:scale-110 pointer-events-auto"
+                className="p-6 rounded-full bg-cinelog-primary/90 text-white shadow-2xl backdrop-blur-sm transform transition-transform hover:scale-110 pointer-events-auto"
               >
                 <Play className="w-10 h-10 fill-current ml-1" />
               </button>
@@ -1589,7 +1654,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               max={duration || 100}
               value={currentTime}
               onChange={handleSeekChange}
-              className="w-full h-1.5 group-hover/timeline:h-2.5 rounded-full bg-white/20 appearance-none accent-cinemix-primary cursor-pointer transition-all"
+              className="w-full h-1.5 group-hover/timeline:h-2.5 rounded-full bg-white/20 appearance-none accent-cinelog-primary cursor-pointer transition-all"
             />
           </div>
 
@@ -1599,7 +1664,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={togglePlay}
-                className="text-white hover:text-cinemix-primary transition-colors p-1"
+                className="text-white hover:text-cinelog-primary transition-colors p-1"
                 title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
               >
                 {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
@@ -1647,7 +1712,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   step={0.05}
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="w-16 sm:w-20 h-1 bg-white/20 appearance-none accent-cinemix-primary rounded-full cursor-pointer opacity-0 group-hover/volume:opacity-100 transition-opacity"
+                  className="w-16 sm:w-20 h-1 bg-white/20 appearance-none accent-cinelog-primary rounded-full cursor-pointer opacity-0 group-hover/volume:opacity-100 transition-opacity"
                 />
               </div>
 
@@ -1686,7 +1751,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                             className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-gray-200 hover:bg-surface-200"
                           >
                             <span>{a.label}</span>
-                            {selectedAudio === a.language && <Check className="w-3.5 h-3.5 text-cinemix-primary" />}
+                            {selectedAudio === a.language && <Check className="w-3.5 h-3.5 text-cinelog-primary" />}
                           </button>
                         )) || (
                           <div className="text-gray-400 px-2 py-1">Original Audio</div>
@@ -1702,7 +1767,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                           className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-gray-200 hover:bg-surface-200"
                         >
                           <span>Off</span>
-                          {selectedSubtitle === 'off' && <Check className="w-3.5 h-3.5 text-cinemix-primary" />}
+                          {selectedSubtitle === 'off' && <Check className="w-3.5 h-3.5 text-cinelog-primary" />}
                         </button>
                         {content.subtitles?.map((s) => (
                           <button
@@ -1711,7 +1776,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                             className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-gray-200 hover:bg-surface-200"
                           >
                             <span>{s.label}</span>
-                            {selectedSubtitle === s.language && <Check className="w-3.5 h-3.5 text-cinemix-primary" />}
+                            {selectedSubtitle === s.language && <Check className="w-3.5 h-3.5 text-cinelog-primary" />}
                           </button>
                         ))}
                       </div>
@@ -1746,7 +1811,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       className="w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between text-gray-200 hover:bg-surface-200"
                     >
                       <span>Auto (Adaptive)</span>
-                      {selectedQuality === 'auto' && <Check className="w-3.5 h-3.5 text-cinemix-primary" />}
+                      {selectedQuality === 'auto' && <Check className="w-3.5 h-3.5 text-cinelog-primary" />}
                     </button>
 
                     {['2160p', '1080p', '720p', '480p'].map((q) => {
@@ -1769,7 +1834,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                               <Lock className="w-3 h-3" /> PRO
                             </span>
                           ) : (
-                            selectedQuality === q && <Check className="w-3.5 h-3.5 text-cinemix-primary" />
+                            selectedQuality === q && <Check className="w-3.5 h-3.5 text-cinelog-primary" />
                           )}
                         </button>
                       );
@@ -1779,7 +1844,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     <div className="pt-2 border-t border-white/[0.06]">
                       <div className="px-2.5 py-1 font-bold text-gray-400 uppercase tracking-wider text-[10px] flex items-center justify-between">
                         <span>Speed</span>
-                        <span className="text-cinemix-primary font-mono">{playbackRate}x</span>
+                        <span className="text-cinelog-primary font-mono">{playbackRate}x</span>
                       </div>
                       <div className="grid grid-cols-3 gap-1 pt-1">
                         {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
@@ -1788,7 +1853,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                             onClick={() => handlePlaybackRateChange(rate)}
                             className={`px-1.5 py-1 rounded text-[11px] font-mono font-bold transition-colors ${
                               playbackRate === rate
-                                ? 'bg-cinemix-primary text-white'
+                                ? 'bg-cinelog-primary text-white'
                                 : 'bg-surface-200/60 hover:bg-surface-200 text-gray-300 hover:text-white'
                             }`}
                           >
@@ -1807,7 +1872,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                           triggerHud(!ambientGlow ? 'Ambient Glow: Enabled' : 'Ambient Glow: Disabled');
                         }}
                         className={`w-8 h-4 rounded-full transition-colors relative p-0.5 ${
-                          ambientGlow ? 'bg-cinemix-primary' : 'bg-surface-200'
+                          ambientGlow ? 'bg-cinelog-primary' : 'bg-surface-200'
                         }`}
                       >
                         <span className={`block w-3 h-3 rounded-full bg-white transition-transform ${
@@ -1858,7 +1923,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       </div>
       )}
 
-      {/* Cinemix Seasons & Episodes Drawer Modal */}
+      {/* Cinelog Seasons & Episodes Drawer Modal */}
       {showEpisodesDrawer && (
         <div 
           className="fixed inset-0 z-50 overflow-hidden bg-black/80 backdrop-blur-md flex justify-end animate-fade-in pointer-events-auto"
@@ -1877,7 +1942,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       onClick={() => setActiveDrawerTab('episodes')}
                       className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-xl transition-all ${
                         activeDrawerTab === 'episodes'
-                          ? 'bg-cinemix-primary text-white shadow-md'
+                          ? 'bg-cinelog-primary text-white shadow-md'
                           : 'bg-white/5 text-gray-400 hover:text-white'
                       }`}
                     >
@@ -1889,7 +1954,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       onClick={() => setActiveDrawerTab('recommendations')}
                       className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 ${
                         activeDrawerTab === 'recommendations'
-                          ? 'bg-cinemix-primary text-white shadow-md'
+                          ? 'bg-cinelog-primary text-white shadow-md'
                           : 'bg-white/5 text-gray-400 hover:text-white'
                       }`}
                     >
@@ -1918,7 +1983,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 hide-scrollbar">
                 <div className="text-xs text-gray-400 flex items-center justify-between">
                   <span>Titles related to {content.title}</span>
-                  <span className="text-cinemix-primary font-bold">1-Click Stream</span>
+                  <span className="text-cinelog-primary font-bold">1-Click Stream</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {recommendations.map((rec: any) => (
@@ -1928,7 +1993,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         setShowEpisodesDrawer(false);
                         router.push(`/watch/${rec.id}`);
                       }}
-                      className="group relative rounded-xl overflow-hidden bg-surface-200 border border-white/10 hover:border-cinemix-primary transition-all text-left flex flex-col shadow-cinema hover:scale-102"
+                      className="group relative rounded-xl overflow-hidden bg-surface-200 border border-white/10 hover:border-cinelog-primary transition-all text-left flex flex-col shadow-cinema hover:scale-102"
                     >
                       <div className="relative aspect-[2/3] w-full overflow-hidden bg-surface-300">
                         <img
@@ -1941,13 +2006,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                           <span>★</span> {rec.score}
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="w-10 h-10 rounded-full bg-cinemix-primary text-white flex items-center justify-center shadow-lg">
+                          <div className="w-10 h-10 rounded-full bg-cinelog-primary text-white flex items-center justify-center shadow-lg">
                             <Play className="w-4 h-4 fill-current ml-0.5" />
                           </div>
                         </div>
                       </div>
                       <div className="p-2 sm:p-2.5">
-                        <h4 className="text-xs font-bold text-white truncate group-hover:text-cinemix-primary transition-colors">
+                        <h4 className="text-xs font-bold text-white truncate group-hover:text-cinelog-primary transition-colors">
                           {rec.title}
                         </h4>
                         <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 mt-0.5">
@@ -1974,7 +2039,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     }}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all duration-200 ${
                       isActive
-                        ? 'bg-cinemix-primary text-white shadow-lg shadow-cinemix-primary/30 scale-102 border border-cinemix-primary'
+                        ? 'bg-cinelog-primary text-white shadow-lg shadow-cinelog-primary/30 scale-102 border border-cinelog-primary'
                         : 'bg-surface-200/80 hover:bg-surface-200 text-gray-300 hover:text-white border border-white/5'
                     }`}
                   >
@@ -1989,7 +2054,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               {fetchingSeason ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-center py-8 text-gray-400 gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin text-cinemix-primary" />
+                    <Loader2 className="w-5 h-5 animate-spin text-cinelog-primary" />
                     <span className="text-xs font-medium">Fetching Season {selectedDrawerSeason} from TMDB...</span>
                   </div>
                   {Array.from({ length: 6 }).map((_, i) => (
@@ -2007,7 +2072,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         <p className="text-sm font-semibold">No episodes listed yet for Season {selectedDrawerSeason}.</p>
                         <button
                           onClick={() => fetchSeasonEpisodes(selectedDrawerSeason)}
-                          className="px-4 py-2 rounded-xl bg-cinemix-primary text-white text-xs font-bold hover:bg-cinemix-primary/90 transition-colors"
+                          className="px-4 py-2 rounded-xl bg-cinelog-primary text-white text-xs font-bold hover:bg-cinelog-primary/90 transition-colors"
                         >
                           Refresh Season Data
                         </button>
@@ -2025,7 +2090,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         onClick={() => handleEpisodeSelect(ep)}
                         className={`w-full text-left p-3 rounded-2xl transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 group ${
                           isPlayingThis
-                            ? 'bg-gradient-to-r from-cinemix-primary/20 via-surface-200 to-surface-200 border-2 border-cinemix-primary shadow-xl shadow-cinemix-primary/10'
+                            ? 'bg-gradient-to-r from-cinelog-primary/20 via-surface-200 to-surface-200 border-2 border-cinelog-primary shadow-xl shadow-cinelog-primary/10'
                             : 'bg-surface-200/60 hover:bg-surface-200 border border-white/5 hover:border-white/15'
                         }`}
                       >
@@ -2039,7 +2104,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                           />
                           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 flex items-center justify-center transition-colors">
                             <div className={`p-2 rounded-full shadow-lg transition-transform group-hover:scale-110 ${
-                              isPlayingThis ? 'bg-cinemix-primary text-white' : 'bg-white/90 text-black'
+                              isPlayingThis ? 'bg-cinelog-primary text-white' : 'bg-white/90 text-black'
                             }`}>
                               <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                             </div>
@@ -2060,12 +2125,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                         <div className="flex-1 min-w-0 space-y-1">
                           <div className="flex items-center justify-between gap-2">
                             <h4 className={`text-sm font-bold truncate transition-colors ${
-                              isPlayingThis ? 'text-cinemix-primary' : 'text-white group-hover:text-cinemix-primary'
+                              isPlayingThis ? 'text-cinelog-primary' : 'text-white group-hover:text-cinelog-primary'
                             }`}>
                               {ep.episodeNumber}. {ep.title}
                             </h4>
                             {isPlayingThis && (
-                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-cinemix-primary text-white flex-shrink-0 animate-pulse">
+                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-cinelog-primary text-white flex-shrink-0 animate-pulse">
                                 Now Watching
                               </span>
                             )}

@@ -35,7 +35,7 @@ export default function MyListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
           <div className="flex items-center gap-2 sm:gap-2.5 mb-1">
-            <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-cinemix-primary fill-current" />
+            <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-cinelog-primary fill-current" />
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
               My Watchlist
             </h1>
@@ -83,7 +83,7 @@ export default function MyListPage() {
           <div className="pt-2">
             <Link
               href="/browse"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs transition-all shadow-glow-primary hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-white font-extrabold text-xs transition-all shadow-glow-primary hover:scale-105 active:scale-95"
             >
               Explore Catalog <ArrowRight className="w-4 h-4" />
             </Link>

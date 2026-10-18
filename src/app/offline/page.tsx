@@ -14,12 +14,12 @@ export default function OfflinePage() {
         You are currently offline
       </h1>
       <p className="text-xs sm:text-sm text-gray-400 max-w-sm mb-8 leading-relaxed">
-        Cinemix requires an internet connection to stream high-definition movies and series. Please check your network and try again.
+        Cinelog requires an internet connection to stream high-definition movies and series. Please check your network and try again.
       </p>
 
       <button
         onClick={() => window.location.reload()}
-        className="px-6 py-2.5 rounded-xl bg-cinemix-primary hover:bg-cinemix-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95"
+        className="px-6 py-2.5 rounded-xl bg-cinelog-primary hover:bg-cinelog-primary-hover text-black font-extrabold text-xs flex items-center gap-2 shadow-glow-primary transition-all hover:scale-105 active:scale-95"
       >
         <RefreshCw className="w-4 h-4" /> Reload Page
       </button>

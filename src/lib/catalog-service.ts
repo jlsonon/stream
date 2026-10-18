@@ -34,25 +34,25 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   currency: 'PHP',
   paymentInstructions: {
     gcash: {
-      accountName: 'Cinemix Media Philippines Inc.',
+      accountName: 'Cinelog Media Philippines Inc.',
       accountNumber: '0917-888-2469',
-      instructions: 'Send via Express Send. Use your Cinemix account email as the payment note or message.',
+      instructions: 'Send via Express Send. Use your Cinelog account email as the payment note or message.',
       isEnabled: true,
     },
     maya: {
-      accountName: 'Cinemix Digital Entertainment',
+      accountName: 'Cinelog Digital Entertainment',
       accountNumber: '0998-555-7389',
       instructions: 'Transfer to PayMaya mobile number. Save the official confirmation receipt screenshot.',
       isEnabled: true,
     },
     bdo: {
-      accountName: 'Cinemix Interactive Corp.',
+      accountName: 'Cinelog Interactive Corp.',
       accountNumber: '0068-1234-8901',
       instructions: 'BDO Unibank Online or Over-the-Counter. Upload clear photo of deposit slip or mobile transfer slip.',
       isEnabled: true,
     },
     bpi: {
-      accountName: 'Cinemix Interactive Corp.',
+      accountName: 'Cinelog Interactive Corp.',
       accountNumber: '1940-5678-2234',
       instructions: 'BPI Mobile transfer or BPI QR scan.',
       isEnabled: true,
@@ -66,21 +66,21 @@ export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   maxFreeProfiles: 1,
   maintenanceMode: false,
   maintenanceMessage: '',
-  supportEmail: 'support@cinemix.app',
+  supportEmail: 'support@cinelog.app',
   termsUrl: '/terms',
   privacyUrl: '/privacy',
 };
 
 // Local storage keys for hybrid fallback/offline operations
 const STORAGE_KEYS = {
-  CATALOG: 'cinemix_catalog_cache',
-  PROFILES: 'cinemix_profiles_cache',
-  PAYMENTS: 'cinemix_payments_cache',
-  SETTINGS: 'cinemix_settings_cache',
-  PROGRESS: 'cinemix_watch_progress_cache',
-  MY_LIST: 'cinemix_my_list_cache',
-  AUDIT: 'cinemix_audit_cache',
-  ADS: 'cinemix_ads_cache'
+  CATALOG: 'cinelog_catalog_cache',
+  PROFILES: 'cinelog_profiles_cache',
+  PAYMENTS: 'cinelog_payments_cache',
+  SETTINGS: 'cinelog_settings_cache',
+  PROGRESS: 'cinelog_watch_progress_cache',
+  MY_LIST: 'cinelog_my_list_cache',
+  AUDIT: 'cinelog_audit_cache',
+  ADS: 'cinelog_ads_cache'
 };
 
 // ========================================================
@@ -139,8 +139,10 @@ class CatalogService {
     }
 
     // 2. Versioned Local Storage Cache
-    const CURRENT_VERSION = 'v6_no_vivamax_cinemix';
-    const cachedVersion = typeof window !== 'undefined' ? localStorage.getItem('cinemix_catalog_version') : null;
+    const CURRENT_VERSION = 'v7_no_vivamax_cinelog';
+    const cachedVersion = typeof window !== 'undefined' 
+      ? (localStorage.getItem('cinelog_catalog_version') || localStorage.getItem('cinemix_catalog_version')) 
+      : null;
     let cached = this.getLocal<ContentItem[]>(STORAGE_KEYS.CATALOG, []).filter(i => !isVivamaxContent(i));
 
     // Refresh if cache is empty or older version detected
@@ -150,7 +152,8 @@ class CatalogService {
       const merged = [...filteredStarter, ...userAdded];
       this.setLocal(STORAGE_KEYS.CATALOG, merged);
       if (typeof window !== 'undefined') {
-        localStorage.setItem('cinemix_catalog_version', CURRENT_VERSION);
+        localStorage.setItem('cinelog_catalog_version', CURRENT_VERSION);
+        localStorage.removeItem('cinemix_catalog_version');
       }
       return merged;
     }
@@ -240,8 +243,8 @@ class CatalogService {
 
   async checkAutoRefresh(): Promise<{ updated: boolean; count?: number }> {
     if (typeof window === 'undefined') return { updated: false };
-    const LAST_SYNC_KEY = 'cinemix_last_sync_timestamp';
-    const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+    const LAST_SYNC_KEY = 'cinelog_last_sync_timestamp';
+    const lastSync = localStorage.getItem(LAST_SYNC_KEY) || localStorage.getItem('cinemix_last_sync_timestamp');
     const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
     // Only sync if cache is older than 4 hours
@@ -251,6 +254,7 @@ class CatalogService {
 
     try {
       localStorage.setItem(LAST_SYNC_KEY, Date.now().toString());
+      localStorage.removeItem('cinemix_last_sync_timestamp');
       const res = await fetch('/api/tmdb/sync');
       if (!res.ok) return { updated: false };
       const data = await res.json();
@@ -258,6 +262,9 @@ class CatalogService {
         for (const item of data.items) {
           await this.saveContent(item);
         }
+        window.dispatchEvent(
+          new CustomEvent('cinelog:catalog-refreshed', { detail: { count: data.items.length } })
+        );
         window.dispatchEvent(
           new CustomEvent('cinemix:catalog-refreshed', { detail: { count: data.items.length } })
         );
@@ -450,7 +457,7 @@ class CatalogService {
       {
         id: 'ad-pro-upgrade-banner',
         type: 'pre_roll',
-        title: 'Upgrade to Cinemix Pro',
+        title: 'Upgrade to Cinelog Pro',
         mediaUrl: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
         clickUrl: '/upgrade',
         duration: 5,

@@ -78,18 +78,18 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-6 lg:gap-10">
             <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
               {/* Monolithic Cinema Emblem */}
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinemix-primary/50 group-hover:shadow-glow-primary transition-all">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-surface-200 border border-white/10 flex items-center justify-center shadow-cinema group-hover:border-cinelog-primary/50 group-hover:shadow-glow-primary transition-all">
                 <div className="relative flex items-center justify-center">
                   <span className="font-mono text-sm sm:text-base font-black tracking-tighter text-white">C</span>
-                  <span className="absolute -top-0.5 -right-0.5 sm:-right-1 w-1.5 h-1.5 rounded-full bg-cinemix-primary" />
+                  <span className="absolute -top-0.5 -right-0.5 sm:-right-1 w-1.5 h-1.5 rounded-full bg-cinelog-primary" />
                 </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-lg sm:text-xl font-black tracking-wider text-white leading-none font-sans uppercase">
-                  CINE<span className="text-cinemix-primary">MIX</span>
+                  CINE<span className="text-cinelog-primary">LOG</span>
                 </span>
                 <span className="text-[7.5px] sm:text-[8.5px] font-mono tracking-[0.2em] text-gray-400 uppercase leading-none mt-0.5 sm:mt-1">
-                  ENTERTAINMENT
+                  CINEMA & SERIES
                 </span>
               </div>
             </Link>
@@ -107,7 +107,7 @@ export const Navbar: React.FC = () => {
                   >
                     <span>{link.name}</span>
                     {isActive && (
-                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-cinemix-primary rounded-full shadow-glow-primary" />
+                      <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-cinelog-primary rounded-full shadow-glow-primary" />
                     )}
                   </Link>
                 );
@@ -119,27 +119,30 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Upgrade Button or Pro Status */}
             {mounted && user?.plan === 'PRO' ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-cinemix-primary text-black shadow-glow-primary">
+              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-cinelog-primary text-black shadow-glow-primary">
                 <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-current" /> PRO VIP
               </span>
             ) : (
               <Link
                 href="/upgrade"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-surface-200 hover:bg-surface-300 text-white border border-white/10 hover:border-cinemix-primary/50 transition-all shadow-sm"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-surface-200 hover:bg-surface-300 text-white border border-white/10 hover:border-cinelog-primary/50 transition-all shadow-sm"
               >
-                <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" />
+                <Sparkles className="w-3.5 h-3.5 text-cinelog-primary" />
                 <span>Join Pro</span>
-                <span className="text-cinemix-primary font-mono font-bold">₱399</span>
+                <span className="text-cinelog-primary font-mono font-bold">₱399</span>
               </Link>
             )}
 
             {/* Quick Spotlight Search Button */}
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent('cinemix:open-spotlight'))}
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('cinelog:open-spotlight'));
+                window.dispatchEvent(new CustomEvent('cinemix:open-spotlight'));
+              }}
               className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring flex items-center gap-2 group"
               title="Search Catalog (Cmd+K or /)"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5 group-hover:text-cinemix-primary transition-colors" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 group-hover:text-cinelog-primary transition-colors" />
               <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-mono font-bold text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
                 ⌘K
               </span>
@@ -151,7 +154,7 @@ export const Navbar: React.FC = () => {
               className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring"
               title="Superadmin Dashboard"
             >
-              <ShieldCheck className="w-5 h-5 text-cinemix-primary" />
+              <ShieldCheck className="w-5 h-5 text-cinelog-primary" />
             </Link>
 
             {/* Profile Avatar & Dropdown */}
@@ -163,7 +166,7 @@ export const Navbar: React.FC = () => {
                 <img
                   src={activeProfile?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
                   alt={activeProfile?.name || 'Profile'}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white/20 hover:ring-cinemix-primary transition-all"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white/20 hover:ring-cinelog-primary transition-all"
                 />
               </button>
 
@@ -227,7 +230,7 @@ export const Navbar: React.FC = () => {
                           <img src={p.avatarUrl} alt={p.name} className="w-5 h-5 rounded-full object-cover" />
                           <span className="font-medium">{p.name}</span>
                         </div>
-                        {activeProfile?.id === p.id && <Check className="w-3.5 h-3.5 text-cinemix-primary" />}
+                        {activeProfile?.id === p.id && <Check className="w-3.5 h-3.5 text-cinelog-primary" />}
                       </button>
                     ))}
                   </div>
@@ -271,7 +274,7 @@ export const Navbar: React.FC = () => {
                       <Link
                         href="/login"
                         onClick={() => setProfileDropdownOpen(false)}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-cinemix-primary hover:bg-cinemix-primary/10 transition-colors font-semibold"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-cinelog-primary hover:bg-cinelog-primary/10 transition-colors font-semibold"
                       >
                         Sign In / Register
                       </Link>
@@ -314,14 +317,14 @@ export const Navbar: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-md"
             >
-              <Sparkles className="w-4 h-4 fill-current" /> Join Cinemix Pro (₱399/mo)
+              <Sparkles className="w-4 h-4 fill-current" /> Join Cinelog Pro (₱399/mo)
             </Link>
             <Link
               href="/superadmin"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-2 px-4 rounded-xl bg-surface-200 text-gray-300 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-surface-300"
             >
-              <ShieldCheck className="w-4 h-4 text-cinemix-primary" /> Superadmin CMS
+              <ShieldCheck className="w-4 h-4 text-cinelog-primary" /> Superadmin CMS
             </Link>
           </div>
         </div>

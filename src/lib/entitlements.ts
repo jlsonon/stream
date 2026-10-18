@@ -64,7 +64,7 @@ export function canWatchContent(
 
   // Check PRO-only content
   if (content.isProOnly && user.plan !== 'PRO') {
-    return { allowed: false, reason: 'This content requires a Cinemix Pro subscription.' };
+    return { allowed: false, reason: 'This content requires a Cinelog Pro subscription.' };
   }
 
   // Check content is published

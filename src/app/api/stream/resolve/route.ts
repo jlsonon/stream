@@ -63,41 +63,48 @@ export async function GET(request: NextRequest) {
           : `https://embed.su/embed/movie/${tmdbId}`)
       : '';
 
-    // Vidsrc Pro (High-bitrate mirror)
-    const vidsrcProUrl = tmdbId
+    // Vidsrc Ultra 4K
+    const vidsrcSuUrl = tmdbId
       ? (isSeries
-          ? `https://vidsrc.pro/embed/tv/${tmdbId}/${season}/${episode}`
-          : `https://vidsrc.pro/embed/movie/${tmdbId}`)
+          ? `https://vidsrc.su/embed/tv/${tmdbId}/${season}/${episode}`
+          : `https://vidsrc.su/embed/movie/${tmdbId}`)
+      : '';
+
+    // AutoEmbed 4K Pro
+    const autoEmbedUrl = tmdbId
+      ? (isSeries
+          ? `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`
+          : `https://autoembed.co/movie/tmdb/${tmdbId}`)
       : '';
 
     const cleanMirrors = [
       {
         id: 'aurora',
-        name: 'Aurora VIP (VidLink)',
+        name: 'Aurora VIP 4K (VidLink)',
         tag: 'Zero Ads',
         isAdFree: true,
         embedUrl: vidlinkUrl,
       },
       {
-        id: 'apex',
-        name: 'Apex Cloud (Embed.su)',
-        tag: 'Clean',
+        id: 'vidsrc_su',
+        name: 'Vidsrc Ultra 4K',
+        tag: 'Fast 4K',
         isAdFree: true,
-        embedUrl: embedsuUrl,
+        embedUrl: vidsrcSuUrl,
       },
       {
-        id: 'quantum',
-        name: 'Quantum Ultra (Vidsrc Pro)',
+        id: 'autoembed',
+        name: 'AutoEmbed 4K Pro',
         tag: '4K Ready',
         isAdFree: true,
-        embedUrl: vidsrcProUrl,
+        embedUrl: autoEmbedUrl,
       },
       {
         id: 'hls',
-        name: 'Cinemix Native 4K',
+        name: 'Cinelog Native 4K',
         tag: 'Native',
         isAdFree: true,
-        embedUrl: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        embedUrl: vidlinkUrl || 'https://vidlink.pro',
       },
     ];
 
