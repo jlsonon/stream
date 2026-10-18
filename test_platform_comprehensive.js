@@ -3,22 +3,17 @@
  * Tests catalog integrity, HLS video streams, and web server endpoints
  */
 
-const http = require('http');
-const https = require('https');
-
 async function fetchHttp(url, options = {}) {
-  return new Promise((resolve, reject) => {
-    const isHttps = url.startsWith('https');
-    const client = isHttps ? https : http;
-    const req = client.request(url, { method: options.method || 'GET', timeout: 8000, ...options }, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: data }));
-    });
-    req.on('error', reject);
-    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
-    req.end();
+  const timeoutMs = options.timeout || 20000;
+  const res = await fetch(url, {
+    method: options.method || 'GET',
+    headers: options.headers || {},
+    signal: AbortSignal.timeout(timeoutMs)
   });
+  const body = await res.text();
+  const headers = {};
+  res.headers.forEach((v, k) => { headers[k] = v; });
+  return { status: res.status, headers, body };
 }
 
 async function runTestSuite() {
