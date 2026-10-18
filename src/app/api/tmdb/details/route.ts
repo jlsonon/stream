@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const endpoint = type === 'movie' ? 'movie' : 'tv';
-    const url = `https://api.themoviedb.org/3/${endpoint}/${id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits,watch/providers`;
+    const url = `https://api.themoviedb.org/3/${endpoint}/${id}?api_key=${TMDB_API_KEY}&append_to_response=videos,credits,watch/providers,recommendations`;
     
     const res = await fetch(url);
     if (!res.ok) {
@@ -209,7 +209,28 @@ export async function GET(req: NextRequest) {
       createdBy: 'tmdb-importer'
     };
 
-    return NextResponse.json({ item });
+    const rawRecs = data.recommendations?.results || [];
+    const recommendations = rawRecs
+      .filter((r: any) => !r.adult && r.poster_path)
+      .slice(0, 12)
+      .map((r: any) => {
+        const isRecMovie = isMovie || !!r.title;
+        const recDate = r.release_date || r.first_air_date || '';
+        const recYear = recDate ? parseInt(recDate.slice(0, 4), 10) : 2024;
+        return {
+          id: isRecMovie ? `movie-${r.id}` : `series-${r.id}`,
+          tmdbId: r.id,
+          title: r.title || r.name || 'Untitled',
+          posterUrl: `https://image.tmdb.org/t/p/w500${r.poster_path}`,
+          backdropUrl: r.backdrop_path ? `https://image.tmdb.org/t/p/w1280${r.backdrop_path}` : `https://image.tmdb.org/t/p/w500${r.poster_path}`,
+          score: Number((r.vote_average || 8.0).toFixed(1)),
+          releaseYear: isNaN(recYear) ? 2024 : recYear,
+          type: isRecMovie ? 'movie' : 'series',
+          synopsis: r.overview || ''
+        };
+      });
+
+    return NextResponse.json({ item, recommendations });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal error' }, { status: 500 });
   }

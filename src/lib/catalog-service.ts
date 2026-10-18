@@ -215,6 +215,20 @@ class CatalogService {
     this.setLocal(STORAGE_KEYS.CATALOG, all);
   }
 
+  async searchContent(query: string): Promise<ContentItem[]> {
+    if (!query) return [];
+    const all = await this.getAllContent();
+    const q = query.toLowerCase().trim();
+    return all.filter(i => 
+      i.title.toLowerCase().includes(q) || 
+      (i.originalTitle && i.originalTitle.toLowerCase().includes(q)) ||
+      i.synopsis.toLowerCase().includes(q) ||
+      i.genres.some(g => g.toLowerCase().includes(q)) ||
+      i.tags.some(t => t.toLowerCase().includes(q)) ||
+      (i.cast && i.cast.some(c => c.name.toLowerCase().includes(q)))
+    );
+  }
+
   async seedStarterCatalog(): Promise<number> {
     for (const item of STARTER_CATALOG) {
       await this.saveContent(item);

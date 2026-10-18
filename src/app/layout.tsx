@@ -7,6 +7,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
+import { SpotlightSearch } from '@/components/catalog/SpotlightSearch';
 
 export const metadata: Metadata = {
   title: 'Cinemix — Stream Movies, Anime & Philippine Shows',
@@ -77,6 +78,7 @@ export default function RootLayout({
               <Footer />
               <BottomNav />
               <PwaInstallPrompt />
+              <SpotlightSearch />
             </ToastProvider>
           </ProfileProvider>
         </AuthProvider>

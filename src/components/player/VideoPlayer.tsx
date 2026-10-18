@@ -30,7 +30,11 @@ import {
   Loader2,
   Shield,
   ShieldCheck,
-  ShieldAlert
+  ShieldAlert,
+  PictureInPicture,
+  Compass,
+  Sun,
+  Gauge
 } from 'lucide-react';
 import { ContentItem, Episode, Season, VideoQuality } from '@/types';
 import { useAuth } from '@/lib/auth-context';
@@ -132,13 +136,34 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showControls, setShowControls] = useState(true);
   const [bufferedEnd, setBufferedEnd] = useState(0);
 
-  // Settings Menus
+  // Settings & Playback Controls
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [showAudioSubMenu, setShowAudioSubMenu] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState<string>('auto');
   const [selectedAudio, setSelectedAudio] = useState<string>('default');
   const [selectedSubtitle, setSelectedSubtitle] = useState<string>('off');
+  const [playbackRate, setPlaybackRate] = useState<number>(1);
+  const [ambientGlow, setAmbientGlow] = useState<boolean>(true);
+  const ambientCanvasRef = useRef<HTMLCanvasElement>(null);
   const [availableQualities, setAvailableQualities] = useState<{ label: string; height: number }[]>([]);
+
+  // On-Screen HUD Notification System
+  const [hudMessage, setHudMessage] = useState<string | null>(null);
+  const hudTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const triggerHud = (msg: string) => {
+    setHudMessage(msg);
+    if (hudTimerRef.current) clearTimeout(hudTimerRef.current);
+    hudTimerRef.current = setTimeout(() => {
+      setHudMessage(null);
+    }, 1200);
+  };
+
+  // Recommendations & Binge Mode
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [activeDrawerTab, setActiveDrawerTab] = useState<'episodes' | 'recommendations'>('episodes');
+  const [bingeCountdown, setBingeCountdown] = useState<number | null>(null);
+  const [bingeDismissed, setBingeDismissed] = useState<boolean>(false);
 
   // Check entitlements & Pro status
   const currentUser = user || {
@@ -372,6 +397,92 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       onNextEpisode();
     }
   };
+
+  // Auto-load TMDB Recommendations for More Like This tab
+  useEffect(() => {
+    if (!content.tmdbId) return;
+    let isCancelled = false;
+
+    async function loadRecommendations() {
+      try {
+        const res = await fetch(`/api/tmdb/details?id=${content.tmdbId}&type=${isSeries ? 'tv' : 'movie'}`);
+        if (res.ok && !isCancelled) {
+          const data = await res.json();
+          if (data.recommendations && data.recommendations.length > 0) {
+            setRecommendations(data.recommendations);
+          }
+        }
+      } catch (err) {
+        // Non-blocking
+      }
+    }
+
+    loadRecommendations();
+    return () => {
+      isCancelled = true;
+    };
+  }, [content.tmdbId, isSeries]);
+
+  // Reset binge dismiss when active episode changes
+  useEffect(() => {
+    setBingeDismissed(false);
+    setBingeCountdown(null);
+  }, [seasonNum, episodeNum]);
+
+  // Trigger Binge Mode countdown in the last 30 seconds of an episode
+  useEffect(() => {
+    if (!isSeries || !computedNextEpisode || bingeDismissed) return;
+    const timeRemaining = duration - currentTime;
+    if (duration > 60 && timeRemaining <= 30 && timeRemaining > 0) {
+      if (bingeCountdown === null) {
+        setBingeCountdown(Math.ceil(Math.min(10, timeRemaining)));
+      }
+    }
+  }, [isSeries, computedNextEpisode, bingeDismissed, duration, currentTime, bingeCountdown]);
+
+  // Handle Binge Countdown tick
+  useEffect(() => {
+    if (bingeCountdown === null) return;
+    if (bingeCountdown <= 0) {
+      handleSmartNextEpisode();
+      setBingeCountdown(null);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setBingeCountdown(prev => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [bingeCountdown]);
+
+  // Real-time Ambilight Canvas Frame Extraction for Native HLS Video
+  useEffect(() => {
+    if (selectedServer !== 'hls' || !ambientGlow || !isPlaying) return;
+    const canvas = ambientCanvasRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let lastTime = 0;
+
+    const renderGlow = (timestamp: number) => {
+      if (timestamp - lastTime > 150) {
+        lastTime = timestamp;
+        try {
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
+        } catch (e) {
+          // Cross-origin fallback
+        }
+      }
+      animId = requestAnimationFrame(renderGlow);
+    };
+
+    animId = requestAnimationFrame(renderGlow);
+    return () => cancelAnimationFrame(animId);
+  }, [selectedServer, ambientGlow, isPlaying]);
 
   const getEmbedUrl = (srv: ServerType): string => {
     if (!content.tmdbId) return content.trailerUrl || '';
@@ -608,22 +719,78 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }, 3500);
   };
 
-  // Keyboard Shortcuts
+  const togglePiP = async () => {
+    if (!videoRef.current) return;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+        triggerHud('PiP Exited');
+      } else if (document.pictureInPictureEnabled) {
+        await videoRef.current.requestPictureInPicture();
+        triggerHud('PiP Active');
+      }
+    } catch (err) {
+      // Non-blocking
+    }
+  };
+
+  const handlePlaybackRateChange = (rate: number) => {
+    setPlaybackRate(rate);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = rate;
+    }
+    triggerHud(`Speed: ${rate}x`);
+  };
+
+  // Pro Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+
       switch (e.key) {
         case ' ':
+        case 'k':
+        case 'K':
           e.preventDefault();
           togglePlay();
+          triggerHud(isPlaying ? 'Paused' : 'Playing');
           break;
         case 'ArrowLeft':
+        case 'j':
+        case 'J':
           e.preventDefault();
           seekBy(-10);
+          triggerHud('Seek -10s');
           break;
         case 'ArrowRight':
+        case 'l':
+        case 'L':
           e.preventDefault();
           seekBy(10);
+          triggerHud('Seek +10s');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (videoRef.current) {
+            const newVol = Math.min(1, Math.round((volume + 0.1) * 10) / 10);
+            videoRef.current.volume = newVol;
+            videoRef.current.muted = newVol === 0;
+            setVolume(newVol);
+            setIsMuted(newVol === 0);
+            triggerHud(`Volume: ${Math.round(newVol * 100)}%`);
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (videoRef.current) {
+            const newVol = Math.max(0, Math.round((volume - 0.1) * 10) / 10);
+            videoRef.current.volume = newVol;
+            videoRef.current.muted = newVol === 0;
+            setVolume(newVol);
+            setIsMuted(newVol === 0);
+            triggerHud(`Volume: ${Math.round(newVol * 100)}%`);
+          }
           break;
         case 'f':
         case 'F':
@@ -634,6 +801,53 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         case 'M':
           e.preventDefault();
           toggleMute();
+          triggerHud(isMuted ? 'Unmuted' : 'Muted');
+          break;
+        case 'c':
+        case 'C':
+          e.preventDefault();
+          setSelectedSubtitle(prev => (prev === 'off' ? (content.subtitles?.[0]?.language || 'en') : 'off'));
+          triggerHud(selectedSubtitle === 'off' ? 'Subtitles: On' : 'Subtitles: Off');
+          break;
+        case 'p':
+        case 'P':
+          e.preventDefault();
+          togglePiP();
+          break;
+        case '>':
+        case '.':
+          e.preventDefault();
+          const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+          const currIdx = speeds.indexOf(playbackRate);
+          const nextSpeed = currIdx < speeds.length - 1 ? speeds[currIdx + 1] : speeds[speeds.length - 1];
+          handlePlaybackRateChange(nextSpeed);
+          break;
+        case '<':
+        case ',':
+          e.preventDefault();
+          const speedsDown = [0.5, 0.75, 1, 1.25, 1.5, 2];
+          const currDownIdx = speedsDown.indexOf(playbackRate);
+          const prevSpeed = currDownIdx > 0 ? speedsDown[currDownIdx - 1] : speedsDown[0];
+          handlePlaybackRateChange(prevSpeed);
+          break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          if (duration > 0 && videoRef.current) {
+            e.preventDefault();
+            const pct = parseInt(e.key, 10) * 0.1;
+            const targetTime = duration * pct;
+            videoRef.current.currentTime = targetTime;
+            setCurrentTime(targetTime);
+            triggerHud(`Seek ${parseInt(e.key, 10) * 10}%`);
+          }
           break;
       }
     };
@@ -778,6 +992,102 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       onMouseMove={handleMouseMove}
       className="fixed inset-0 z-50 bg-black select-none overflow-hidden flex items-center justify-center cursor-default"
     >
+      {/* Dynamic Ambient Ambilight Glow */}
+      {ambientGlow && (
+        <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden flex items-center justify-center" aria-hidden="true">
+          {selectedServer === 'hls' ? (
+            <canvas
+              ref={ambientCanvasRef}
+              width={32}
+              height={18}
+              className="w-[115%] h-[115%] filter blur-[80px] sm:blur-[120px] opacity-70 scale-110 transition-opacity duration-1000"
+            />
+          ) : (
+            <div 
+              className="w-[120%] h-[120%] filter blur-[90px] sm:blur-[140px] opacity-60 scale-110 transition-all duration-1000"
+              style={{
+                backgroundImage: `radial-gradient(circle at center, rgba(229,9,20,0.35) 0%, rgba(10,11,20,0.85) 75%), url(${content.backdropUrl || content.posterUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* On-Screen HUD Notification Toast */}
+      {hudMessage && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-black/85 border border-white/20 text-white font-mono font-bold text-xs sm:text-sm backdrop-blur-xl shadow-2xl animate-fade-in pointer-events-none flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-cinemix-primary" />
+          <span>{hudMessage}</span>
+        </div>
+      )}
+
+      {/* Skip Intro Overlay (First 2.5 minutes) */}
+      {currentTime >= 5 && currentTime <= 150 && (
+        <button
+          onClick={() => {
+            seekBy(85);
+            triggerHud('Skipped Intro (+85s)');
+          }}
+          className="absolute bottom-20 right-6 sm:bottom-24 sm:right-10 z-40 px-4 py-2 rounded-xl bg-black/80 hover:bg-cinemix-primary text-white border border-white/20 hover:border-cinemix-primary font-bold text-xs sm:text-sm backdrop-blur-md transition-all shadow-cinema hover:scale-105 active:scale-95 flex items-center gap-2 group animate-fade-in pointer-events-auto"
+        >
+          <FastForward className="w-4 h-4 text-cinemix-primary group-hover:text-white transition-colors" />
+          <span>Skip Intro</span>
+          <span className="text-[10px] opacity-75 font-mono">+85s</span>
+        </button>
+      )}
+
+      {/* Smart Binge Mode: Auto-Next Countdown Card */}
+      {bingeCountdown !== null && computedNextEpisode && !bingeDismissed && (
+        <div className="absolute bottom-20 right-4 sm:bottom-24 sm:right-8 z-40 max-w-sm w-full bg-surface-100/95 border border-white/20 rounded-2xl p-4 shadow-cinema backdrop-blur-2xl animate-slide-left pointer-events-auto">
+          <div className="flex items-start gap-3">
+            <div className="w-16 h-12 rounded-lg bg-surface-200 overflow-hidden flex-shrink-0 relative">
+              <img
+                src={computedNextEpisode.thumbnailUrl || content.backdropUrl || content.posterUrl}
+                alt={computedNextEpisode.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <Play className="w-4 h-4 text-white fill-current" />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-cinemix-primary uppercase tracking-wider mb-0.5">
+                <span>Up Next in {bingeCountdown}s</span>
+                <button
+                  onClick={() => setBingeDismissed(true)}
+                  className="text-gray-400 hover:text-white p-0.5"
+                  title="Dismiss"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                S{computedNextEpisode.seasonNumber}:E{computedNextEpisode.episodeNumber} · {computedNextEpisode.title}
+              </h4>
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    handleSmartNextEpisode();
+                    setBingeCountdown(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-cinemix-primary text-white font-bold text-xs hover:bg-cinemix-primary-hover shadow-lg flex items-center gap-1.5"
+                >
+                  <Play className="w-3 h-3 fill-current" /> Play Now
+                </button>
+                <button
+                  onClick={() => setBingeDismissed(true)}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 font-semibold text-xs"
+                >
+                  Watch Credits
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Media Player Layer: External Mirror / Full Stream vs Direct HLS Player */}
       {selectedServer !== 'hls' ? (
         <div className="absolute inset-0 w-full h-full bg-black z-10 flex items-center justify-center">
@@ -1101,6 +1411,40 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" />
             </button>
           )}
+
+          {/* More Like This Drawer Button */}
+          {recommendations.length > 0 && (
+            <button
+              onClick={() => {
+                setActiveDrawerTab('recommendations');
+                setShowEpisodesDrawer(true);
+              }}
+              className="group px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl bg-black/80 hover:bg-black/95 backdrop-blur-xl border border-white/15 hover:border-cinemix-primary/50 text-white transition-all flex items-center gap-1.5 sm:gap-2 shadow-2xl"
+              title="Recommendations & More Like This"
+            >
+              <Compass className="w-3.5 h-3.5 text-cinemix-primary group-hover:rotate-45 transition-transform duration-300" />
+              <span className="text-xs sm:text-sm font-bold hidden sm:inline">More Like This</span>
+              <span className="text-[10px] font-mono text-gray-400 bg-white/10 px-1.5 py-0.2 rounded-full">
+                {recommendations.length}
+              </span>
+            </button>
+          )}
+
+          {/* Ambient Glow Quick Toggle */}
+          <button
+            onClick={() => {
+              setAmbientGlow(prev => !prev);
+              triggerHud(!ambientGlow ? 'Ambient Glow: Enabled' : 'Ambient Glow: Disabled');
+            }}
+            className={`p-1.5 sm:p-2 rounded-2xl backdrop-blur-xl border transition-all shadow-2xl ${
+              ambientGlow 
+                ? 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30' 
+                : 'bg-black/80 border-white/15 text-gray-400 hover:text-white'
+            }`}
+            title={ambientGlow ? 'Disable Ambient Glow' : 'Enable Ambient Glow'}
+          >
+            <Sun className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Right: Actions (Pro Badge/Upgrade + Next Episode + Maturity Rating) */}
@@ -1431,6 +1775,47 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                       );
                     })}
 
+                    {/* Playback Speed Control */}
+                    <div className="pt-2 border-t border-white/[0.06]">
+                      <div className="px-2.5 py-1 font-bold text-gray-400 uppercase tracking-wider text-[10px] flex items-center justify-between">
+                        <span>Speed</span>
+                        <span className="text-cinemix-primary font-mono">{playbackRate}x</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1 pt-1">
+                        {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
+                          <button
+                            key={rate}
+                            onClick={() => handlePlaybackRateChange(rate)}
+                            className={`px-1.5 py-1 rounded text-[11px] font-mono font-bold transition-colors ${
+                              playbackRate === rate
+                                ? 'bg-cinemix-primary text-white'
+                                : 'bg-surface-200/60 hover:bg-surface-200 text-gray-300 hover:text-white'
+                            }`}
+                          >
+                            {rate === 1 ? '1x' : `${rate}x`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Ambient Glow Switch */}
+                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between px-2.5 py-1">
+                      <span className="text-gray-300 font-medium">Ambient Glow</span>
+                      <button
+                        onClick={() => {
+                          setAmbientGlow(!ambientGlow);
+                          triggerHud(!ambientGlow ? 'Ambient Glow: Enabled' : 'Ambient Glow: Disabled');
+                        }}
+                        className={`w-8 h-4 rounded-full transition-colors relative p-0.5 ${
+                          ambientGlow ? 'bg-cinemix-primary' : 'bg-surface-200'
+                        }`}
+                      >
+                        <span className={`block w-3 h-3 rounded-full bg-white transition-transform ${
+                          ambientGlow ? 'translate-x-4' : 'translate-x-0'
+                        }`} />
+                      </button>
+                    </div>
+
                     {currentUser.plan !== 'PRO' && (
                       <div className="pt-2 border-t border-white/[0.06]">
                         <button
@@ -1447,6 +1832,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Picture-in-Picture Button */}
+              {selectedServer === 'hls' && (
+                <button
+                  onClick={togglePiP}
+                  className="text-gray-300 hover:text-white transition-colors p-1"
+                  title="Picture-in-Picture (P)"
+                >
+                  <PictureInPicture className="w-5 h-5" />
+                </button>
+              )}
 
               {/* Fullscreen Button */}
               <button
@@ -1472,16 +1868,38 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             className="relative w-full max-w-2xl bg-surface-100/95 border-l border-white/10 h-full flex flex-col shadow-2xl backdrop-blur-2xl animate-slide-left"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drawer Header */}
+            {/* Drawer Header with Dual Navigation Tabs */}
             <div className="p-4 sm:p-6 border-b border-white/[0.08] flex items-center justify-between bg-black/40">
               <div className="min-w-0 pr-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-cinemix-primary px-2 py-0.5 rounded bg-cinemix-primary/10 border border-cinemix-primary/20">
-                    Episodes & Seasons
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {seasons.length} Season{seasons.length > 1 ? 's' : ''} • {seasons.reduce((acc, s) => acc + (s.episodes?.length || 0), 0)} Total Episodes
-                  </span>
+                <div className="flex items-center gap-2 mb-2">
+                  {isSeries && (
+                    <button
+                      onClick={() => setActiveDrawerTab('episodes')}
+                      className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-xl transition-all ${
+                        activeDrawerTab === 'episodes'
+                          ? 'bg-cinemix-primary text-white shadow-md'
+                          : 'bg-white/5 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      Episodes ({seasons.reduce((acc, s) => acc + (s.episodes?.length || 0), 0)})
+                    </button>
+                  )}
+                  {recommendations.length > 0 && (
+                    <button
+                      onClick={() => setActiveDrawerTab('recommendations')}
+                      className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-xl transition-all flex items-center gap-1.5 ${
+                        activeDrawerTab === 'recommendations'
+                          ? 'bg-cinemix-primary text-white shadow-md'
+                          : 'bg-white/5 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      <Compass className="w-3.5 h-3.5" />
+                      <span>More Like This</span>
+                      <span className="text-[10px] font-mono px-1 rounded bg-black/40">
+                        {recommendations.length}
+                      </span>
+                    </button>
+                  )}
                 </div>
                 <h3 className="text-lg sm:text-xl font-extrabold text-white truncate drop-shadow">
                   {content.title}
@@ -1496,8 +1914,55 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               </button>
             </div>
 
-            {/* Season Pill Bar */}
-            <div className="px-4 sm:px-6 py-3 border-b border-white/[0.06] bg-black/20 flex items-center gap-2 overflow-x-auto hide-scrollbar">
+            {activeDrawerTab === 'recommendations' ? (
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 hide-scrollbar">
+                <div className="text-xs text-gray-400 flex items-center justify-between">
+                  <span>Titles related to {content.title}</span>
+                  <span className="text-cinemix-primary font-bold">1-Click Stream</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {recommendations.map((rec: any) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => {
+                        setShowEpisodesDrawer(false);
+                        router.push(`/watch/${rec.id}`);
+                      }}
+                      className="group relative rounded-xl overflow-hidden bg-surface-200 border border-white/10 hover:border-cinemix-primary transition-all text-left flex flex-col shadow-cinema hover:scale-102"
+                    >
+                      <div className="relative aspect-[2/3] w-full overflow-hidden bg-surface-300">
+                        <img
+                          src={rec.posterUrl || rec.backdropUrl}
+                          alt={rec.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-md border border-white/10 text-[10px] font-bold text-amber-400 flex items-center gap-0.5">
+                          <span>★</span> {rec.score}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-cinemix-primary text-white flex items-center justify-center shadow-lg">
+                            <Play className="w-4 h-4 fill-current ml-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-2 sm:p-2.5">
+                        <h4 className="text-xs font-bold text-white truncate group-hover:text-cinemix-primary transition-colors">
+                          {rec.title}
+                        </h4>
+                        <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 mt-0.5">
+                          <span className="uppercase">{rec.type}</span>
+                          <span>{rec.releaseYear}</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Season Pill Bar */}
+                <div className="px-4 sm:px-6 py-3 border-b border-white/[0.06] bg-black/20 flex items-center gap-2 overflow-x-auto hide-scrollbar">
               {seasons.map((s) => {
                 const isActive = s.seasonNumber === selectedDrawerSeason;
                 return (
@@ -1622,9 +2087,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 })()
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
+    </div>
+  )}
     </div>
   );
 };

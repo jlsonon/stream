@@ -133,14 +133,17 @@ export const Navbar: React.FC = () => {
               </Link>
             )}
 
-            {/* Search Icon */}
-            <Link 
-              href="/search"
-              className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring"
-              title="Search Catalog"
+            {/* Quick Spotlight Search Button */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('cinemix:open-spotlight'))}
+              className="text-gray-300 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors focus-ring flex items-center gap-2 group"
+              title="Search Catalog (Cmd+K or /)"
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Link>
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 group-hover:text-cinemix-primary transition-colors" />
+              <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-mono font-bold text-gray-400 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded">
+                ⌘K
+              </span>
+            </button>
 
             {/* Superadmin Link Button */}
             <Link

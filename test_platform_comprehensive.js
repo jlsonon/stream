@@ -52,7 +52,8 @@ async function runTestSuite() {
   }
 
   const PORT = process.env.PORT || 3000;
-  console.log(`  Testing Next.js routes and endpoints on http://localhost:${PORT}...`);
+  const BASE_URL = process.env.TEST_BASE_URL || `http://localhost:${PORT}`;
+  console.log(`  Testing Next.js routes and endpoints on ${BASE_URL}...`);
 
   const routesToTest = [
     { path: '/', label: 'Home Page & Discovery Rails' },
@@ -80,7 +81,7 @@ async function runTestSuite() {
 
   for (const route of routesToTest) {
     try {
-      const res = await fetchHttp(`http://localhost:${PORT}${route.path}`, { method: 'GET', timeout: 15000 });
+      const res = await fetchHttp(`${BASE_URL}${route.path}`, { method: 'GET', timeout: 15000 });
       assert(res.status === 200, `${route.label} (${route.path}) returned HTTP ${res.status}`);
     } catch (err) {
       assert(false, `${route.label} (${route.path}) failed to respond: ${err.message}`);
@@ -132,7 +133,7 @@ async function runTestSuite() {
   // ----------------------------------------------------
   console.log('\n▶ [4/4] Testing PWA & Manifest Configuration...');
   try {
-    const manifestRes = await fetchHttp(`http://localhost:${PORT}/manifest.json`);
+    const manifestRes = await fetchHttp(`${BASE_URL}/manifest.json`);
     assert(manifestRes.status === 200, 'manifest.json returned HTTP 200');
     const manifest = JSON.parse(manifestRes.body);
     assert(manifest.name === 'Cinemix — Global Streaming Platform', `PWA Manifest name is "${manifest.name}"`);
@@ -147,13 +148,13 @@ async function runTestSuite() {
   // ----------------------------------------------------
   console.log('\n▶ [5/5] Testing TMDB Live APIs & Official Image CDN...');
   try {
-    const searchRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/search?query=Inception`);
+    const searchRes = await fetchHttp(`${BASE_URL}/api/tmdb/search?query=Inception`);
     assert(searchRes.status === 200, 'TMDB Live Search API returned HTTP 200');
     const searchData = JSON.parse(searchRes.body);
     assert(searchData.results && searchData.results.length > 0, `TMDB Search returned ${searchData.results?.length} verified titles`);
     assert(searchData.results[0].posterUrl.startsWith('https://image.tmdb.org/'), 'TMDB Search results use official TMDB Image CDN');
 
-    const detailsRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/details?id=27205&type=movie`);
+    const detailsRes = await fetchHttp(`${BASE_URL}/api/tmdb/details?id=27205&type=movie`);
     assert(detailsRes.status === 200, 'TMDB Live Details API returned HTTP 200');
     const detailsData = JSON.parse(detailsRes.body);
     assert(detailsData.item && detailsData.item.tmdbId === 27205, `TMDB Details parsed ContentItem with TMDB ID ${detailsData.item?.tmdbId}`);
@@ -162,7 +163,7 @@ async function runTestSuite() {
 
     // TEST 6: TMDB MEGA-CATALOG SYNC API
     console.log('\n▶ [6/8] Testing TMDB Mega-Catalog Sync Engine...');
-    const syncRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/sync`);
+    const syncRes = await fetchHttp(`${BASE_URL}/api/tmdb/sync`);
     assert(syncRes.status === 200, 'TMDB Mega Sync API returned HTTP 200');
     const syncData = JSON.parse(syncRes.body);
     assert(syncData.success === true, 'TMDB Mega Sync reports success: true');
@@ -172,7 +173,7 @@ async function runTestSuite() {
 
     // TEST 7: TMDB LIVE DISCOVER & WORLDWIDE BROWSE
     console.log('\n▶ [7/8] Testing TMDB Live Worldwide Discover API...');
-    const discoverRes = await fetchHttp(`http://localhost:${PORT}/api/tmdb/discover?type=movie&genre=Action&page=1`);
+    const discoverRes = await fetchHttp(`${BASE_URL}/api/tmdb/discover?type=movie&genre=Action&page=1`);
     assert(discoverRes.status === 200, 'TMDB Live Discover API returned HTTP 200');
     const discoverData = JSON.parse(discoverRes.body);
     assert(discoverData.success === true, 'TMDB Discover reports success: true');
@@ -182,7 +183,7 @@ async function runTestSuite() {
 
     // TEST 8: CINEMIX AI SEMANTIC SEARCH & 6-SERVER RESOLVER
     console.log('\n▶ [8/8] Testing Cinemix AI Semantic Search Engine...');
-    const aiRes = await fetchHttp(`http://localhost:${PORT}/api/ai/search?prompt=mind-bending+sci-fi+like+inception`);
+    const aiRes = await fetchHttp(`${BASE_URL}/api/ai/search?prompt=mind-bending+sci-fi+like+inception`);
     assert(aiRes.status === 200, 'Cinemix AI Semantic Search returned HTTP 200');
     const aiData = JSON.parse(aiRes.body);
     assert(aiData.success === true, 'Cinemix AI Search reports success: true');
