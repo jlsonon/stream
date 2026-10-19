@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveTmdbId } from '@/lib/stream-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing content id' }, { status: 400 });
     }
 
-    const tmdbId = parseInt(id.replace(/\D/g, ''), 10) || undefined;
+    const tmdbId = resolveTmdbId(id);
     const isSeries = type === 'tv' || type === 'series' || type === 'anime';
 
     // Primary VidLink zero-ad embed URL

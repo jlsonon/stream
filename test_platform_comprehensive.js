@@ -36,7 +36,7 @@ async function runTestSuite() {
   }
 
   const PORT = process.env.PORT || 3000;
-  const BASE_URL = process.env.TEST_BASE_URL || `http://localhost:${PORT}`;
+  const BASE_URL = process.env.TEST_BASE_URL || process.env.TEST_URL || `http://localhost:${PORT}`;
   console.log(`  Testing Next.js routes and endpoints on ${BASE_URL}...`);
 
   // ----------------------------------------------------
@@ -297,6 +297,59 @@ async function runTestSuite() {
     );
   } catch (err) {
     assert(false, `User Sync test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 12: AUTOMATIC SERVER DISCOVERY & FAILOVER ENGINE
+  // ----------------------------------------------------
+  console.log('\n[RUN] [12/12] Testing Automatic Server Discovery & Smart Failover Engine...');
+  try {
+    // 1. Probe for Global Series (Breaking Bad)
+    const bbProbe = await fetchHttp(`${BASE_URL}/api/stream/find-best?tmdbId=1396&type=tv&season=1&episode=1`);
+    assert(bbProbe.status === 200, 'Find-Best Server Probe (Breaking Bad) returned HTTP 200');
+    const bbData = JSON.parse(bbProbe.body);
+    assert(bbData.success === true, 'Find-Best Server Probe reports success: true');
+    assert(typeof bbData.bestServer === 'string' && bbData.bestServer.length > 0, `Find-Best Server selected best mirror: ${bbData.bestServer}`);
+    assert(Array.isArray(bbData.rankedServers) && bbData.rankedServers.length > 0, `Find-Best Server ranked ${bbData.rankedServers?.length} candidate mirrors`);
+
+    // 2. Probe for Philippine Content (FPJ Batang Quiapo) via slug ID
+    const bqProbe = await fetchHttp(`${BASE_URL}/api/stream/find-best?id=ph-batang-quiapo&type=tv&season=1&episode=1`);
+    assert(bqProbe.status === 200, 'Find-Best Server Probe (FPJ Batang Quiapo slug) returned HTTP 200');
+    const bqData = JSON.parse(bqProbe.body);
+    assert(bqData.success === true, 'FPJ Batang Quiapo resolved TMDB ID 215803 successfully');
+    assert(bqData.tmdbId === 215803, 'FPJ Batang Quiapo TMDB ID is 215803');
+
+    // 3. Probe for Anime (Demon Slayer) via slug ID
+    const dsProbe = await fetchHttp(`${BASE_URL}/api/stream/find-best?id=anime-demon-slayer&type=tv&season=1&episode=1`);
+    assert(dsProbe.status === 200, 'Find-Best Server Probe (Demon Slayer anime slug) returned HTTP 200');
+    const dsData = JSON.parse(dsProbe.body);
+    assert(dsData.success === true, 'Demon Slayer resolved TMDB ID 85937 successfully');
+    assert(dsData.tmdbId === 85937, 'Demon Slayer TMDB ID is 85937');
+
+    // 4. Probe for Movie (Oppenheimer) via slug ID
+    const oppProbe = await fetchHttp(`${BASE_URL}/api/stream/find-best?id=movie-oppenheimer&type=movie`);
+    assert(oppProbe.status === 200, 'Find-Best Server Probe (Oppenheimer movie slug) returned HTTP 200');
+    const oppData = JSON.parse(oppProbe.body);
+    assert(oppData.success === true, 'Oppenheimer movie resolved TMDB ID 872585 successfully');
+    assert(oppData.tmdbId === 872585, 'Oppenheimer TMDB ID is 872585');
+
+    // 5. Verify micro-hint removal in source code
+    const fs = require('fs');
+    const playerCode = fs.readFileSync('src/components/player/VideoPlayer.tsx', 'utf8');
+    assert(
+      !playerCode.includes('Server buffering? Switch nodes above'),
+      'Text "Server buffering? Switch nodes above" is completely removed from VideoPlayer.tsx'
+    );
+    assert(
+      playerCode.includes('AUTO_FALLBACK_SERVERS'),
+      'VideoPlayer.tsx implements AUTO_FALLBACK_SERVERS cascade fleet'
+    );
+    assert(
+      playerCode.includes('handleAutoFailover'),
+      'VideoPlayer.tsx implements automated handleAutoFailover handler'
+    );
+  } catch (err) {
+    assert(false, `Automatic Server Discovery test failed: ${err.message}`);
   }
 
   console.log('\n====================================================');

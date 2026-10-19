@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveTmdbId } from '@/lib/stream-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing tmdbId parameter' }, { status: 400 });
     }
 
-    const numericId = parseInt(tmdbId.replace(/\D/g, ''), 10);
+    const numericId = resolveTmdbId(tmdbId);
+    if (!numericId) {
+      return NextResponse.json({ success: false, error: 'Could not resolve numeric TMDB ID' }, { status: 400 });
+    }
     const isSeries = type === 'tv' || type === 'series' || type === 'anime';
 
     const tracks: SubtitleTrack[] = [];

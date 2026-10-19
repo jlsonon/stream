@@ -49,7 +49,20 @@ import { canWatchContent, getMaxQuality, hasAds } from '@/lib/entitlements';
 import { catalogService } from '@/lib/catalog-service';
 import Link from 'next/link';
 
-// Proprietary Cinelog CDN Streaming Nodes (De-plagiarized, Zero-Ad, High-Bandwidth)
+import { 
+  CINELOG_SERVERS, 
+  validServers, 
+  ServerType, 
+  normalizeServer, 
+  resolveTmdbId, 
+  buildMirrorEmbedUrl, 
+  AUTO_FALLBACK_SERVERS 
+} from '@/lib/stream-utils';
+
+export { CINELOG_SERVERS, validServers, normalizeServer, resolveTmdbId, buildMirrorEmbedUrl, AUTO_FALLBACK_SERVERS };
+export type { ServerType };
+export const CINEMIX_SERVERS = CINELOG_SERVERS;
+
 export interface ServerNode {
   id: string;
   name: string;
@@ -59,74 +72,6 @@ export interface ServerNode {
   badgeColor: string;
   isProShield?: boolean;
 }
-
-export const CINELOG_SERVERS: ServerNode[] = [
-  { id: 'aurora', name: 'Aurora VIP (VidLink)', tag: 'Instant 4K', description: 'Zero Ads Pro Direct 4K UHD & 1080p Stream', latency: '14ms', badgeColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', isProShield: true },
-  { id: 'vidsrc_su', name: 'Vidsrc Ultra 4K', tag: 'Fast 4K', description: 'Direct Zero-Buffer 4K/FHD Multi-Season Mirror', latency: '16ms', badgeColor: 'text-sky-400 bg-sky-500/10 border-sky-500/30', isProShield: true },
-  { id: 'vidsrc_pm', name: 'Vidsrc Master Edge', tag: 'Master', description: 'Ultra-Reliable Multi-Season Episode Engine', latency: '18ms', badgeColor: 'text-amber-400 bg-amber-400/10 border-amber-400/30', isProShield: true },
-  { id: 'autoembed', name: 'AutoEmbed 4K Pro', tag: 'Ultra', description: 'Adaptive Bitrate 2160p/1440p High-Throughput Node', latency: '20ms', badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30', isProShield: true },
-  { id: 'videasy', name: 'Videasy Direct Stream', tag: 'Direct', description: 'High-Bitrate Low Latency Global Edge', latency: '22ms', badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/30', isProShield: true },
-  { id: 'vidsrc_io', name: 'Vidsrc Global', tag: 'Global', description: 'Multi-Language Audio & Subtitles Mirror', latency: '24ms', badgeColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' },
-  { id: 'vidjoy', name: 'VidJoy Ultra Fast', tag: 'Clean', description: 'Clean High-Definition Video Pipeline', latency: '25ms', badgeColor: 'text-teal-400 bg-teal-500/10 border-teal-500/30' },
-  { id: 'twoembed', name: '2Embed Multi-CC', tag: 'Stable', description: 'Global Redundant Fault-Tolerant Node', latency: '27ms', badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
-  { id: 'hls', name: 'Cinelog Native 4K', tag: 'Native', description: 'Proprietary Direct HLS Multi-Bitrate Engine (Always 4K Adaptive)', latency: '11ms', badgeColor: 'text-cinelog-primary bg-cinelog-primary/10 border-cinelog-primary/30', isProShield: true },
-];
-
-export const CINEMIX_SERVERS = CINELOG_SERVERS;
-
-export const validServers = [
-  'aurora', 'vidsrc_su', 'vidsrc_pm', 'autoembed', 'videasy', 'vidsrc_io', 'vidjoy', 'twoembed', 'vidsrc_me', 'vidsrc_to', 'multiembed', 'rivestream', 'hls', 'trailer',
-  // Backwards compatibility mappings for older links
-  'apex', 'quantum', 'pulse', 'zenith', 'vortex', 'horizon', 'titan', 'sol', 'eclipse', 'mirage', 'aether', 'nova',
-  'comet', 'flux', 'glow', 'vega', 'quill', 'zeta', 'blaze', 'haze', 'iris', 'omega', 'vidsrc'
-] as const;
-export type ServerType = typeof validServers[number];
-
-// Helper to normalize legacy server names to active Cinelog names
-export const normalizeServer = (srv: string | null | undefined): ServerType => {
-  if (!srv) return 'aurora';
-  const legacyMap: Record<string, ServerType> = {
-    comet: 'aurora',
-    aurora: 'aurora',
-    vidsrc_su: 'vidsrc_su',
-    vidsrc_me: 'vidsrc_su',
-    glow: 'vidsrc_su',
-    quantum: 'vidsrc_su',
-    vidsrc: 'vidsrc_su',
-    vidsrc_pm: 'vidsrc_pm',
-    omega: 'vidsrc_pm',
-    mirage: 'vidsrc_pm',
-    aether: 'vidsrc_pm',
-    flux: 'autoembed',
-    apex: 'autoembed',
-    autoembed: 'autoembed',
-    zeta: 'autoembed',
-    horizon: 'autoembed',
-    videasy: 'videasy',
-    nova: 'videasy',
-    vidsrc_io: 'vidsrc_io',
-    rivestream: 'vidsrc_io',
-    eclipse: 'vidsrc_io',
-    iris: 'vidsrc_io',
-    quill: 'vidjoy',
-    vortex: 'vidjoy',
-    vidjoy: 'vidjoy',
-    blaze: 'twoembed',
-    titan: 'twoembed',
-    twoembed: 'twoembed',
-    haze: 'twoembed',
-    sol: 'twoembed',
-    pulse: 'twoembed',
-    multiembed: 'twoembed',
-    vega: 'vidsrc_to',
-    zenith: 'vidsrc_to',
-    vidsrc_to: 'vidsrc_to',
-    hls: 'hls'
-  };
-  if (legacyMap[srv]) return legacyMap[srv];
-  if (validServers.includes(srv as any)) return srv as ServerType;
-  return 'aurora';
-};
 
 interface VideoPlayerProps {
   content: ContentItem;
@@ -237,13 +182,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [isPro]);
 
+  const effectiveTmdbId = resolveTmdbId(content.tmdbId || content.id);
   const searchParams = useSearchParams();
   const urlServerParam = searchParams?.get('server');
-  const initialServer: ServerType = normalizeServer(urlServerParam || (content.tmdbId ? 'aurora' : 'hls'));
+  const initialServer: ServerType = normalizeServer(urlServerParam || 'vidsrc_su');
 
   const [selectedServer, setSelectedServer] = useState<ServerType>(initialServer);
   const [showServerDropdown, setShowServerDropdown] = useState(false);
   const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [isAutoRouting, setIsAutoRouting] = useState<boolean>(!urlServerParam);
+  const [userManuallySelectedServer, setUserManuallySelectedServer] = useState<boolean>(Boolean(urlServerParam));
+  const [autoFailoverIndex, setAutoFailoverIndex] = useState<number>(0);
+  const failoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const serverDropdownRef = useRef<HTMLDivElement>(null);
 
   // Cinelog PRO Shield: Zero Ads & Anti-Popup Sandboxing
@@ -329,12 +279,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   // Background auto-hydration of all seasons for TV shows if TMDB ID exists
   useEffect(() => {
-    if (!content.tmdbId || !isSeries) return;
+    if (!effectiveTmdbId || !isSeries) return;
     let isCancelled = false;
 
     async function loadAllSeasons() {
       try {
-        const res = await fetch(`/api/tmdb/details?id=${content.tmdbId}&type=tv`);
+        const res = await fetch(`/api/tmdb/details?id=${effectiveTmdbId}&type=tv`);
         if (res.ok && !isCancelled) {
           const data = await res.json();
           if (data.item?.seasons && data.item.seasons.length > 0) {
@@ -355,13 +305,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, [content.tmdbId, isSeries]);
+  }, [effectiveTmdbId, isSeries]);
 
   // Load subtitles from Cinelog Subtitles Engine
   useEffect(() => {
-    if (!content.tmdbId) return;
+    if (!effectiveTmdbId) return;
     let cancelled = false;
-    fetch(`/api/stream/subtitles?tmdbId=${content.tmdbId}&type=${isSeries ? 'tv' : 'movie'}&season=${seasonNum}&episode=${episodeNum}`)
+    fetch(`/api/stream/subtitles?tmdbId=${effectiveTmdbId}&type=${isSeries ? 'tv' : 'movie'}&season=${seasonNum}&episode=${episodeNum}`)
       .then(r => r.json())
       .then(res => {
         if (!cancelled && res.success && res.subtitles) {
@@ -370,7 +320,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [content.tmdbId, isSeries, seasonNum, episodeNum]);
+  }, [effectiveTmdbId, isSeries, seasonNum, episodeNum]);
 
   // Hydrate saved Debrid token on mount
   useEffect(() => {
@@ -413,19 +363,19 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   };
 
-  // Prevent Big Buck Bunny on commercial titles: Auto-route to Aurora VIP (VidLink)
+  // Prevent Big Buck Bunny on commercial titles: Auto-route to Vidsrc Ultra 4K
   useEffect(() => {
     if (selectedServer !== 'hls') return;
     if (hasRealNativeStream) return;
 
     // If user has active debrid, query debrid stream
-    if (debridStatus?.active && debridApiKey && content.tmdbId) {
+    if (debridStatus?.active && debridApiKey && effectiveTmdbId) {
       fetch('/api/stream/debrid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           apiKey: debridApiKey,
-          tmdbId: content.tmdbId,
+          tmdbId: effectiveTmdbId,
           type: isSeries ? 'tv' : 'movie',
           season: seasonNum,
           episode: episodeNum
@@ -437,34 +387,98 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             triggerHud('Debrid 4K Remux Stream Connected');
             return;
           }
-          handleServerChange('aurora');
-          triggerHud('Rerouted to Aurora VIP 4K (Zero Ads)');
+          handleServerChange('vidsrc_su');
+          triggerHud('Rerouted to Vidsrc Ultra 4K (Zero Ads)');
         })
         .catch(() => {
-          handleServerChange('aurora');
-          triggerHud('Rerouted to Aurora VIP 4K (Zero Ads)');
+          handleServerChange('vidsrc_su');
+          triggerHud('Rerouted to Vidsrc Ultra 4K (Zero Ads)');
         });
       return;
     }
 
     // For commercial TMDB titles where no custom native stream is provided,
-    // automatically reroute to Aurora VIP 4K (VidLink) to avoid ever playing Big Buck Bunny!
-    if (content.tmdbId) {
-      handleServerChange('aurora');
-      triggerHud('Rerouted to Aurora VIP 4K (Zero Ads)');
+    // automatically reroute to Vidsrc Ultra 4K to avoid ever playing Big Buck Bunny!
+    if (effectiveTmdbId) {
+      handleServerChange('vidsrc_su');
+      triggerHud('Rerouted to Vidsrc Ultra 4K (Zero Ads)');
     }
-  }, [selectedServer, hasRealNativeStream, content.tmdbId, debridStatus, debridApiKey, seasonNum, episodeNum]);
+  }, [selectedServer, hasRealNativeStream, effectiveTmdbId, debridStatus, debridApiKey, seasonNum, episodeNum]);
+
+  // Automated Fast Failover Cascade Engine across Fleet
+  const handleAutoFailover = useCallback(() => {
+    if (!effectiveTmdbId) return;
+    setAutoFailoverIndex(prevIdx => {
+      const nextIdx = (prevIdx + 1) % AUTO_FALLBACK_SERVERS.length;
+      const nextServer = AUTO_FALLBACK_SERVERS[nextIdx];
+      setSelectedServer(nextServer);
+      setIsIframeLoading(true);
+      const serverNode = CINELOG_SERVERS.find(s => s.id === nextServer);
+      triggerHud(`Auto-Switched: ${serverNode?.name || nextServer}`);
+      return nextIdx;
+    });
+  }, [effectiveTmdbId]);
+
+  // Automated mirror latency probe on title/episode click
+  useEffect(() => {
+    if (!effectiveTmdbId) return;
+    if (userManuallySelectedServer) return;
+
+    let cancelled = false;
+    setIsAutoRouting(true);
+    setIsIframeLoading(true);
+
+    fetch(`/api/stream/find-best?tmdbId=${effectiveTmdbId}&type=${isSeries ? 'tv' : 'movie'}&season=${seasonNum}&episode=${episodeNum}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!cancelled && data.success && data.bestServer) {
+          const optimal = normalizeServer(data.bestServer);
+          setSelectedServer(optimal);
+          const matched = CINELOG_SERVERS.find(s => s.id === optimal);
+          triggerHud(`Optimal Stream Connected: ${matched?.name || optimal}`);
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsAutoRouting(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [effectiveTmdbId, isSeries, seasonNum, episodeNum, userManuallySelectedServer]);
+
+  // Automated safety timeout watcher: if iframe hangs in loading for > 4200ms, auto-cascade to next mirror
+  useEffect(() => {
+    if (selectedServer === 'hls' && hasRealNativeStream) return;
+    if (!isIframeLoading) return;
+
+    if (failoverTimeoutRef.current) clearTimeout(failoverTimeoutRef.current);
+
+    failoverTimeoutRef.current = setTimeout(() => {
+      console.log(`[Cinelog Smart Router] Stream mirror ${selectedServer} slow to respond. Auto-cascading...`);
+      handleAutoFailover();
+    }, 4200);
+
+    return () => {
+      if (failoverTimeoutRef.current) clearTimeout(failoverTimeoutRef.current);
+    };
+  }, [selectedServer, isIframeLoading, hasRealNativeStream, handleAutoFailover]);
 
   // Dynamic fetcher for specific season episodes from TMDB
   const fetchSeasonEpisodes = useCallback(async (sNum: number) => {
-    if (!content.tmdbId) return;
+    if (!effectiveTmdbId) return;
     const cached = seasonEpisodesCache[sNum];
     if (cached && cached.length > 0 && cached[0]?.title !== `Episode 1`) {
       return;
     }
     setFetchingSeason(true);
     try {
-      const res = await fetch(`/api/tmdb/season?id=${content.tmdbId}&season=${sNum}`);
+      const res = await fetch(`/api/tmdb/season?id=${effectiveTmdbId}&season=${sNum}`);
       if (res.ok) {
         const data = await res.json();
         if (data.episodes && data.episodes.length > 0) {
@@ -485,14 +499,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     } finally {
       setFetchingSeason(false);
     }
-  }, [content.tmdbId, seasonEpisodesCache]);
+  }, [effectiveTmdbId, seasonEpisodesCache]);
 
   // When drawer opens or selected drawer season changes, ensure episodes are loaded
   useEffect(() => {
-    if (showEpisodesDrawer && content.tmdbId && isSeries) {
+    if (showEpisodesDrawer && effectiveTmdbId && isSeries) {
       fetchSeasonEpisodes(selectedDrawerSeason);
     }
-  }, [showEpisodesDrawer, selectedDrawerSeason, content.tmdbId, isSeries, fetchSeasonEpisodes]);
+  }, [showEpisodesDrawer, selectedDrawerSeason, effectiveTmdbId, isSeries, fetchSeasonEpisodes]);
 
   // Always auto-scroll to the current playing episode when drawer opens or updates
   useEffect(() => {
@@ -512,7 +526,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setActiveSeasonNumber(ep.seasonNumber);
     setActiveEpisodeNumber(ep.episodeNumber);
     setIsIframeLoading(true);
+    setIsAutoRouting(true);
+    setUserManuallySelectedServer(false);
+    setAutoFailoverIndex(0);
     setShowEpisodesDrawer(false);
+    triggerHud(`Loading S${ep.seasonNumber} E${ep.episodeNumber}...`);
     if (onSelectEpisode) {
       onSelectEpisode(ep);
     }
@@ -543,12 +561,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   // Auto-load TMDB Recommendations for More Like This tab
   useEffect(() => {
-    if (!content.tmdbId) return;
+    if (!effectiveTmdbId) return;
     let isCancelled = false;
 
     async function loadRecommendations() {
       try {
-        const res = await fetch(`/api/tmdb/details?id=${content.tmdbId}&type=${isSeries ? 'tv' : 'movie'}`);
+        const res = await fetch(`/api/tmdb/details?id=${effectiveTmdbId}&type=${isSeries ? 'tv' : 'movie'}`);
         if (res.ok && !isCancelled) {
           const data = await res.json();
           if (data.recommendations && data.recommendations.length > 0) {
@@ -564,7 +582,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, [content.tmdbId, isSeries]);
+  }, [effectiveTmdbId, isSeries]);
 
   // Reset binge dismiss when active episode changes
   useEffect(() => {
@@ -627,94 +645,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return () => cancelAnimationFrame(animId);
   }, [selectedServer, ambientGlow, isPlaying]);
 
-  const getEmbedUrl = (srv: ServerType): string => {
-    if (!content.tmdbId) return content.trailerUrl || '';
-    switch (srv) {
-      case 'aurora':
-      case 'comet':
-        return isSeries 
-          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
-          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
-      case 'vidsrc_su':
-      case 'vidsrc_me':
-      case 'quantum':
-      case 'vidsrc':
-      case 'glow':
-        return isSeries 
-          ? `https://vidsrc.su/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.su/embed/movie/${content.tmdbId}`;
-      case 'vidsrc_pm':
-      case 'aether':
-      case 'omega':
-      case 'mirage':
-        return isSeries 
-          ? `https://vidsrc.pm/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.pm/embed/movie/${content.tmdbId}`;
-      case 'autoembed':
-      case 'apex':
-      case 'flux':
-      case 'horizon':
-      case 'zeta':
-        return isSeries 
-          ? `https://autoembed.co/tv/tmdb/${content.tmdbId}-${seasonNum}-${episodeNum}` 
-          : `https://autoembed.co/movie/tmdb/${content.tmdbId}`;
-      case 'videasy':
-      case 'nova':
-        return isSeries 
-          ? `https://player.videasy.to/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://player.videasy.to/movie/${content.tmdbId}`;
-      case 'vidsrc_io':
-      case 'rivestream':
-      case 'eclipse':
-      case 'iris':
-        return isSeries
-          ? `https://vidsrc.io/embed/tv?tmdb=${content.tmdbId}&season=${seasonNum}&episode=${episodeNum}`
-          : `https://vidsrc.io/embed/movie?tmdb=${content.tmdbId}`;
-      case 'vidjoy':
-      case 'vortex':
-      case 'quill':
-        return isSeries 
-          ? `https://vidjoy.pro/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidjoy.pro/embed/movie/${content.tmdbId}`;
-      case 'twoembed':
-      case 'titan':
-      case 'blaze':
-      case 'multiembed':
-      case 'sol':
-      case 'haze':
-      case 'pulse':
-        return isSeries 
-          ? `https://www.2embed.cc/embedtv/${content.tmdbId}&s=${seasonNum}&e=${episodeNum}` 
-          : `https://www.2embed.cc/embed/${content.tmdbId}`;
-      case 'vidsrc_to':
-      case 'zenith':
-      case 'vega':
-        return isSeries 
-          ? `https://vidsrc.to/embed/tv/${content.tmdbId}/${seasonNum}/${episodeNum}` 
-          : `https://vidsrc.to/embed/movie/${content.tmdbId}`;
-      case 'hls':
-        return isSeries 
-          ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
-          : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
-      case 'trailer':
-        return content.trailerUrl || '';
-      default:
-        // Universal fallback to VidLink Pro VIP node whenever tmdbId is present
-        if (content.tmdbId) {
-          return isSeries 
-            ? `https://vidlink.pro/tv/${content.tmdbId}/${seasonNum}/${episodeNum}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true` 
-            : `https://vidlink.pro/movie/${content.tmdbId}?primaryColor=e50914&secondaryColor=18181b&iconColor=e50914&autoplay=true`;
-        }
-        return content.trailerUrl || '';
-    }
-  };
+  const getEmbedUrl = useCallback((srv: ServerType): string => {
+    return buildMirrorEmbedUrl(
+      srv,
+      effectiveTmdbId || 0,
+      isSeries,
+      seasonNum,
+      episodeNum,
+      content.trailerUrl
+    );
+  }, [effectiveTmdbId, isSeries, seasonNum, episodeNum, content.trailerUrl]);
 
   const activeEmbedUrl = getEmbedUrl(selectedServer);
 
   const handleServerChange = (newServer: ServerType) => {
     const normalized = normalizeServer(newServer);
+    setUserManuallySelectedServer(true);
+    setIsAutoRouting(false);
     setIsIframeLoading(true);
     setShowServerDropdown(false);
+    if (failoverTimeoutRef.current) clearTimeout(failoverTimeoutRef.current);
     if (normalized !== 'hls' && videoRef.current) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -1278,13 +1228,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       )}
 
       {/* Media Player Layer: External Mirror / Authentic 4K Stream vs Direct HLS Player */}
-      {(selectedServer !== 'hls' || (!hasRealNativeStream && !!content.tmdbId)) ? (
+      {(selectedServer !== 'hls' || (!hasRealNativeStream && !!effectiveTmdbId)) ? (
         <div className="absolute inset-0 w-full h-full bg-black z-10 flex items-center justify-center">
           {activeEmbedUrl ? (
             <>
               {/* Ultra-Fast Seamless Loading Curtain (No AI Slop, Smooth Perceived Speed) */}
               {isIframeLoading && (
-                <div className="absolute inset-0 z-20 bg-background flex flex-col items-center justify-center space-y-4 pointer-events-none transition-opacity duration-300">
+                <div className="absolute inset-0 z-20 bg-background/90 flex flex-col items-center justify-center space-y-4 pointer-events-none transition-opacity duration-300">
                   <div className="relative flex items-center justify-center">
                     <div className="w-16 h-16 rounded-full border-2 border-cinelog-primary/20 border-t-cinelog-primary animate-spin" />
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -1294,44 +1244,50 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <div className="text-center space-y-1.5 px-4">
                     <div className="text-sm font-bold text-white flex items-center justify-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Connecting to {selectedServer === 'hls' ? 'Cinelog Native 4K Engine' : currentServerNode.name}</span>
+                      <span>{isAutoRouting ? 'Auto-Selecting Best Streaming Node...' : `Connecting to ${currentServerNode.name}`}</span>
                       <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md border ${currentServerNode.badgeColor}`}>
-                        {selectedServer === 'hls' ? '4K HDR' : currentServerNode.tag}
+                        {currentServerNode.tag}
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 max-w-sm">
-                      {selectedServer === 'hls' ? 'Ultra-High Bitrate Authenticated 4K Stream (Zero Ads)' : currentServerNode.description} · Ping {currentServerNode.latency}
+                      {currentServerNode.description} · Ping {currentServerNode.latency}
                     </p>
                   </div>
                 </div>
               )}
               <iframe
+                key={`${selectedServer}-${seasonNum}-${episodeNum}`}
                 src={activeEmbedUrl}
-                onLoad={() => setIsIframeLoading(false)}
-                className={`w-full h-full border-0 absolute inset-0 z-10 transition-opacity duration-300 ${
-                  isIframeLoading ? 'opacity-0' : 'opacity-100'
-                }`}
+                onLoad={() => {
+                  setIsIframeLoading(false);
+                  setIsAutoRouting(false);
+                  if (failoverTimeoutRef.current) clearTimeout(failoverTimeoutRef.current);
+                }}
+                onError={() => {
+                  handleAutoFailover();
+                }}
+                className="w-full h-full border-0 absolute inset-0 z-10"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                 allowFullScreen
-                referrerPolicy="origin"
+                referrerPolicy="no-referrer-when-downgrade"
                 title={content.title}
               />
             </>
           ) : (
             <div className="text-center p-6 text-gray-400 z-20 max-w-sm space-y-3">
-              <p className="text-sm font-medium">No stream source found on this server mirror.</p>
+              <p className="text-sm font-medium">Resolving optimal stream server...</p>
               <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleServerChange('vidsrc_su')}
+                  className="px-4 py-2 bg-cinelog-primary text-white rounded-xl text-xs font-bold hover:bg-cinelog-primary/90 transition-colors shadow-lg"
+                >
+                  Connect to Vidsrc Ultra 4K
+                </button>
                 <button
                   onClick={() => handleServerChange('aurora')}
                   className="px-4 py-2 bg-surface-200 hover:bg-surface-300 text-white rounded-xl text-xs font-bold transition-colors shadow-md"
                 >
-                  Switch to Aurora VIP (Zero Ads)
-                </button>
-                <button
-                  onClick={() => handleServerChange('vidsrc_me')}
-                  className="px-4 py-2 bg-cinelog-primary text-white rounded-xl text-xs font-bold hover:bg-cinelog-primary/90 transition-colors shadow-lg"
-                >
-                  Switch to Vidsrc Master
+                  Connect to Aurora VIP (Zero Ads)
                 </button>
               </div>
             </div>
@@ -1496,12 +1452,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${showServerDropdown ? 'rotate-180 text-white' : ''}`} />
           </button>
 
-          {/* Micro hint below button */}
-          <div className="text-[10px] text-gray-400 hidden md:flex items-center gap-1 mt-1 font-medium tracking-tight">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span>Server buffering? Switch nodes above</span>
-          </div>
-
           {/* Custom Glass Dropdown Popover */}
           {showServerDropdown && (
             <div className="absolute top-full mt-2.5 w-80 sm:w-96 max-h-[75vh] overflow-y-auto rounded-2xl bg-surface-100/95 border border-white/20 backdrop-blur-2xl shadow-2xl p-2.5 space-y-1.5 z-50 animate-scale-in hide-scrollbar">
@@ -1521,7 +1471,47 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
               {/* Server List */}
               <div className="space-y-1 max-h-[48vh] overflow-y-auto pr-1 hide-scrollbar">
-                {CINELOG_SERVERS.filter(s => s.id === 'hls' || !!content.tmdbId).map((node) => {
+                {/* Auto Best Server Engine Option */}
+                <button
+                  onClick={() => {
+                    setUserManuallySelectedServer(false);
+                    setIsAutoRouting(true);
+                    setIsIframeLoading(true);
+                    setShowServerDropdown(false);
+                    handleAutoFailover();
+                    triggerHud('Auto Smart Router: Active');
+                  }}
+                  className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group ${
+                    !userManuallySelectedServer
+                      ? 'bg-emerald-500/15 border border-emerald-500/40 text-white shadow-glow-emerald'
+                      : 'hover:bg-surface-200/70 border border-transparent text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-2 h-2 rounded-full ${!userManuallySelectedServer ? 'bg-emerald-400 ring-4 ring-emerald-400/20 animate-pulse' : 'bg-gray-600 group-hover:bg-gray-400'}`} />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold truncate">Auto Best Server</span>
+                        <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/30">
+                          Recommended
+                        </span>
+                        <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-0.5">
+                          <ShieldCheck className="w-2.5 h-2.5" /> Failover
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-gray-400 truncate">Automatically probes and routes to the fastest streaming mirror</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pl-2 flex-shrink-0">
+                    <span className="text-[10px] font-mono font-medium text-emerald-400">
+                      Dynamic
+                    </span>
+                    {!userManuallySelectedServer && <Check className="w-4 h-4 text-emerald-400" />}
+                  </div>
+                </button>
+
+                {CINELOG_SERVERS.filter(s => s.id === 'hls' || !!effectiveTmdbId).map((node) => {
                   const isActive = selectedServer === node.id;
                   return (
                     <button
