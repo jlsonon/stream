@@ -291,6 +291,16 @@ class CatalogService {
     const updated = exists ? current.filter(id => id !== contentId) : [...current, contentId];
     map[profileId] = updated;
     this.setLocal(STORAGE_KEYS.MY_LIST, map);
+
+    // Sync to server persistence store
+    if (typeof window !== 'undefined') {
+      fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ myList: map }),
+      }).catch(() => {});
+    }
+
     return !exists;
   }
 
@@ -307,6 +317,15 @@ class CatalogService {
     const key = `${progress.profileId}_${progress.contentId}`;
     map[key] = progress;
     this.setLocal(STORAGE_KEYS.PROGRESS, map);
+
+    // Sync to server persistence store
+    if (typeof window !== 'undefined') {
+      fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watchProgress: { [key]: progress } }),
+      }).catch(() => {});
+    }
   }
 
   getAllContinueWatching(profileId: string): WatchProgress[] {
@@ -314,6 +333,29 @@ class CatalogService {
     return Object.values(map)
       .filter(p => p.profileId === profileId && !p.completed && p.progressSeconds > 10)
       .sort((a, b) => toTimeMs(b.updatedAt) - toTimeMs(a.updatedAt));
+  }
+
+  // Background server sync for cross-device progress and watchlist hydration
+  async syncWithServer(userId: string = 'default-user'): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      const res = await fetch(`/api/user/sync?userId=${encodeURIComponent(userId)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          if (json.data.myList) {
+            const localList = this.getLocal<Record<string, string[]>>(STORAGE_KEYS.MY_LIST, {});
+            this.setLocal(STORAGE_KEYS.MY_LIST, { ...localList, ...json.data.myList });
+          }
+          if (json.data.watchProgress) {
+            const localProgress = this.getLocal<Record<string, WatchProgress>>(STORAGE_KEYS.PROGRESS, {});
+            this.setLocal(STORAGE_KEYS.PROGRESS, { ...localProgress, ...json.data.watchProgress });
+          }
+        }
+      }
+    } catch {
+      // Offline fallback
+    }
   }
 
   // --- PAYMENTS & SUBSCRIPTIONS ---

@@ -8,6 +8,7 @@ async function fetchHttp(url, options = {}) {
   const res = await fetch(url, {
     method: options.method || 'GET',
     headers: options.headers || {},
+    body: options.body,
     signal: AbortSignal.timeout(timeoutMs)
   });
   const body = await res.text();
@@ -219,6 +220,83 @@ async function runTestSuite() {
     assert(streamData.proShield?.popupSuppression === true, 'Pro Shield Anti-Redirect & Popup Firewall active');
   } catch (err) {
     assert(false, `Stream Resolver test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 9: STREAM REVERSE PROXY & M3U8 PLAYLIST REWRITER
+  // ----------------------------------------------------
+  console.log('\n[RUN] [9/11] Testing Stream Reverse Proxy & M3U8 Playlist Rewriter...');
+  try {
+    const targetM3u8 = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+    const proxyRes = await fetchHttp(`${BASE_URL}/api/stream/proxy?url=${encodeURIComponent(targetM3u8)}`);
+    assert(proxyRes.status === 200, `Stream Proxy returned HTTP 200`);
+    assert(proxyRes.headers['access-control-allow-origin'] === '*', 'Stream Proxy injects wildcard CORS header');
+    assert(proxyRes.body.includes('#EXTM3U'), 'Stream Proxy passes through playlist contents');
+
+    const m3u8Res = await fetchHttp(`${BASE_URL}/api/stream/m3u8-proxy?url=${encodeURIComponent(targetM3u8)}`);
+    assert(m3u8Res.status === 200, `M3U8 Playlist Rewriter returned HTTP 200`);
+    assert(m3u8Res.body.includes('/api/stream/'), 'M3U8 Rewriter successfully routes internal variant links through proxy');
+  } catch (err) {
+    assert(false, `Stream Proxy test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 10: SUBTITLES SEARCH & DIRECT STREAM RESOLVER
+  // ----------------------------------------------------
+  console.log('\n[RUN] [10/11] Testing Subtitles Engine & Direct Resolver...');
+  try {
+    const subRes = await fetchHttp(`${BASE_URL}/api/stream/subtitles?id=1396&type=tv&season=1&episode=1`);
+    assert(subRes.status === 200, 'Subtitles endpoint returned HTTP 200');
+    const subData = JSON.parse(subRes.body);
+    assert(subData.success === true, 'Subtitles engine reports success: true');
+    assert(subData.subtitles && subData.subtitles.length > 0, `Subtitles engine returned ${subData.subtitles?.length} language tracks`);
+
+    const directRes = await fetchHttp(`${BASE_URL}/api/stream/direct?id=series-breaking-bad-1396&type=tv&season=1&episode=1`);
+    assert(directRes.status === 200, 'Direct Stream Resolver returned HTTP 200');
+    const directData = JSON.parse(directRes.body);
+    assert(directData.success === true, 'Direct Stream Resolver reports success: true');
+    assert(directData.recommendedServer === 'aurora', 'Direct Stream Resolver prioritizes clean zero-ad mirror');
+  } catch (err) {
+    assert(false, `Subtitles/Direct Resolver test failed: ${err.message}`);
+  }
+
+  // ----------------------------------------------------
+  // TEST 11: SERVER PERSISTENCE & CROSS-DEVICE SYNC
+  // ----------------------------------------------------
+  console.log('\n[RUN] [11/11] Testing Server State Persistence & Cross-Device Sync...');
+  try {
+    const syncGetRes = await fetchHttp(`${BASE_URL}/api/user/sync?userId=automated-test-user`);
+    assert(syncGetRes.status === 200, 'User Sync GET endpoint returned HTTP 200');
+    const syncGetData = JSON.parse(syncGetRes.body);
+    assert(syncGetData.success === true, 'User Sync GET reports success: true');
+
+    const testPayload = {
+      userId: 'automated-test-user',
+      watchProgress: {
+        'profile-test_series-breaking-bad': {
+          contentId: 'series-breaking-bad',
+          profileId: 'profile-test',
+          progressSeconds: 742,
+          totalSeconds: 3480,
+          completed: false,
+        },
+      },
+    };
+
+    const syncPostRes = await fetchHttp(`${BASE_URL}/api/user/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(testPayload),
+    });
+    assert(syncPostRes.status === 200, 'User Sync POST endpoint returned HTTP 200');
+    const syncPostData = JSON.parse(syncPostRes.body);
+    assert(syncPostData.success === true, 'User Sync POST reports success: true');
+    assert(
+      syncPostData.data.watchProgress['profile-test_series-breaking-bad'].progressSeconds === 742,
+      'User Sync successfully persisted progress timestamp (742s) on disk'
+    );
+  } catch (err) {
+    assert(false, `User Sync test failed: ${err.message}`);
   }
 
   console.log('\n====================================================');

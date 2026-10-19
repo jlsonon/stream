@@ -44,6 +44,7 @@ export default function HomePage() {
 
   const loadData = async () => {
     setLoading(true);
+    await catalogService.syncWithServer();
     const items = await catalogService.getAllContent();
     setAllContent(items);
 

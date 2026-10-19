@@ -47,7 +47,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [activeProfile, setActiveProfile] = useState<Profile | null>(DEFAULT_PROFILES[0]);
   const isLoadedRef = useRef(false);
 
-  // Restore cached profiles after mount to prevent SSR hydration mismatch
+  // Restore cached profiles after mount and sync with server
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -65,15 +65,39 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
         console.warn('Could not read cached profiles', e);
       }
       isLoadedRef.current = true;
+
+      // Background sync from server persistence store
+      const userId = user?.uid || 'default-user';
+      fetch(`/api/user/sync?userId=${encodeURIComponent(userId)}`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data?.profiles && Array.isArray(res.data.profiles) && res.data.profiles.length > 0) {
+            setProfiles(res.data.profiles);
+            const cachedId = localStorage.getItem('cinelog_active_profile_id');
+            const found = res.data.profiles.find((p: Profile) => p.id === cachedId);
+            setActiveProfile(found || res.data.profiles[0]);
+          }
+        })
+        .catch(() => {
+          // Offline / local fallback
+        });
     }
-  }, []);
+  }, [user?.uid]);
 
   useEffect(() => {
     if (isLoadedRef.current && typeof window !== 'undefined') {
       localStorage.setItem('cinelog_user_profiles', JSON.stringify(profiles));
       localStorage.setItem('cinemix_user_profiles', JSON.stringify(profiles));
+
+      // Push sync to server store
+      const userId = user?.uid || 'default-user';
+      fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, profiles }),
+      }).catch(() => {});
     }
-  }, [profiles]);
+  }, [profiles, user?.uid]);
 
   useEffect(() => {
     if (isLoadedRef.current && activeProfile && typeof window !== 'undefined') {
